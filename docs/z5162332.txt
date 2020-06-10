@@ -1,0 +1,8 @@
+Week 1
+Tuesday   - Group formed during first lab. We spent most of the lab throwing possible project ideas around while setting up Jira and checking everyone was set up. Madhav was established as the SCRUM master. Continued discussing for a few hours after the lab finished and decided on a project - an audio editor. We also decided on a web app, probably using a MERN stack, alongside the WebAudio API. We decided to have meetings every Friday at 2:30pm, planning to use the upcoming Friday to write up and send the preproposal.
+Friday    - On Friday, we completed the initial preproposal, as well as a template we can use for the report delivarables. The preproposal was emailed to Rachid. We plan to start the proposal in the next meeting, assuming approval of the project.
+
+Week 2
+Monday    - We had an impromptu meeting to discuss Rachid's feedback on our preproposal, and to review it before resending it.
+Tuesday   - Approval was given to the revised preproposal during the lab. We continued discussion on the proposal plans, and wrote up a basic background description together. Due to sleep deprivation, we left the remainder to the meeting.
+Wednesday - I quickly set up the GitHub repo for our project.
