@@ -7,3 +7,4 @@ Sunday -  Feedback was received from Rachid on the project. We saw that there wa
 Monday -  Planned meeting again, and this time it did happen. Draft proposal was fleshed out a lot more clearly. Better objectives were described. I redid my description to correspond to our new objectives. The team researched carefully on issues including drawbacks of preexisting sound editors, and minor things we forgot e.g. no administrator.
 Tuesday - Approval was given for the project. Polished up description further. Team members were understandably tired so we agreed to continue this later.
 Wednesday - GitHub access granted. Set it up, and uploaded journal
+Friday -  User stories with acceptance criteria were made. I wrote three user stories and checked over all of them.
