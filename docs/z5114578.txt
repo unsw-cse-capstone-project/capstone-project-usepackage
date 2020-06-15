@@ -8,3 +8,6 @@ Monday -  Planned meeting again, and this time it did happen. Draft proposal was
 Tuesday - Approval was given for the project. Polished up description further. Team members were understandably tired so we agreed to continue this later.
 Wednesday - GitHub access granted. Set it up, and uploaded journal
 Friday -  User stories with acceptance criteria were made. I wrote three user stories and checked over all of them.
+
+Week 3
+Monday -  Estimated priorities for the user stories for the team.
