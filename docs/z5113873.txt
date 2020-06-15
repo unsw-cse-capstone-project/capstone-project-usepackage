@@ -1,0 +1,22 @@
+Week 1:
+Tuesday:
+Formed groups -> Joined the usepackage group
+Did some research on what an interesting project would be.
+Helped setting up the JIRA page and assisted the scrum master with any problems.
+Wednesday:
+Learned the basics of javascript functions.
+Thursday:
+Did some testing with the audio API to see what is possible with online audio editing.
+Friday:
+Planning on using express library on top of node, so taught myself the basics of routing on express.
+
+Week 2:
+Tuesday:
+Discussed some issues surrounding our pre proposal, and explored current audio editors summing their pros and cons adding them on our overleaf page.
+Wednesday:
+Joined github classroom
+Friday:
+Meeting was held around the topic of user and epic stories. I wrote 2 user stories and acceptance criteria for those 2 and assisted
+
+Week 3:
+Tuesday:
