@@ -1,0 +1,22 @@
+{
+  "name": "usepackage",
+  "version": "1.0.0",
+  "description": "An audio editor that will have collaboration features.",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/unsw-cse-capstone-project/capstone-project-usepackage.git"
+  },
+  "keywords": [
+    "screaming_goat"
+  ],
+  "author": "Rajiv, Ethan, Rui, Simon, Madhav",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/unsw-cse-capstone-project/capstone-project-usepackage/issues"
+  },
+  "homepage": "https://github.com/unsw-cse-capstone-project/capstone-project-usepackage#readme"
+}
