@@ -4,7 +4,8 @@
   "description": "An audio editor that will have collaboration features.",
   "main": "index.js",
   "scripts": {
-    "test": "test"
+    "test": "test",
+    "start": "node ./server.js"
   },
   "repository": {
     "type": "git",
@@ -18,5 +19,8 @@
   "bugs": {
     "url": "https://github.com/unsw-cse-capstone-project/capstone-project-usepackage/issues"
   },
-  "homepage": "https://github.com/unsw-cse-capstone-project/capstone-project-usepackage#readme"
+  "homepage": "https://github.com/unsw-cse-capstone-project/capstone-project-usepackage#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }
