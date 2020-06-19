@@ -4,6 +4,7 @@ const nodeExternals = require('webpack-node-externals')
 const HtmlWebPackPlugin = require("html-webpack-plugin")
 module.exports = {
   entry: {
+    main: './index.js',
     server: './server.js',
   },
   output: {
@@ -17,7 +18,7 @@ module.exports = {
     __dirname: false,   // if you don't put this is, __dirname
     __filename: false,  // and __filename return blank or /
   },
-  externals: [nodeExternals()], // Need this to avoid error when working with Express
+  //externals: [nodeExternals()], // Need this to avoid error when working with Express
   module: {
     rules: [
       {
@@ -25,7 +26,10 @@ module.exports = {
         test: /\.js$/,
         exclude: /node_modules/,
         use: {
-          loader: "babel-loader"
+          loader: "babel-loader",
+          options: {
+            presets: ['@babel/preset-env']
+          }
         }
       },
       {

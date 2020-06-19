@@ -1,5 +1,5 @@
-const express = require('express');
-const path = require('path');
+import path from 'path'
+import express from 'express'
 
 const app = express();
 const MAINFILE = path.join(__dirname, "index.html");
