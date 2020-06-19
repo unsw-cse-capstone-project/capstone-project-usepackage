@@ -7,7 +7,7 @@
     "build": "rm -rf dist && webpack --mode development",
     "start": "node ./dist/server.js"
   },
-"repository": {
+  "repository": {
     "type": "git",
     "url": "git+https://github.com/unsw-cse-capstone-project/capstone-project-usepackage.git"
   },
@@ -21,14 +21,19 @@
   },
   "homepage": "https://github.com/unsw-cse-capstone-project/capstone-project-usepackage#readme",
   "dependencies": {
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1"
   },
   "devDependencies": {
     "@babel/core": "^7.10.2",
     "@babel/preset-env": "^7.10.2",
     "babel-loader": "^8.1.0",
+    "css-loader": "^3.6.0",
+    "file-loader": "^6.0.0",
     "html-loader": "^1.1.0",
     "html-webpack-plugin": "^4.3.0",
+    "style-loader": "^1.2.1",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.11",
     "webpack-node-externals": "^1.7.2"
