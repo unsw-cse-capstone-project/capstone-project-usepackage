@@ -1,6 +1,6 @@
 # Screaming Goat audio application
 
-##Instructions for compilation
+## Instructions for compilation
 
 * Change directory to test
 * Run 'npm run-script build'
