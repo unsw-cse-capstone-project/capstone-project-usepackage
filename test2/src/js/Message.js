@@ -1,11 +1,11 @@
 import React from 'react'
+import Button from 'react-bootstrap/Button'; 
 
 const Message = () => {
   return (
     <div className="content">
-      <h1>Rexpack</h1>
-      <p className="description">React, Express, and Webpack Boilerplate Application</p>
-      <div className="awful-selfie"></div>
+      <h1>Screaming goat</h1>
+      <Button variant="outline-primary">Primary</Button>
     </div>
   )
 }
