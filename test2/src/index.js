@@ -1,11 +1,18 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import Message from './js/Message'
+import Navbar from './js/Topnav'
+import Container from './js/Container'
+import './img/favicon.ico';
 
 import './css/style.css'
 
 ReactDOM.render(
-  <Message />,
+  <Navbar name="Screaming Goat" />,
+  document.getElementById('nav-bar') // eslint-disable-line no-undef
+)
+
+ReactDOM.render(
+  <Container />,
   document.getElementById('react-container') // eslint-disable-line no-undef
 )
 

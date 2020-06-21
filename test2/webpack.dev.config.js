@@ -48,8 +48,9 @@ module.exports = {
         use: [ 'style-loader', 'css-loader' ]
       },
       {
-       test: /\.(png|svg|jpg|gif)$/,
+       test: /\.(png|svg|jpg|gif|ico)$/,
        use: ['file-loader']
+       //loader: 'file?name=[name].[ext]'
       }
     ]
   },
@@ -57,6 +58,7 @@ module.exports = {
     new HtmlWebPackPlugin({
       template: "./src/html/index.html",
       filename: "./index.html",
+      favicon: './src/img/favicon.ico',
       excludeChunks: [ 'server' ]
     }),
     new webpack.HotModuleReplacementPlugin(),
