@@ -26,7 +26,7 @@ const SideMenu = (props) => {
         );
     })
     return (
-    <div className="col-md-2 d-none d-md-block bg-light sidebar">
+    <div className="col-md-2 col-lg-5 d-none d-md-block bg-light sidebar">
         <div className="sidebar-sticky">
             <ul className="flex-column">
                 {menuItems}

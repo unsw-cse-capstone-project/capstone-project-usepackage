@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import Navbar from './js/Topnav'
-import Container from './js/Container'
+import Navbar from './js/Topnav.jsx'
+import Container from './js/Container.jsx'
 import './img/favicon.ico';
 
 import './css/style.css'
