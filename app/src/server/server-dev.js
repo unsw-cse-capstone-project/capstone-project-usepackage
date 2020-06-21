@@ -6,26 +6,26 @@ import webpackHotMiddleware from 'webpack-hot-middleware'
 import config from '../../webpack.dev.config.js'
 
 const app = express(),
-            DIST_DIR = __dirname,
-            HTML_FILE = path.join(DIST_DIR, 'index.html'),
-            FAVICON = path.join(DIST_DIR, 'favicon.ico'),
-            compiler = webpack(config)
+    DIST_DIR = __dirname,
+    HTML_FILE = path.join(DIST_DIR, 'index.html'),
+    FAVICON = path.join(DIST_DIR, 'favicon.ico'),
+    compiler = webpack(config)
 
 app.use(webpackDevMiddleware(compiler, {
-  publicPath: config.output.publicPath
+    publicPath: config.output.publicPath
 }))
 
 app.use(webpackHotMiddleware(compiler))
 
 app.get('/', (req, res, next) => {
-  compiler.outputFileSystem.readFile(HTML_FILE, (err, result) => {
-  if (err) {
-    return next(err)
-  }
-  res.set('content-type', 'text/html')
-  res.send(result)
-  res.end()
-  })
+    compiler.outputFileSystem.readFile(HTML_FILE, (err, result) => {
+        if (err) {
+            return next(err)
+        }
+        res.set('content-type', 'text/html')
+        res.send(result)
+        res.end()
+    })
 })
 
 // app.get('/favicon.ico', (req, res) => {
