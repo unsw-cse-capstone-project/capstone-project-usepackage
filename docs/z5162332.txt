@@ -11,3 +11,4 @@ Friday    - We completed the user stories with acceptance criteria, and agreed t
 Week 3
 Tuesday   - We finalised the user stories after the lab. Since Jira doesn't allow you to reset the counter for user stories, we decided to leave adding them to Jira until we were completely sure. Since Madhav wasn't available and missed the lab, we left the story points until later.
 Friday    - We made some last changes to the user stories and added them to Jira. We created a table mapping objectives to user stories, and made tentative sprints. The first sprint was set to end the weekend before the first progressive demo, and includes all of the high priority user stories.
+Sunday    - We completed the proposal and submitted it. I specifically transferred the interface diagrams to TikZ, proofread the document, and helped write the comparison to current web apps.
