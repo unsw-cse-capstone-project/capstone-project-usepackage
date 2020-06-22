@@ -4,11 +4,11 @@ import webpack from 'webpack'
 import webpackDevMiddleware from 'webpack-dev-middleware'
 import webpackHotMiddleware from 'webpack-hot-middleware'
 import config from '../../webpack.dev.config.js'
+import fs from 'fs'
 
 const app = express(),
     DIST_DIR = __dirname,
     HTML_FILE = path.join(DIST_DIR, 'index.html'),
-    FAVICON = path.join(DIST_DIR, 'favicon.ico'),
     compiler = webpack(config)
 
 app.use(webpackDevMiddleware(compiler, {
@@ -17,32 +17,60 @@ app.use(webpackDevMiddleware(compiler, {
 
 app.use(webpackHotMiddleware(compiler))
 
-app.get('/', (req, res, next) => {
-    compiler.outputFileSystem.readFile(HTML_FILE, (err, result) => {
-        if (err) {
-            return next(err)
-        }
-        res.set('content-type', 'text/html')
-        res.send(result)
-        res.end()
-    })
+app.use(express.static(DIST_DIR))
+
+app.get('*', (req, res, next) => {
+    // compiler.outputFileSystem.readFile(HTML_FILE, (err, result) => {
+    //     if (err) {
+    //         console.log(req.url)
+    //         return next(err)
+    //     }
+    //     res.set('content-type', 'text/html')
+    //     res.send(result)
+    //     res.end()
+    // })
+    res.sendFile(HTML_FILE)
 })
 
-// app.get('/favicon.ico', (req, res) => {
-//   compiler.outputFileSystem.readFile(FAVICON, (err, result) => {
-//     if (err) {
-//       return next(err)
-//     }
-//     res.set('content-type', 'image/x-icon')
-//     res.send(result)
-//     res.end()
+// app.get('/Home', (req, res, next) => {
+//     compiler.outputFileSystem.readFile(HTML_FILE, (err, result) => {
+//         if (err) {
+//             console.log("An error is being thrown for some reason")
+//             return next(err)
+//         }
+//         res.set('content-type', 'text/html')
+//         res.send(result)
+//         res.end()
 //     })
 // })
+
+
+// app.get('/Register', (req, res, next) => {
+//     compiler.outputFileSystem.readFile(HTML_FILE, (err, result) => {
+//         if (err) {
+//             return next(err)
+//         }
+//         res.set('content-type', 'text/html')
+//         res.send(result)
+//         res.end()
+//     })
+// })
+
+// app.get('/Login', (req, res, next) => {
+//     compiler.outputFileSystem.readFile(HTML_FILE, (err, result) => {
+//         if (err) {
+//             return next(err)
+//         }
+//         res.set('content-type', 'text/html')
+//         res.send(result)
+//         res.end()
+//     })
+// })
+
 
 const PORT = process.env.PORT || 8080
 
 app.listen(PORT, () => {
     console.log(`App listening to ${PORT}....`)
     console.log('Press Ctrl+C to quit.')
-    console.log(DIST_DIR)
 })

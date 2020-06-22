@@ -1,13 +1,12 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import Navbar from './js/Topnav.jsx'
+import Topnav from './js/Topnav.jsx'
 import Container from './js/Container.jsx'
 import './img/favicon.ico';
-
 import './css/style.css'
 
 ReactDOM.render(
-  <Navbar name="Screaming Goat" />,
+  <Topnav name="Screaming Goat" />,
   document.getElementById('nav-bar') // eslint-disable-line no-undef
 )
 

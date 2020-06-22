@@ -1,16 +1,17 @@
 import React from 'react'
 import PropTypes from 'prop-types';
+import {Navbar} from 'react-bootstrap';
 
-const Navbar = (props) => {
+const Topnav = (props) => {
     return (
-    <nav className="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
-        <a className="navbar-brand col-sm-3 col-md-2 mr-0" href="/">{props.name}</a>
-    </nav>
+        <Navbar bg="dark" variant="dark">
+            <Navbar.Brand href="#home">{props.name}</Navbar.Brand>
+        </Navbar>
     );
 }
 
-Navbar.propTypes = {
+Topnav.propTypes = {
     name: PropTypes.string
 }
 
-export default Navbar
+export default Topnav
