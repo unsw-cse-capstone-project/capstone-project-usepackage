@@ -9,5 +9,12 @@ module.exports = {
         "react": {
             "version": "detect"
         }
+    },
+    "env": {
+        "browser": true,
+        "es6": true
+    },
+    rules: {
+        'no-console': 'off'
     }
 };
