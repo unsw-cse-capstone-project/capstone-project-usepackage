@@ -5,10 +5,10 @@ import ReactDOM from 'react-dom'
 import Topnav from './js/Topnav.jsx'
 import Container from './js/Container.jsx'
 import './img/favicon.ico';
-import './css/style.css' 
+import './css/style.css'
+import {initWorker, runCommand} from './js/converter/converter.js' 
 
-
-
+initWorker();
 
 ReactDOM.render(
   <Topnav name="Screaming Goat" />,

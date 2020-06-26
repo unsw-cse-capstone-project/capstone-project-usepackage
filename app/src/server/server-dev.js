@@ -19,7 +19,7 @@ app.use(webpackHotMiddleware(compiler))
 
 app.use(express.static(DIST_DIR))
 
-app.get('*', (req, res, next) => {
+app.get('/', (req, res, next) => {
     // compiler.outputFileSystem.readFile(HTML_FILE, (err, result) => {
     //     if (err) {
     //         console.log(req.url)
@@ -30,6 +30,14 @@ app.get('*', (req, res, next) => {
     //     res.end()
     // })
     res.sendFile(HTML_FILE)
+})
+
+app.get('/ffmpeg/worker-asm.js', (req, res, next) => {
+    res.sendFile(path.join(DIST_DIR, '../src/js/ffmpeg/worker-asm.js'));
+})
+
+app.get('/ffmpeg/ffmpeg-all-codecs.js', (req, res, next) => {
+    res.sendFile(path.join(DIST_DIR, '../src/js/ffmpeg/ffmpeg-all-codecs.js'));
 })
 
 // app.get('/Home', (req, res, next) => {
