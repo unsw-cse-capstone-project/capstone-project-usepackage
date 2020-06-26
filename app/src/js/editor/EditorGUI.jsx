@@ -18,10 +18,6 @@ export default class EditorGUI extends React.Component {
         };
         this.uploadButtonHandler = this.uploadButtonHandler.bind(this);
         this.uploadFileHandler = this.uploadFileHandler.bind(this);
-        this.gainHandler = this.gainHandler.bind(this);
-        this.playBuffer = this.playBuffer.bind(this);
-        this.stopBuffer = this.stopBuffer.bind(this);
-        this.getData = this.getData.bind(this);
     }
 
     uploadFileHandler(e) {
@@ -41,58 +37,7 @@ export default class EditorGUI extends React.Component {
         const fileInput = document.getElementById("UploadButton");
         fileInput.click();
     }
-
-    getData() {
-        return this.state.files[0].element;
-    }
-
-    playBuffer(e) {
-        const audioElement = this.getData();
-        console.log(this.state.files[0].arrayBuffer, audioElement.duration)
-        const currtime = audioElement.currentTime;
-        if ( audioElement.src === '') {
-            audioElement.src = this.state.files[0].URI;
-        }
-        console.log("currtime: = " + currtime + "\naudioElement.currentTime = " + audioElement.currentTime);
-        // check if context is in suspended state (autoplay policy)
-        // if (audioContext.state === 'suspended') {
-        //     audioContext.resume();
-        // }
-        // console.log(typeof this.state.editorState.URI[0]);
-        //this.visualiserFreq();
-
-        // play or pause track depending on state
-        if (e.target.dataset.playing === 'false') {
-            //audioElement.currentTime = currtime;
-            audioElement.play();
-            e.target.dataset.playing = 'true';
-            e.target.innerText = "⏸️";
-        } else if (e.target.dataset.playing === 'true') {
-            //audioElement.currentTime = currtime;
-            audioElement.pause();
-            e.target.dataset.playing = 'false';
-            e.target.innerText = "▶️";
-        }
-    }
-
-    stopBuffer() {
-        const audioElement = this.getData();
-        console.log('stopping: ' + audioElement.currentTime);
-        audioElement.pause();
-        audioElement.currentTime = 0;
-        const button = document.getElementById("audio-play-pause-button");
-        button.dataset.playing = 'false';
-        button.innerText = "▶️";
-    }
-
-    gainHandler(control, i) {
-        const newFileState = this.state.files;
-        newFileState[0].gain[i].gain.value = control.value;
-        this.setState({
-            files: newFileState
-        });
-    }
-
+    
     render() {
         return (
             <main className="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
