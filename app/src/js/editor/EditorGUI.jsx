@@ -1,3 +1,4 @@
+
 import React from 'react';
 import PropTypes from 'prop-types';
 import InputGroup from 'react-bootstrap/InputGroup';
@@ -41,11 +42,11 @@ export default class EditorGUI extends React.Component {
         const fileInput = document.getElementById("UploadButton");
         fileInput.click();
     }
-    
+
     getData() {
         return this.state.files[0].element;
     }
-    
+
     playBuffer(e) {
         const audioElement = this.getData();
         console.log(this.state.files[0].arrayBuffer, audioElement.duration)
@@ -92,7 +93,7 @@ export default class EditorGUI extends React.Component {
             files: newFileState
         });
     }
-    
+
     render() {
         return (
             <main className="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
@@ -168,4 +169,3 @@ StopButton.propTypes = {
 EditorGUI.propTypes = {
     title: PropTypes.string
 }
-

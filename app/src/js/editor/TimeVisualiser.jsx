@@ -26,7 +26,7 @@ export default class TimeVisualiser extends React.Component {
         this.canvasCtx.lineWidth = 4;
         this.draw();
     }
-    
+
     draw() {
         requestAnimationFrame(this.draw);
 
@@ -50,7 +50,7 @@ export default class TimeVisualiser extends React.Component {
                 <canvas ref={this.ref} width={this.state.width} height={this.state.height}></canvas>
             </div>
         );
-    }  
+    }
 }
 
 TimeVisualiser.propTypes = {
