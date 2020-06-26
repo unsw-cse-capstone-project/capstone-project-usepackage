@@ -126,3 +126,8 @@ const UploadForm = (props) => {
     </InputGroup>
     );
 }
+
+UploadForm.propTypes = {
+    uploadFileHandler: PropTypes.func,
+    uploadButtonHandler: PropTypes.func
+}
