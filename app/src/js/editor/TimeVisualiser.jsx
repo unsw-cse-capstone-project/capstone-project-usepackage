@@ -44,8 +44,13 @@ export default class TimeVisualiser extends React.Component {
         this.canvasCtx.stroke();
     }
 
-    
-    
+    render() {
+        return (
+            <div className="col-3">
+                <canvas ref={this.ref} width={this.state.width} height={this.state.height}></canvas>
+            </div>
+        );
+    }  
 }
 
 TimeVisualiser.propTypes = {
