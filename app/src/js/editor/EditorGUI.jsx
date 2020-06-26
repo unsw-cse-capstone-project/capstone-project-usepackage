@@ -109,3 +109,20 @@ export default class EditorGUI extends React.Component {
         );
     }
 }
+
+const UploadForm = (props) => {
+    return (    
+    <InputGroup>
+        <FormControl
+            className="inputStyle"
+            id="UploadButton"
+            onChange={props.uploadFileHandler}
+            placeholder="Upload File"
+            aria-label="Upload File"
+            type="file"
+            multiple
+        />
+        <Button onClick={props.uploadButtonHandler} variant="outline-secondary">Upload</Button>
+    </InputGroup>
+    );
+}
