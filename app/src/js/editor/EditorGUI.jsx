@@ -1,4 +1,4 @@
-import React from 'react';
+:import React from 'react';
 import PropTypes from 'prop-types';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Button from 'react-bootstrap/Button';
@@ -127,7 +127,45 @@ const UploadForm = (props) => {
     );
 }
 
+const PlayButton = (props) => {
+    return  (
+        <Button
+        id="audio-play-pause-button"
+        className="playpause"
+        data-playing="false"
+        role="switch"
+        aria-checked="false"
+        onClick={props.handler}>
+        ▶️
+    </Button>
+    ); 
+};
+
+const StopButton = (props) => {
+    return (
+        <Button
+        id="audio-stop-button"
+        variant="danger"
+        onClick={props.handler}>
+        ⏹
+        </Button>
+    );
+};
+
 UploadForm.propTypes = {
     uploadFileHandler: PropTypes.func,
     uploadButtonHandler: PropTypes.func
 }
+
+PlayButton.propTypes = {
+    handler: PropTypes.func
+}
+
+StopButton.propTypes = {
+    handler: PropTypes.func
+}
+
+EditorGUI.propTypes = {
+    title: PropTypes.string
+}
+
