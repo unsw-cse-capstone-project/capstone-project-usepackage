@@ -18,7 +18,9 @@ export default class EditorGUI extends React.Component {
         };
         this.uploadButtonHandler = this.uploadButtonHandler.bind(this);
         this.uploadFileHandler = this.uploadFileHandler.bind(this);
+        this.gainHandler = this.gainHandler.bind(this);
         this.playBuffer = this.playBuffer.bind(this);
+        this.stopBuffer = this.stopBuffer.bind(this);
         this.getData = this.getData.bind(this);
     }
 
@@ -71,6 +73,24 @@ export default class EditorGUI extends React.Component {
             e.target.dataset.playing = 'false';
             e.target.innerText = "▶️";
         }
+    }
+
+    stopBuffer() {
+        const audioElement = this.getData();
+        console.log('stopping: ' + audioElement.currentTime);
+        audioElement.pause();
+        audioElement.currentTime = 0;
+        const button = document.getElementById("audio-play-pause-button");
+        button.dataset.playing = 'false';
+        button.innerText = "▶️";
+    }
+
+    gainHandler(control, i) {
+        const newFileState = this.state.files;
+        newFileState[0].gain[i].gain.value = control.value;
+        this.setState({
+            files: newFileState
+        });
     }
     
     render() {
