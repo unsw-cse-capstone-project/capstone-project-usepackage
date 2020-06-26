@@ -12,6 +12,20 @@ export default class TimeVisualiser extends React.Component {
         this.ref = React.createRef();
         this.draw = this.draw.bind(this);
     }
+
+    componentDidMount() {
+        const canvas = this.ref.current;
+        this.canvasCtx = canvas.getContext("2d");
+        const analyser = this.state.analyser;
+        analyser.fftSize = 256;
+        const bufferLength = analyser.frequencyBinCount;
+        this.setState({analyser: analyser});
+        this.dataArray = new Uint8Array(bufferLength);
+        this.canvasCtx.fillStyle = 'black';
+        this.canvasCtx.strokeStyle = 'green';
+        this.canvasCtx.lineWidth = 4;
+        this.draw();
+    }
     
     draw() {
         requestAnimationFrame(this.draw);
@@ -29,6 +43,8 @@ export default class TimeVisualiser extends React.Component {
         this.canvasCtx.lineTo(this.state.width, this.state.height / 2);
         this.canvasCtx.stroke();
     }
+
+    
     
 }
 
