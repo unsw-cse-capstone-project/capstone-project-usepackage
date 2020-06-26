@@ -1,8 +1,0 @@
-#!/bin/sh
-
-if [ -z "$1" ]
-then
-    echo "Please specify the databse to load"
-else
-    mongorestore --host localhost --port 27017 --db "$1" "data/$1" --drop
-fi

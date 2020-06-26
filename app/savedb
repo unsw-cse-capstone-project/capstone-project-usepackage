@@ -1,8 +1,0 @@
-#!/bin/sh
-
-if [ -z "$1" ]
-then
-    echo "Please specify the databse to save"
-else
-    mongodump --host localhost --port 27017 --db "$1" -o "data"
-fi

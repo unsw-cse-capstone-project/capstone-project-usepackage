@@ -2,10 +2,15 @@ ul li {
     list-style: none;
     outline: 1px solid black;
 }
+
 a:hover {
     cursor: pointer;
 }
 
 .pos-center {
     text-align: center;
+}
+
+.inputStyle {
+    display: none;
 }

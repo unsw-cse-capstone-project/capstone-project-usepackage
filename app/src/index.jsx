@@ -1,3 +1,5 @@
+/*eslint no-undef: "error"*/
+/*eslint-env node*/
 import React from 'react'
 import ReactDOM from 'react-dom'
 import Topnav from './js/Topnav.jsx'
