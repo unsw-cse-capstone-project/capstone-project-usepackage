@@ -1,4 +1,4 @@
-importScripts('./ffmpeg-all-codecs.js');
+importScripts('/ffmpeg/ffmpeg.js');
 
 var now = Date.now;
 
@@ -36,6 +36,10 @@ onmessage = function(event) {
                 Module.arguments.join(" ") +
                 ((Module.TOTAL_MEMORY) ? ".  Processing with " + Module.TOTAL_MEMORY + " bits." : "")
         });
+
+        /*
+            Arraybuffer -> Blob -> URL
+        */
 
         var time = now();
         var result = ffmpeg_run(Module);
