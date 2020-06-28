@@ -6,8 +6,7 @@ import Button from 'react-bootstrap/Button';
 import FormControl from 'react-bootstrap/FormControl';
 import UploadHandler from './UploadHandler.jsx'
 import TimeVisualiser from './TimeVisualiser.jsx'
-import GainController from './controller/GainController.jsx'
-import PlayBackController from './controller/PlayBackController.jsx'
+import SlideController from './controller/SlideController.jsx'
 
 export default class EditorGUI extends React.Component {
     constructor(props) {
@@ -111,9 +110,9 @@ export default class EditorGUI extends React.Component {
                     <UploadForm uploadButtonHandler={this.uploadButtonHandler} uploadFileHandler={this.uploadFileHandler} />
                     <PlayButton handler={this.playBuffer} />
                     <StopButton handler={this.stopBuffer} />
-                    <GainController min={0} max={2} step={0.01} handler={(e) => this.gainHandler(e, 0)} />
-                    <GainController min={0} max={2} step={0.01} handler={(e) => this.gainHandler(e, 1)} />
-                    <PlayBackController min={0.1} max={2} step = {0.01} handler = {(e) => this.playBackHandler(e)}/>
+                    <SlideController min={0} max={2} step={0.01} handler={(e) => this.gainHandler(e, 0)} />
+                    <SlideController min={0} max={2} step={0.01} handler={(e) => this.gainHandler(e, 1)} />
+                    <SlideController min={0.1} max={2} step = {0.01} handler = {(e) => this.playBackHandler(e)}/>
                 </div>
                 {this.state.visualisers}
             </main>
