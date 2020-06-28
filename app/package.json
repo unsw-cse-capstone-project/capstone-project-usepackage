@@ -20,7 +20,9 @@
         "mongodb": "^3.5.9",
         "react": "^16.13.1",
         "react-bootstrap": "^1.0.1",
-        "react-dom": "^16.13.1"
+        "react-dom": "^16.13.1",
+        "recorder-js": "^1.0.7",
+        "soundtouchjs": "^0.1.21"
     },
     "engines": {
         "node": ">=4.3.2"
