@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-export default class GainController extends React.Component {
+export default class SlideController extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -10,26 +10,35 @@ export default class GainController extends React.Component {
         this.handler = this.handler.bind(this);
     }
 
-    handler(e, i) {
+    handler(e) {
         this.setState({value: e.target.value});
-        this.props.handler(e.target, i);
+        this.props.handler(e.target);
     }
 
     render() {
-        return  ( 
-        <input type="range" 
-            onChange={this.handler} 
-            min={this.props.min} 
-            max={this.props.max} 
-            value={this.state.value} 
-            step={this.props.step}>
-        </input> );
+        return  (
+            <div className="slider">
+                <div className="sliderTitle"> 
+                    <p>{this.props.text}</p> 
+                </div>
+                <div className="sliderRange">
+                    <input type="range" 
+                        onChange={this.handler} 
+                        min={this.props.min} 
+                        max={this.props.max} 
+                        value={this.state.value} 
+                        step={this.props.step}>
+                    </input> 
+                </div>
+            </div>
+        );
     }
 }
 
-GainController.propTypes = {
+SlideController.propTypes = {
     min: PropTypes.number,
     max: PropTypes.number,
     step: PropTypes.number,
+    text: PropTypes.string,
     handler: PropTypes.func
 }
