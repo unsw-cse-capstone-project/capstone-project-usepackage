@@ -9,6 +9,8 @@ import './css/style.css'
 import {initWorker, runCommand} from './js/converter/converter.js' 
 
 initWorker();
+// The following tests how parseFunction works. 
+runCommand("-i inputfile.wav \"-i\" \"input file.wav\" \"output file.wav\"");
 
 ReactDOM.render(
   <Topnav name="Screaming Goat" />,
