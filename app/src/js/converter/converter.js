@@ -16,7 +16,7 @@ function parseArguments(text, audioFileNames) {
         if ((i % 2) === 1) {
             args.push(t);
             console.log(t + " " + isInputFile);
-            if(isInputFile === true) audioFileNames.push(t);
+            if(isInputFile === true && t !== "") audioFileNames.push(t);
             if(t === "-i") isInputFile = true;
             else if (t !== "") isInputFile = false;
         } else {
@@ -25,7 +25,7 @@ function parseArguments(text, audioFileNames) {
             args = args.concat(tempArgs);
             tempArgs.forEach((t2, i) => {
                 console.log(t2);
-                if(isInputFile === true) audioFileNames.push(t2);
+                if(isInputFile === true && t !== "") audioFileNames.push(t2);
                 if(t2 === "-i") isInputFile = true;
                 else if (t !== "") isInputFile = false;
             });
