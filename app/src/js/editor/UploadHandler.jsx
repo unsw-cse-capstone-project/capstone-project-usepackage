@@ -29,6 +29,7 @@ export default class UploadHandler {
                         const source = audioCtx.createMediaElementSource(audio);
                         const splitter = audioCtx.createChannelSplitter(2);
                         const gain = [audioCtx.createGain(), audioCtx.createGain()];
+                        //
                         const analyser = [audioCtx.createAnalyser(), audioCtx.createAnalyser()];
                         const merger = audioCtx.createChannelMerger(2);
 
@@ -39,6 +40,7 @@ export default class UploadHandler {
                             analyser[i].connect(merger, 0, i);
                         }
                         merger.connect(audioCtx.destination);
+                        
                         //
                         state = [...state, {
                             fileName: file.name,

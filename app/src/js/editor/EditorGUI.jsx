@@ -7,7 +7,7 @@ import FormControl from 'react-bootstrap/FormControl';
 import UploadHandler from './UploadHandler.jsx'
 import TimeVisualiser from './TimeVisualiser.jsx'
 import GainController from './controller/GainController.jsx'
-
+import PlayBackController from './controller/PlayBackController.jsx'
 
 export default class EditorGUI extends React.Component {
     constructor(props) {
@@ -20,6 +20,7 @@ export default class EditorGUI extends React.Component {
         this.uploadButtonHandler = this.uploadButtonHandler.bind(this);
         this.uploadFileHandler = this.uploadFileHandler.bind(this);
         this.gainHandler = this.gainHandler.bind(this);
+        this.playBackHandler = this.playBackHandler.bind(this);
         this.playBuffer = this.playBuffer.bind(this);
         this.stopBuffer = this.stopBuffer.bind(this);
         this.getData = this.getData.bind(this);
@@ -93,6 +94,14 @@ export default class EditorGUI extends React.Component {
             files: newFileState
         });
     }
+    
+    playBackHandler(control) {
+        const newFileState = this.state.files;
+        newFileState[0].element.playbackRate = control.value;
+        this.setState({
+            files: newFileState
+        })
+    }
 
     render() {
         return (
@@ -104,6 +113,7 @@ export default class EditorGUI extends React.Component {
                     <StopButton handler={this.stopBuffer} />
                     <GainController min={0} max={2} step={0.01} handler={(e) => this.gainHandler(e, 0)} />
                     <GainController min={0} max={2} step={0.01} handler={(e) => this.gainHandler(e, 1)} />
+                    <PlayBackController min={0.1} max={2} step = {0.01} handler = {(e) => this.playBackHandler(e)}/>
                 </div>
                 {this.state.visualisers}
             </main>
