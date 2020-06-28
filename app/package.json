@@ -16,12 +16,10 @@
     "license": "ISC",
     "dependencies": {
         "express": "^4.16.4",
-        "ffmpeg.js": "^4.2.9003",
         "mongodb": "^3.5.9",
         "react": "^16.13.1",
         "react-bootstrap": "^1.0.1",
         "react-dom": "^16.13.1",
-        "recorder-js": "^1.0.7",
         "soundtouchjs": "^0.1.21"
     },
     "engines": {
