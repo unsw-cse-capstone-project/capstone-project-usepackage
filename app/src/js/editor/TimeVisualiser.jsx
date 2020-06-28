@@ -22,7 +22,7 @@ export default class TimeVisualiser extends React.Component {
         this.setState({analyser: analyser});
         this.dataArray = new Uint8Array(bufferLength);
         this.canvasCtx.fillStyle = 'black';
-        this.canvasCtx.strokeStyle = 'green';
+        this.canvasCtx.strokeStyle = 'red';
         this.canvasCtx.lineWidth = 4;
         this.draw();
     }
@@ -46,7 +46,7 @@ export default class TimeVisualiser extends React.Component {
 
     render() {
         return (
-            <div className="col-3">
+            <div className="visualiser">
                 <canvas ref={this.ref} width={this.state.width} height={this.state.height}></canvas>
             </div>
         );
