@@ -44,7 +44,7 @@ export default class FreqVisualiser extends React.Component {
 
     render() {
         return (
-            <div className="col-3">
+            <div className="visualiser">
                 <canvas ref={this.ref} width={this.state.width} height={this.state.height}></canvas>
             </div>
         );
