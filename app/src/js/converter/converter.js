@@ -107,7 +107,7 @@ function initWorker() {
             case "ready":
                 worker.postMessage({
                     type: "command",
-                    arguments: ["-codecs"]
+                    arguments: []
                 });
                 break;
 
