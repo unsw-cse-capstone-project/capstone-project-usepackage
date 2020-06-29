@@ -1,6 +1,4 @@
-let Recorder = window.Recorder;
-import PitchShifter from '../modulator/PitchShifter';
-
+import AudioTrack from "./AudioTrack.jsx";
 
 export default class UploadHandler {
     constructor() {
@@ -29,48 +27,41 @@ export default class UploadHandler {
                         const audioCtx = new AudioContext();
                         audioCtx.decodeAudioData(fileReader.result.slice(), (audioBuffer) => {
                             console.log('decoded the buffer');
-
                             const URI = URL.createObjectURL(audioBlob);
-                            const audio = new Audio(URI);
-                            //Generate a controller from this point?
-                            //const source = audioCtx.createMediaElementSource(audio);
-                            const splitter = audioCtx.createChannelSplitter(2);
-                            const gain = [audioCtx.createGain(), audioCtx.createGain()];
-                            //
-                            const analyser = [audioCtx.createAnalyser(), audioCtx.createAnalyser()];
-                            const merger = audioCtx.createChannelMerger(2);
+                            // const audio = new Audio(URI);
+                            // //Generate a controller from this point?
+                            // //const source = audioCtx.createMediaElementSource(audio);
+                            // const splitter = audioCtx.createChannelSplitter(2);
+                            // const gain = [audioCtx.createGain(), audioCtx.createGain()];
+                            // //
+                            // const analyser = [audioCtx.createAnalyser(), audioCtx.createAnalyser()];
+                            // const merger = audioCtx.createChannelMerger(2);
 
-                            let shifter = new PitchShifter(audioCtx, audioBuffer, 16384);
+                            // let shifter = new PitchShifter(audioCtx, audioBuffer, 16384);
                             // shifter.tempo = 1;
                             // shifter.pitch = 2;
-                            shifter.on('play', (detail) => {
-                                console.log(detail)
-                            });
-                            //source.connect(splitter);
-                            for (let i = 0; i < 2; i++) {
-                                splitter.connect(gain[i], i);
-                                gain[i].connect(analyser[i]);
-                                analyser[i].connect(merger, 0, i);
-                            }
-                            merger.connect(audioCtx.destination);
+                            // shifter.on('play', (detail) => {
+                            //     console.log(detail)
+                            // });
+                            // //source.connect(splitter);
+                            // for (let i = 0; i < 2; i++) {
+                            //     splitter.connect(gain[i], i);
+                            //     gain[i].connect(analyser[i]);
+                            //     analyser[i].connect(merger, 0, i);
+                            // }
+                            // merger.connect(audioCtx.destination);
                             //gain[0].connect(low);
                             //high.connect(analyser[0]);
 
                             //
                             state = [...state, {
                                 fileName: file.name,
-                                element: audio,
                                 ctx: audioCtx,
-                                gain: gain,
                                 // bands: {
                                 //     low: low,
                                 //     med: med,
                                 //     high: high
                                 // },
-                                pitch: shifter,
-                                splitter: splitter,
-                                analyser: analyser,
-                                arrayBuffer: fileReader.result,
                                 audioBuffer: audioBuffer,
                                 URI: URI
                             }];
