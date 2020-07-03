@@ -13,15 +13,23 @@ export default class AudioTrackContainer extends React.Component {
         super(props);
         this.gainHandler = this.gainHandler.bind(this);
         this.play = this.play.bind(this);
+        this.playFrom = this.playFrom.bind(this);
         this.pause = this.pause.bind(this);
         this.stop = this.stop.bind(this);
         this.playback = this.playback.bind(this);
         this.pitchHandler = this.pitchHandler.bind(this);
         this.executeCut = this.executeCut.bind(this);
         this.pickSlice = this.pickSlice.bind(this);
+        this.updateSlice = this.updateSlice.bind(this);
+        this.updateTime = this.updateTime.bind(this);
+        this.setAnalyserCallback = this.setAnalyserCallback.bind(this);
+        this.record = this.record.bind(this);
+        this.slice = 0;
+        this.time = 0;
         this.state = {
             track: null,
             visualisers: null,
+            analyser: [null, null],
             time: "0.00"
         }
         this.audioTrack = AudioTrack.create(props.file).then((track) => {
@@ -29,24 +37,71 @@ export default class AudioTrackContainer extends React.Component {
                 track: track
             });
         }).then(() => {
-            //this.track_analyers = [this.state.track.getAnalyser(0), this.state.track.getAnalyser(1)]
+            this.setAnalyserCallback((analysers) => {
+                this.setState({
+                    analyser: analysers.map((analyser) => {
+                        analyser.fftSize = 256;
+                        return analyser;
+                    })
+                });
+                this.setState({
+                    visualisers:
+                        [
+                            <div key={2} className="col-10">
+                                <div className="row">
+                                <div className="col">
+                                <FreqVisualiser width={300} height={100} key={4} analyser={this.state.analyser[0]}/>
+                                </div>
+                                <div className="col">
+                                <FreqVisualiser width={300} height={100} key={5} analyser={this.state.analyser[1]}/>
+                                </div>
+                                </div>
+                            </div>,
+                            <div key={3} className="col-10">
+                                <div className="row">
+                                <div className="col">
+                                <TimeVisualiser width={300} height={100} key={6} analyser={this.state.analyser[0]}/>
+                                </div>
+                                <div className="col">
+                                <TimeVisualiser width={300} height={100} key={7} analyser={this.state.analyser[1]}/> 
+                                </div>
+                                </div>
+                            </div>
+                        ]
+                })
+            });
+            this.setState({
+                analyser: [this.state.track.getAnalyser(0), this.state.track.getAnalyser(1)]
+            })
             if ( this.state.track !== null)
                 this.setState({
                     visualisers:
                         [
                             <div key={2} className="col-10">
-                                <FreqVisualiser width={300} height={100} key={4} analyser={this.state.track.getAnalyser(0)}/>
-                                <FreqVisualiser width={300} height={100} key={5} analyser={this.state.track.getAnalyser(1)}/>
+                                <div className="row">
+                                <div className="col">
+                                <FreqVisualiser width={300} height={100} key={4} analyser={this.state.analyser[0]}/>
+                                </div>
+                                <div className="col">
+                                <FreqVisualiser width={300} height={100} key={5} analyser={this.state.analyser[1]}/>
+                                </div>
+                                </div>
                             </div>,
                             <div key={3} className="col-10">
-                                <TimeVisualiser width={300} height={100} key={6} analyser={this.state.track.getAnalyser(0)}/>
-                                <TimeVisualiser width={300} height={100} key={7} analyser={this.state.track.getAnalyser(1)}/> 
+                                <div className="row">
+                                <div className="col">
+                                <TimeVisualiser width={300} height={100} key={6} analyser={this.state.analyser[0]}/>
+                                </div>
+                                <div className="col">
+                                <TimeVisualiser width={300} height={100} key={7} analyser={this.state.analyser[1]}/> 
+                                </div>
+                                </div>
                             </div>
                         ]
                 })
         });
     }
-
+    
     play() {
         if (this.state.track)
             this.state.track.play();
