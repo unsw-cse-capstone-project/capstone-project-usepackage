@@ -5,9 +5,9 @@ import AudioTrack from './AudioTrack.jsx';
 import AudioTrackContainer from './AudioTrackContainer.jsx';
 import SlideController from './controller/SlideController.jsx';
 import Button from 'react-bootstrap/Button';
-
-
-const Recorder = window.Recorder;
+import PromiseQueue from '../PromiseQueue.jsx'
+import InputGroup from 'react-bootstrap/InputGroup';
+import FormControl from 'react-bootstrap/FormControl';
 
 export default class AudioStack extends React.Component {
     constructor (props) {
@@ -21,9 +21,13 @@ export default class AudioStack extends React.Component {
         this.newFile = this.newFile.bind(this);
         this.stop = this.stop.bind(this);
         this.playBackHandler = this.playBackHandler.bind(this);
+        this.record = this.record.bind(this);
+        this.updateSeek = this.updateSeek.bind(this);
+        this.doSeek = this.doSeek.bind(this);
+        this.seek = 0;
         window.doRecord = this.record;
     }
-    
+
     updateSeek(e) {
         this.seek = e.target.value;
     }
@@ -36,7 +40,7 @@ export default class AudioStack extends React.Component {
         el.dataset.playing = "true";
         el.innerText = "⏸️";
     }
-    
+
     record(type, channels) {
         const queue = new PromiseQueue();
         this.trackControllers.forEach((track) => {
@@ -173,6 +177,10 @@ export default class AudioStack extends React.Component {
             track.playback(e.value);
         })
     }
+    
+    handleSeek() {
+        
+    }
 
     // DO NOT DELETE
     // record() {
@@ -238,7 +246,7 @@ export default class AudioStack extends React.Component {
     }
 
     componentDidMount() {
-        this.props.onMounted(this.newFile);
+        this.props.onMounted(this.newFile, this.record);
     }
 
     render() {
@@ -247,6 +255,15 @@ export default class AudioStack extends React.Component {
                 <PlayButton handler={(e) => this.togglePlay(e.target)} />
                 <StopButton handler={this.stop} />
                 <SlideController min={0.5} max={2} step = {0.01} handler={this.playBackHandler} text={"Playback Rate"}/>
+                <InputGroup>
+                    <InputGroup.Prepend>
+                        <InputGroup.Text>Seek</InputGroup.Text>
+                    </InputGroup.Prepend>
+                    <FormControl onChange={this.updateSeek} aria-label="Seek" className="col-2"/>
+                    <InputGroup.Append>
+                        <Button onClick={this.doSeek} variant="outline-secondary">Enter</Button>
+                    </InputGroup.Append>
+                </InputGroup>
                 {this.state.tracks}
             </div>
         );
