@@ -6,6 +6,9 @@ import TimeVisualiser from './TimeVisualiser.jsx';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Button from 'react-bootstrap/Button';
 import FormControl from 'react-bootstrap/FormControl';
+import Form from 'react-bootstrap/Form';
+import Dropdown from 'react-bootstrap/Dropdown';
+import Col from 'react-bootstrap/Col';
 
 export default class AudioTrackContainer extends React.Component {
 
@@ -100,6 +103,16 @@ export default class AudioTrackContainer extends React.Component {
                         ]
                 })
         });
+    }
+    
+    setAnalyserCallback(cb) {
+        if (this.state.track)
+            this.state.track.setAnalyserCallback(cb);
+    }
+
+    playFrom(time) {
+        if (this.state.track)
+            this.state.track.playFrom(time);
     }
     
     play() {
