@@ -114,7 +114,7 @@ export default class AudioTrackContainer extends React.Component {
         if (this.state.track)
             this.state.track.playFrom(time);
     }
-    
+
     play() {
         if (this.state.track)
             this.state.track.play();
@@ -140,28 +140,46 @@ export default class AudioTrackContainer extends React.Component {
             this.state.track.setGain(target.value, i);
     }
 
+    record() {
+        if (this.state.track)
+            return this.state.track.record();
+    }
+
     pitchHandler(target, i) {
         if (this.state.track)
             this.state.track.setPitch(target.value, i);
     }
 
+    updateSlice(e) {
+        this.slice = e.target.value;
+    }
+
+    updateTime(e) {
+        this.time = e.target.value;
+    }
+
     executeCut() {
-        const val = document.getElementById("Time").value;
-        const timeSample = parseInt(val)*44100;
-        console.log("Sample", timeSample);
+        const val = this.time;
+        const timeSample = Math.floor(parseFloat(val)*this.state.track.rate);
+        if ( this.state.track)
+            this.state.track.cut(timeSample);
     }
 
     pickSlice() {
-        const val = document.getElementById("Slice").value;
-        console.log("Slice number", val)
+        const val = this.slice;
+        if ( this.state.track)
+            this.state.track.CurrentCut = parseInt(val);
+        console.log("Slice number", this.state.track.CurrentCut);
     }
 
     componentDidMount() {
         this.props.onMounted({
             play: this.play,
+            playFrom: this.playFrom,
             pause: this.pause,
             stop: this.stop,
-            playback: this.playback
+            playback: this.playback,
+            record: this.record
         });
     }
     
