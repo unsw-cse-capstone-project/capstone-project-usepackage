@@ -37,9 +37,10 @@ export default class TimeVisualiser extends React.Component {
         
         const sliceWidth = this.state.width * 1.0 / bufferLength;
         this.canvasCtx.moveTo(0, this.dataArray[0] * this.state.height / 256.0);
-        for(let i = 1, x = sliceWidth; i < bufferLength; i++, x += sliceWidth)
+        for(let i = 1, x = sliceWidth; i < bufferLength; i++, x += sliceWidth){
+            this.canvasCtx.strokeStyle = 'rgb(' + (this.dataArray[i] * this.state.height / 256.0 + 100) + ',50,50)'
             this.canvasCtx.lineTo(x, this.dataArray[i] * this.state.height / 256.0);
-
+        }
         this.canvasCtx.lineTo(this.state.width, this.state.height / 2);
         this.canvasCtx.stroke();
     }
