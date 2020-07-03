@@ -12,7 +12,7 @@ Tuesday - We reviewed our preproposal in light of Rachid's feedback, and sent hi
 Friday - After having received approval, we started writing user stories, epic stories and acceptance criteria.
 
 Week 3
-Firday - Decided on user story points, as well as mapped objectives to user stories. 
+Friday - Decided on user story points, as well as mapped objectives to user stories. 
 Saturday and Sunday - Wrote what we had for the proposal in overleaf. Made a table for our research on 
 other audio editors. Simon and I worked in the interface flow diagrams, while Rajiv worked
 on the system architecture diagram and Ethan drew them up in tikz. Rui did most of the 
