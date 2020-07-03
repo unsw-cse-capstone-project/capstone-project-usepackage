@@ -7,13 +7,24 @@ import FormControl from 'react-bootstrap/FormControl';
 import UploadHandler from './UploadHandler.jsx';
 import { runCommand } from '../converter/converter.js'; 
 import AudioStack from './AudioStack.jsx';
+import Form from 'react-bootstrap/Form';
 
 export default class EditorGUI extends React.Component {
     constructor(props) {
         super(props);
         this.uploadHandler = new UploadHandler();
+        this.audioStack = null;
+        this.record = null;
+        this.state = {
+            format: { 
+                type: "MP3",
+                channels: 2 
+             }
+        }
         this.uploadButtonHandler = this.uploadButtonHandler.bind(this);
         this.uploadFileHandler = this.uploadFileHandler.bind(this);
+        this.formatHandler = this.formatHandler.bind(this);
+        this.downloadHandler = this.downloadHandler.bind(this);
         this.testButton = this.testButton.bind(this);
     }
 
@@ -56,6 +67,37 @@ export default class EditorGUI extends React.Component {
         runCommand(createFileObjs, "output_test_2.mp3"); // [{}, {}]
     }
 
+    formatHandler(target) {
+        if (target.name == "format")
+            this.setState({
+                format: {
+                    type: target.dataset.label,
+                    channels: this.state.format.channels
+                }
+            });
+        else
+            this.setState({
+                format: {
+                    type: this.state.format.type,
+                    channels: parseInt(target.dataset.label)
+                }
+            });
+    }
+    
+    downloadHandler() {
+        console.log("Downloading file of type: ", this.state.format);
+        this.record(this.state.format.type, this.state.format.channels).then((blob) => {
+            console.log("Done!");
+            let a = document.createElement('a');
+            a.download = 'test.' + this.state.format.type.toLowerCase();
+            a.href = URL.createObjectURL(blob);
+            a.innerText = "Download Link!";
+            a.hidden = true;
+            document.body.appendChild(a);
+            a.click();
+        });
+    }
+
     render() {
         return (
             <main className="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
@@ -63,7 +105,64 @@ export default class EditorGUI extends React.Component {
                 <div className="col-9">
                     <UploadForm uploadButtonHandler={this.uploadButtonHandler} uploadFileHandler={this.uploadFileHandler} />
                 </div>
-                <AudioStack onMounted={f => {this.audioStack = f;}} />
+                <AudioStack onMounted={(f, r) => {this.audioStack = f; this.record = r;}} />
+                <Form>
+                <Form.Group>
+                    <Form.Label as="legend" column sm={5}>
+                        Download File Formats
+                    </Form.Label>
+                    <div className="row">
+                    <div className="col">
+                    <Form.Check onChange={(e) => this.formatHandler(e.target)} type="radio" label="MP3" data-label="MP3" id="MP3-rad" name="format" defaultChecked />
+                    </div>
+                    <div className="col">
+                    <Form.Check onChange={(e) => this.formatHandler(e.target)} type="radio" label="Mono" data-label={1} id="Mono-rad" name="SM" />
+                    </div>
+                    </div>
+                    <div className="row">
+                    <div className="col">
+                    <Form.Check onChange={(e) => this.formatHandler(e.target)} type="radio" label="WAV" data-label="WAV" id="WAV-rad" name="format" />
+                    </div>
+                    <div className="col">
+                    <Form.Check onChange={(e) => this.formatHandler(e.target)} type="radio" label="Stereo" data-label={2} id="Stereo-rad" name="SM" defaultChecked />
+                    </div>
+                    </div>
+                    <div className= "row">
+                    <div className="col">
+                    <Form.Check onChange={(e) => this.formatHandler(e.target)} type="radio" label="OGG" data-label="OGG" id="OGG-rad" name="format" />            
+                    </div>
+                    </div>
+                </Form.Group>
+                {/*
+                <Form.Row>
+                    <Dropdown as={Col}>
+                        <Dropdown.Toggle id="dropdown-bitrate">
+                            Select Bitrate  
+                        </Dropdown.Toggle>
+                        <Dropdown.Menu>
+                            <Dropdown.Item>32 kbit/s</Dropdown.Item>
+                            <Dropdown.Item>96 kbit/s</Dropdown.Item>
+                            <Dropdown.Item>128 kbit/s</Dropdown.Item>
+                            <Dropdown.Item>192 kbit/s</Dropdown.Item>
+                            <Dropdown.Item>256 kbit/s</Dropdown.Item>
+                            <Dropdown.Item>320 kbit/s</Dropdown.Item>
+                        </Dropdown.Menu>
+                    </Dropdown>
+
+                    <Dropdown as={Col}>
+                        <Dropdown.Toggle id="dropdown-samplerate">
+                            Select Sample Rate  
+                        </Dropdown.Toggle>
+                        <Dropdown.Menu>
+                            <Dropdown.Item>32000 Hz</Dropdown.Item>
+                            <Dropdown.Item>44100 Hz</Dropdown.Item>
+                            <Dropdown.Item>48000 Hz</Dropdown.Item>
+                        </Dropdown.Menu>
+                    </Dropdown>
+                </Form.Row>
+                */}
+                <Button onClick={this.downloadHandler} id="downloadButton">Download</Button>
+                </Form>
             </main>
         );
     }
