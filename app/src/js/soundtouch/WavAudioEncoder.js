@@ -17,7 +17,7 @@ export default class WavAudioEncoder {
         var len = str.length;
         for (var i = 0; i < len; ++i)
             view.setUint8(offset + i, str.charCodeAt(i));
-    };
+    }
 
     encode(buffer) {
         var len = buffer[0].length,
@@ -32,9 +32,9 @@ export default class WavAudioEncoder {
             }
         this.dataViews.push(view);
         this.numSamples += len;
-    };
+    }
 
-    finish(mimeType) {
+    finish(mimeType = 'audio/wav') {
         var dataSize = this.numChannels * this.numSamples * 2,
             view = new DataView(new ArrayBuffer(44));
         this.setString(view, 0, 'RIFF');
@@ -51,12 +51,12 @@ export default class WavAudioEncoder {
         this.setString(view, 36, 'data');
         view.setUint32(40, dataSize, true);
         this.dataViews.unshift(view);
-        var blob = new Blob(this.dataViews, { type: 'audio/wav' });
+        var blob = new Blob(this.dataViews, { type: mimeType });
         this.cleanup();
         return blob;
-    };
+    }
 
     cancel() {
         delete this.dataViews;
-    };
+    }
 }
