@@ -23,6 +23,19 @@ export default class AudioStack extends React.Component {
         this.playBackHandler = this.playBackHandler.bind(this);
         window.doRecord = this.record;
     }
+    
+    updateSeek(e) {
+        this.seek = e.target.value;
+    }
+
+    doSeek() {
+        this.trackControllers.forEach((track) => {
+            track.playFrom(parseInt(this.seek));
+        });
+        const el = document.getElementById('audio-play-pause-button');
+        el.dataset.playing = "true";
+        el.innerText = "⏸️";
+    }
 
     togglePlay(target) {
         if ( target.dataset.playing==="false" ) {
