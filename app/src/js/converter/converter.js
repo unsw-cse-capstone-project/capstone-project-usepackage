@@ -52,8 +52,6 @@ function runCommand(inputFiles, outputFileName) {
     // the following merges the multiple audio files into one
     args.push("-filter_complex");
     args.push("amix=inputs=" + Array.from(inputFiles).length);
-    args.push("-c");
-    args.push("mp2");
     args.push(outputFileName);
 
     /*const result = ffmpeg({
