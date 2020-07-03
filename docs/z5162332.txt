@@ -12,3 +12,12 @@ Week 3
 Tuesday   - We finalised the user stories after the lab. Since Jira doesn't allow you to reset the counter for user stories, we decided to leave adding them to Jira until we were completely sure. Since Madhav wasn't available and missed the lab, we left the story points until later.
 Friday    - We made some last changes to the user stories and added them to Jira. We created a table mapping objectives to user stories, and made tentative sprints. The first sprint was set to end the weekend before the first progressive demo, and includes all of the high priority user stories.
 Sunday    - We completed the proposal and submitted it. I specifically transferred the interface diagrams to TikZ, proofread the document, and helped write the comparison to current web apps.
+
+Week 4
+Monday    - Rajiv and I did some config testing for MongoDB, and ExpressJS.
+Friday    - We succeeded in getting uploading and play/stop working. We also discussed how we planned to get splicing to work, as the WebAudio API makes seeking and dynamic adjustment difficult, when using OfflineAudioContexts.
+Sunday    - We added pitch and playback speed using SoundTouch and native audio elements respectively. I refactored the main bulk of code in the editor GUI to its own module, AudioStack, handling setting up the audio graphs for modulation. I also added some basic code using RecorderJS for saving files for download, though not completely functional.
+
+Week 5
+Tuesday   - We completed recording using OfflineAudioContext in place of RecorderJS, and set up Vorbis (OGG), LAME (MP3), and WAV encoding libraries. Separate tracks were refactored into their own instances, so recording now resolves each, and merges the buffers into one, before handling mono/stereo channeling and encoding. We also set up splicing and seeking, but our current implementation requires a fair bit of work, and will likely need to be changed to make use of audio worklets, to ensure seemless transitions with SoundTouchJS. We also completed the progressive demo.
+Friday    - 
