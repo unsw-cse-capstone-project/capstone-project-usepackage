@@ -42,6 +42,8 @@ const createSoundTouchNode = (
             this._playing = false;
             this._ready = false;
             this.tempoVal = 1;
+            this.pitchVal = 1;
+            this.timeUpdate = null;
             // for standardized-audio-context implementation
             this._initialPlay = true;
         }
@@ -105,18 +107,6 @@ const createSoundTouchNode = (
             this._updateFilterProp('sourcePosition', this.sourcePosition);
             // set the SoundTouchNode.currentTime to the proper time
             this.currentTime = (this.duration * percentage) / 100;
-        }
-
-        set frame(frame) {
-            const { duration, sampleRate } = this;
-            // calculate exact sampleFrame position, in the audioBuffer
-            this.sourcePosition = parseInt(
-                frame
-            );
-            // send message to the Worklet to update the sourcePosition
-            this._updateFilterProp('sourcePosition', this.sourcePosition);
-            // set the SoundTouchNode.currentTime to the proper time
-            this.currentTime = (frame / sampleRate);
         }
 
         /**
@@ -231,6 +221,7 @@ const createSoundTouchNode = (
          * @param {Float} pitch - the 'pitch' value to send to the SoundTouch instance in the Worklet
          */
         set pitch(pitch) {
+            this.pitchVal = pitch;
             this._updatePipeProp('pitch', pitch);
         }
 
@@ -267,7 +258,7 @@ const createSoundTouchNode = (
          * This means that audio travels FROM the BufferSourceNode TO the SoundTouchNode.
          * As the 'target', SoundTouchNode receives sound data to process it.
          */
-        connectToBuffer() {
+        connectToBuffer(start = 0) {
             console.log(">>>connectToBuffer");
             this.bufferNode = this.context.createBufferSource();
             this.bufferNode.buffer = this.audioBuffer;
@@ -334,7 +325,7 @@ const createSoundTouchNode = (
          * @play (async)
          * @param {Float} offset - the time (in seconds) to play from, defaulting to SoundTouchNode.currentTime
          */
-        async play() {
+        async play(online = true) {
             console.log(">>>play");
             if (!this.ready) {
                 throw new Error('Your processor is not ready yet');
@@ -351,7 +342,8 @@ const createSoundTouchNode = (
             }
             // start the BufferSourceNode processing immediately from this time
             //this.bufferNode.start(0, offset);
-            await this.context.resume();
+            if (online)
+                await this.context.resume();
             // reset the 'startTime' tracking variable
             this._startTime = new Date().getTime();
             // set the SoundTouchNode to 'playing'
@@ -367,11 +359,12 @@ const createSoundTouchNode = (
             this.currentTime = currTime;
         }
 
-        async stop() {
+        async stop(online = true) {
                 console.log(">>>stop");
                 // stop the BufferSourceNode from processing immediately
                 //this.bufferNode.stop(0);
-                //await this.context.suspend();
+                if (online)
+                    await this.context.suspend();
                 // reset time tracking variables
                 this.currentTime = 0;
                 this._startTime = new Date().getTime();
@@ -481,6 +474,8 @@ const createSoundTouchNode = (
                         },
                     });
                     this.dispatchEvent(timeEvent);
+                    if (this.timeUpdate)
+                        this.timeUpdate(this.formattedTimePlayed);
                 }
             }
 
