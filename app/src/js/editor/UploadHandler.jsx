@@ -1,8 +1,8 @@
-import AudioTrack from "./AudioTrack.jsx";
 
 export default class UploadHandler {
     constructor() {
         this.handleChange = this.handleChange.bind(this);
+        this.fileCount = 0;
     }
 
     handleChange(files) {
@@ -10,6 +10,9 @@ export default class UploadHandler {
         const validFileTypes = ['audio/ogg', 'audio/mpeg', 'audio/wav'];
         let promises = [];
         for (const file of files) {
+            this.fileCount++;
+            if (this.fileCount > 3)
+                break;
             const fileURL = URL.createObjectURL(file);
             // Validate that the file is of audio type
             const valid = validFileTypes.find(type => type === file.type);
