@@ -48,6 +48,18 @@ app.get('/soundtouch/soundtouch-worklet.js', (req, res, next) => {
     res.sendFile(path.join(LIB_DIR, 'soundtouch/soundtouch-worklet.js'));
 })
 
+app.get('/lamejs.js', (req, res, next) => {
+    res.sendFile(path.join(LIB_DIR, 'lamejs.js'));
+})
+
+app.get('/libvorbis.js', (req, res, next) => {
+    res.sendFile(path.join(LIB_DIR, 'vorbis.js'));
+})
+
+app.get('/vorbis.js', (req, res, next) => {
+    res.sendFile(path.join(LIB_DIR, 'ogg.js'));
+})
+
 // app.get('/Home', (req, res, next) => {
 //     compiler.outputFileSystem.readFile(HTML_FILE, (err, result) => {
 //         if (err) {
