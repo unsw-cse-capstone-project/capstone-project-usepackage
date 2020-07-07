@@ -31,6 +31,7 @@ export default class UploadHandler {
                         audioCtx.decodeAudioData(fileReader.result.slice(), (audioBuffer) => {
                             console.log('decoded the buffer');
                             const URI = URL.createObjectURL(audioBlob);
+                            console.log(URI);
                             // const audio = new Audio(URI);
                             // //Generate a controller from this point?
                             // //const source = audioCtx.createMediaElementSource(audio);
