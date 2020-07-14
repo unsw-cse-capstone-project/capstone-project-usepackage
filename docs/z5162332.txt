@@ -1,0 +1,23 @@
+Week 1
+Tuesday   - Group formed during first lab. We spent most of the lab throwing possible project ideas around while setting up Jira and checking everyone was set up. Madhav was established as the SCRUM master. Continued discussing for a few hours after the lab finished and decided on a project - an audio editor. We also decided on a web app, probably using a MERN stack, alongside the WebAudio API. We decided to have meetings every Friday at 2:30pm, planning to use the upcoming Friday to write up and send the preproposal.
+Friday    - We completed the initial preproposal, as well as a template we can use for the report delivarables. The preproposal was emailed to Rachid. We plan to start the proposal in the next meeting, assuming approval of the project.
+
+Week 2
+Monday    - We had an impromptu meeting to discuss Rachid's feedback on our preproposal, and to review it before resending it.
+Tuesday   - Approval was given to the revised preproposal during the lab. We continued discussion on the proposal plans, and wrote up a basic background description together. Due to sleep deprivation, we left the remainder to the meeting.
+Wednesday - I quickly set up the GitHub repo for our project.
+Friday    - We completed the user stories with acceptance criteria, and agreed to finish them off through the weekend/next week.
+
+Week 3
+Tuesday   - We finalised the user stories after the lab. Since Jira doesn't allow you to reset the counter for user stories, we decided to leave adding them to Jira until we were completely sure. Since Madhav wasn't available and missed the lab, we left the story points until later.
+Friday    - We made some last changes to the user stories and added them to Jira. We created a table mapping objectives to user stories, and made tentative sprints. The first sprint was set to end the weekend before the first progressive demo, and includes all of the high priority user stories.
+Sunday    - We completed the proposal and submitted it. I specifically transferred the interface diagrams to TikZ, proofread the document, and helped write the comparison to current web apps.
+
+Week 4
+Monday    - Rajiv and I did some config testing for MongoDB, and ExpressJS.
+Friday    - We succeeded in getting uploading and play/stop working. We also discussed how we planned to get splicing to work, as the WebAudio API makes seeking and dynamic adjustment difficult, when using OfflineAudioContexts.
+Sunday    - We added pitch and playback speed using SoundTouch and native audio elements respectively. I refactored the main bulk of code in the editor GUI to its own module, AudioStack, handling setting up the audio graphs for modulation. I also added some basic code using RecorderJS for saving files for download, though not completely functional.
+
+Week 5
+Tuesday   - We completed recording using OfflineAudioContext in place of RecorderJS, and set up Vorbis (OGG), LAME (MP3), and WAV encoding libraries. Separate tracks were refactored into their own instances, so recording now resolves each, and merges the buffers into one, before handling mono/stereo channeling and encoding. We also set up splicing and seeking, but our current implementation requires a fair bit of work, and will likely need to be changed to make use of audio worklets, to ensure seemless transitions with SoundTouchJS. We also completed the progressive demo.
+Friday    - 
