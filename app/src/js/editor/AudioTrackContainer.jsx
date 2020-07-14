@@ -10,6 +10,8 @@ import Form from 'react-bootstrap/Form';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Col from 'react-bootstrap/Col';
 
+//import minsSecs, { diffSecs } from '../soundtouch/minsSecs';
+
 export default class AudioTrackContainer extends React.Component {
 
     constructor(props) {
@@ -161,8 +163,10 @@ export default class AudioTrackContainer extends React.Component {
     executeCut() {
         const val = this.time;
         const timeSample = Math.floor(parseFloat(val)*this.state.track.rate);
-        if ( this.state.track)
+        if ( this.state.track) {
             this.state.track.cut(timeSample);
+            this.setState({track : this.state.track});
+        }
     }
 
     pickSlice() {
@@ -192,8 +196,15 @@ export default class AudioTrackContainer extends React.Component {
                     <SlideController min={0.5} max={1.5} step={0.01} handler={(e) => this.pitchHandler(e, 1)} text={"Pitch"}/>
                     {/*this.state.track ? this.state.track.getTime() : "0:00"*/}
                     {this.state.visualisers}
-                    <SelectTime 
-                        handleTime={this.executeCut} 
+                    {"Cuts in samples:"}
+                    <ol>
+                    {this.state.track? this.state.track.cuts.map(cut => (
+                        <li key = {cut.time}>{cut.time}</li>
+                    )): "No cuts"}
+                    </ol>
+                    {/*this.state.track ? (this.state.track.cuts[1] ? this.state.track.cuts[1].time : "not enough cuts") : "no cuts"*/}
+                    <SelectTime
+                        handleTime={this.executeCut}
                         handleSlice={this.pickSlice}
                         updateTime={this.updateTime}
                         updateSlice={this.updateSlice}
