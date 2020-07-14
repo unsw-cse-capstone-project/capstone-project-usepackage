@@ -1,38 +1,7 @@
-ul li {
-    list-style: none;
-    outline: 1px solid black;
+.main {
+    padding: 2% 2% 0 2%;
 }
 
-.slider {
-    margin: 5% 0 5% 0;
-    height: 25vh;
-    display: inline-block;
-    text-align: center;
-}
-
-.sliderTitle {
-    padding-bottom: 5vh;
-    font-weight: bold;
-}
-
-.sliderRange {
-    transform: rotate(270deg);
-    -webkit-transform: rotate(270deg);
-}
-
-.visualiser {
-    display: inline-block;
-    padding: 10px;
-}
-
-a:hover {
-    cursor: pointer;
-}
-
-.pos-center {
-    text-align: center;
-}
-
-.inputStyle {
-    display: none;
+.trackContainer {
+    padding-top: 2%;
 }
