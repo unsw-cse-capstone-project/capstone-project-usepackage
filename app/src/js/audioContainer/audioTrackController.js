@@ -6,6 +6,8 @@
     modified by sections
 */
 
+import MyWorkletNode from '../myWorklets/myWorkletNode';
+
 export default class AudioTrackController {
 
     constructor(props) {
@@ -77,7 +79,7 @@ AudioTrackController.create = (audioRecord) => {
 AudioTrackController.graph = (audioCtx) => {
     // const gainNode = new GainNode(audioCtx);
     return audioCtx.audioWorklet.addModule('./myProcessor.js').then(() => {
-        const gainNode = new AudioWorkletNode(audioCtx, 'CustomGainProcessor')
+        const gainNode = new MyWorkletNode(audioCtx, 'CustomGainProcessor')
         gainNode.port.onmessage = (event) => {
             const data = event.data
             console.log(data)

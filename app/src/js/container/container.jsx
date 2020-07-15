@@ -64,9 +64,6 @@ export default class MainContainer extends React.Component {
                 <div className="col-12">
                     {this.audioStack.tracks}
                 </div>
-                <div className="col-12">
-                    
-                </div>
             </div>
         );
     }
