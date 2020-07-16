@@ -80,10 +80,6 @@ AudioTrackController.graph = (audioCtx) => {
     // const gainNode = new GainNode(audioCtx);
     return audioCtx.audioWorklet.addModule('./myProcessor.js').then(() => {
         const gainNode = new MyWorkletNode(audioCtx, 'CustomGainProcessor')
-        gainNode.port.onmessage = (event) => {
-            const data = event.data
-            console.log(data)
-        }
         return ({
             gain: gainNode
         })

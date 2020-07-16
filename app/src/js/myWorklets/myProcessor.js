@@ -7,9 +7,8 @@ class TestProcessor extends AudioWorkletProcessor {
         this.data = {
             inprogress: true
         };
-        this.port.onmessage = (event) => {
-            this.data = event.data
-        }
+        this.port.onmessage = this._messageProcessor.bind(this);
+        this.port.postMessage("This is a message")
     }
 
     process(inputs, outputs, params) {
@@ -23,6 +22,11 @@ class TestProcessor extends AudioWorkletProcessor {
         return this.data.inprogress
     }
 
+
+    _messageProcessor(e) {
+        let data = e.data;
+        console.log(data)
+    }
 
 
     static get parameterDescriptors () {

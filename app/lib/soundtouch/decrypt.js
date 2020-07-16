@@ -396,7 +396,12 @@ var d = function(e) {
             (this.rval = this.arg = t.arg, this.method = "return", this.next = "end") : 
             "normal" === t.type && e && (this.next = e), f 
         }, finish: function(t) { 
-            for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.finallyLoc === t) return this.complete(r.completion, r.afterLoc), w(r), f 
+            for (var e = this.tryEntries.length - 1; e >= 0; --e) { 
+                var r = this.tryEntries[e]; 
+                if (r.finallyLoc === t) 
+                    return this.complete(r.completion, r.afterLoc), 
+                    w(r), 
+                    f 
             } 
         },
         catch: function(t) {
@@ -423,16 +428,27 @@ var d = function(e) {
     }, e
 }("object" === ("undefined" == typeof module ? "undefined" : t(module)) ? module.exports : {});
 
-// This variable initialises the buffer I think
+// Performs buffer management
+
 var m = function() {
-    function t() { e(this, t), this._vector = new Float32Array, this._position = 0, this._frameCount = 0 }
+    function t() { 
+        e(this, t), 
+        this._vector = new Float32Array, 
+        this._position = 0, 
+        this._frameCount = 0 
+    }
     return i(t, [
     { 
-        key: "clear", value: function() {
+        key: "clear", 
+        value: function() {
             this.receive(this._frameCount), this.rewind() 
         } 
     }, { 
-    key: "put", value: function(t) { this._frameCount += t } }, {
+        key: "put", 
+        value: function(t) { 
+            this._frameCount += t 
+        } 
+    }, {
         key: "putSamples",
         value: function(t, e) {
             var r = arguments.length > 2 && void 0 !== arguments[2] ? arguments[2] : 0,
@@ -449,7 +465,13 @@ var m = function() {
             var r = arguments.length > 2 && void 0 !== arguments[2] ? arguments[2] : 0;
             e = e || 0, r >= 0 || (r = t.frameCount - e), this.putSamples(t.vector, t.position + e, r)
         }
-    }, { key: "receive", value: function(t) { t >= 0 && !(t > this._frameCount) || (t = this.frameCount), this._frameCount -= t, this._position += t } }, {
+    }, { 
+        key: "receive", 
+        value: function(t) { 
+            t >= 0 && !(t > this._frameCount) || (t = this.frameCount), 
+            this._frameCount -= t, this._position += t 
+        } 
+    }, {
         key: "receiveSamples",
         value: function(t) {
             var e = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : 0,
@@ -458,7 +480,7 @@ var m = function() {
             t.set(this._vector.subarray(i, i + r)), this.receive(e)
         }
     }, {
-        key: "extract",
+        key: "`extract`",
         value: function(t) {
             var e = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : 0,
                 r = arguments.length > 2 && void 0 !== arguments[2] ? arguments[2] : 0,
@@ -594,7 +616,9 @@ _ = function(t) {
                 for (; this.slopeCount > 1;)
                     if (this.slopeCount -= 1, (o += 1) >= t - 1) break t;
                 var u = r + 2 * o;
-                i[n + 2 * s] = (1 - this.slopeCount) * e[u] + this.slopeCount * e[u + 2], i[n + 2 * s + 1] = (1 - this.slopeCount) * e[u + 1] + this.slopeCount * e[u + 3], s += 1, this.slopeCount += this._rate
+                i[n + 2 * s] = (1 - this.slopeCount) * e[u] + this.slopeCount * e[u + 2], 
+                i[n + 2 * s + 1] = (1 - this.slopeCount) * e[u + 1] + this.slopeCount * e[u + 3], s += 1, 
+                this.slopeCount += this._rate
             }
             return this.prevSampleL = e[r + 2 * t - 2], this.prevSampleR = e[r + 2 * t - 1], s
         }
@@ -687,7 +711,9 @@ w = function(t) {
             var r = Math.min(e, this.outputBuffer.frameCount - this.outputBufferPosition);
             this.outputBuffer.extract(t, this.outputBufferPosition, r);
             var i = this.outputBufferPosition + r;
-            return this.outputBufferPosition = Math.min(this.historyBufferSize, i), this.outputBuffer.receive(Math.max(i - this.historyBufferSize, 0)), this._position += r, r
+            return this.outputBufferPosition = Math.min(this.historyBufferSize, i), 
+            this.outputBuffer.receive(Math.max(i - this.historyBufferSize, 0)), 
+            this._position += r, r
         }
     }, { 
         key: "handleSampleData", 
@@ -717,7 +743,7 @@ S = [
     [-4, -3, -2, -1, 1, 2, 3, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 ],
 
-// What does this do?
+// This function finds out what needs to be done with the buffer
 
 P = function(t) {
         n(s, g);
@@ -819,20 +845,26 @@ P = function(t) {
             key: "preCalculateCorrelationReferenceStereo", 
             value: function() { 
                 for (var t, e, r = 0; r < this.overlapLength; r += 1) 
-                e = r * (this.overlapLength - r), 
-                t = 2 * r, 
-                this.refMidBuffer[t] = this.midBuffer[t] * e, 
-                this.refMidBuffer[t + 1] = this.midBuffer[t + 1] * e 
-            } 
+                    e = r * (this.overlapLength - r), 
+                    t = 2 * r, 
+                    this.refMidBuffer[t] = this.midBuffer[t] * e, 
+                    this.refMidBuffer[t + 1] = this.midBuffer[t + 1] * e 
+                } 
         }, {
             key: "calculateCrossCorrelationStereo",
             value: function(t, e) {
                 var r = this._inputBuffer.vector;
                 t += this._inputBuffer.startIndex;
-                for (var i, n = 0, o = 2, s = 2 * this.overlapLength; o < s; o += 2) n += r[i = o + t] * e[o] + r[i + 1] * e[o + 1];
+                for (var i, n = 0, o = 2, s = 2 * this.overlapLength; o < s; o += 2) 
+                    n += r[i = o + t] * e[o] + r[i + 1] * e[o + 1];
                 return n
             }
-        }, { key: "overlap", value: function(t) { this.overlapStereo(2 * t) } }, {
+        }, { 
+            key: "overlap", 
+            value: function(t) { 
+                this.overlapStereo(2 * t) 
+            } 
+        }, {
             key: "overlapStereo",
             value: function(t) {
                 var e = this._inputBuffer.vector;
@@ -851,7 +883,8 @@ P = function(t) {
                 var t, e, r;
                 if (null === this.midBuffer) {
                     if (this._inputBuffer.frameCount < this.overlapLength) return;
-                    this.midBuffer = new Float32Array(2 * this.overlapLength), this._inputBuffer.receiveSamples(this.midBuffer, this.overlapLength)
+                    this.midBuffer = new Float32Array(2 * this.overlapLength), 
+                    this._inputBuffer.receiveSamples(this.midBuffer, this.overlapLength)
                 }
                 for (; this._inputBuffer.frameCount >= this.sampleReq;) {
                     t = this.seekBestOverlapPosition(), 
@@ -1017,6 +1050,9 @@ P = function(t) {
             } 
         }]), t
     }(),
+
+    //This puts both channels into 1 buffer
+
     L = function() {
         function t(r) { 
             e(this, t), 
@@ -1229,7 +1265,9 @@ P = function(t) {
                         a = o[2];
                     return this.bufferSource = new x(s, u, a), 
                     this._samples = new Float32Array(2 * this.bufferSize), 
+                    //Soundtouch
                     this._pipe = new C, 
+                    //
                     this._filter = new w(this.bufferSource, this._pipe), 
                     this.port.postMessage({ message: "PROCESSOR_READY" }), 
                     this._initialized = !0, !0
