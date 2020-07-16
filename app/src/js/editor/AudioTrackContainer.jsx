@@ -3,6 +3,7 @@ import React from 'react';
 import SlideController from './controller/SlideController.jsx';
 import FreqVisualiser from './FreqVisualiser.jsx';
 import TimeVisualiser from './TimeVisualiser.jsx';
+import CutBar from './CutBar.jsx';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Button from 'react-bootstrap/Button';
 import FormControl from 'react-bootstrap/FormControl';
@@ -28,6 +29,7 @@ export default class AudioTrackContainer extends React.Component {
         this.updateSlice = this.updateSlice.bind(this);
         this.updateTime = this.updateTime.bind(this);
         this.setAnalyserCallback = this.setAnalyserCallback.bind(this);
+        //this.setCutBarCallback = this.setCutBarCallback.bind(this);
         this.record = this.record.bind(this);
         this.slice = 0;
         this.time = 0;
@@ -35,6 +37,7 @@ export default class AudioTrackContainer extends React.Component {
             track: null,
             visualisers: null,
             analyser: [null, null],
+            cutBar: null,
             time: "0.00"
         }
         this.audioTrack = AudioTrack.create(props.file).then((track) => {
@@ -111,7 +114,7 @@ export default class AudioTrackContainer extends React.Component {
         if (this.state.track)
             this.state.track.setAnalyserCallback(cb);
     }
-
+    
     playFrom(time) {
         if (this.state.track)
             this.state.track.playFrom(time);
@@ -165,7 +168,10 @@ export default class AudioTrackContainer extends React.Component {
         const timeSample = Math.floor(parseFloat(val)*this.state.track.rate);
         if ( this.state.track) {
             this.state.track.cut(timeSample);
-            this.setState({track : this.state.track});
+            this.setState({
+                track: this.state.track,
+                cutBar: <CutBar width={600} height={60} cuts={this.state.track.cuts} />
+            });
         }
     }
 
@@ -186,7 +192,7 @@ export default class AudioTrackContainer extends React.Component {
             record: this.record
         });
     }
-     
+
     render() {
         return (
             <div className="row">
@@ -198,10 +204,12 @@ export default class AudioTrackContainer extends React.Component {
                     {this.state.visualisers}
                     {"Cuts in samples:"}
                     <ol>
-                    {this.state.track? this.state.track.cuts.map(cut => (
+                    {this.state.track ? this.state.track.cuts.map(cut => (
                         <li key = {cut.time}>{cut.time}</li>
                     )): "No cuts"}
                     </ol>
+                    {/* {this.state.cutBar} */}
+                    {this.state.track && this.state.track.cuts ? this.state.cutBar : "TESTING"}
                     {/*this.state.track ? (this.state.track.cuts[1] ? this.state.track.cuts[1].time : "not enough cuts") : "no cuts"*/}
                     <SelectTime
                         handleTime={this.executeCut}
