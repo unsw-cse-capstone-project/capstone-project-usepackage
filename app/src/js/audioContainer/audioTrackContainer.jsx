@@ -22,7 +22,6 @@ export default class AudioTrackContainer extends React.Component {
 
     toggle() {
         if ( this.state.controller ) {
-            console.log(this.state.controller);
             this.state.controller.toggle((name) => this.setState({toggleName: name}));
         }
     }

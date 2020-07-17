@@ -79,13 +79,11 @@ AudioTrackController.create = (audioRecord) => {
 AudioTrackController.graph = (audioCtx, buffer) => {
     // const gainNode = new GainNode(audioCtx);
     return audioCtx.audioWorklet.addModule('./myProcessor.js').then(() => {
-        const gainNode = new MyWorkletNode(audioCtx, 'CustomGainProcessor', buffer)
+        const gainNode = new MyWorkletNode(audioCtx, 'CustomGainProcessor', buffer);
         return new Promise((resolve) => {
             gainNode.on('init', (detail) => {
-                console.log(detail)
-                resolve({
-                    gain: gainNode
-                })
+                console.log("MSG: ", detail)
+                resolve({gain: gainNode})
             })
         })
         // return {gain: gainNode}

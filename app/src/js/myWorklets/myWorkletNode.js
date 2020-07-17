@@ -62,10 +62,9 @@ export default class MyWorkletNode extends AudioWorkletNode {
         }
         if ( "Ready" === title ) {
             let init = new CustomEvent("init", {
-                detail: "Data given to processor: ", data
+                detail: data
             })
             this.dispatchEvent(init);
-            return;
         }
     }
 
