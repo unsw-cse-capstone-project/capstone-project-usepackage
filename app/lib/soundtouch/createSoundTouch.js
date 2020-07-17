@@ -393,15 +393,15 @@ const createSoundTouchNode = (
          *   If no 'name' was passed, we remove all of the event listeners in the listeners array
          */
         off(eventName = null) {
-                console.log(">>>off");
-                let listeners = this.listeners;
-                if (eventName) {
-                    listeners = listeners.filter((e) => e.name === eventName);
-                }
-                listeners.forEach((e) => {
-                    this.removeEventListener(e.name, (event) => e.cb(event.detail));
-                });
+            console.log(">>>off");
+            let listeners = this.listeners;
+            if (eventName) {
+                listeners = listeners.filter((e) => e.name === eventName);
             }
+            listeners.forEach((e) => {
+                this.removeEventListener(e.name, (event) => e.cb(event.detail));
+            });
+        }
             /* end event listener handling */
 
         /**

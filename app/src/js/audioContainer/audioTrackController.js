@@ -60,8 +60,8 @@ AudioTrackController.create = (audioRecord) => {
     return new Promise((resolve) => {
         console.log("Creating a new controller with record: ", audioRecord)
         const audioCtx = new AudioContext()
-        AudioTrackController.graph(audioCtx).then(graph => {
-            console.log(graph)
+        AudioTrackController.graph(audioCtx, audioRecord.audioData).then(graph => {
+            console.log("Graph: ", graph)
             // Create the source
             const audio = new Audio(URL.createObjectURL(audioRecord.fileBlob))
             const source = audioCtx.createMediaElementSource(audio)
@@ -76,12 +76,18 @@ AudioTrackController.create = (audioRecord) => {
     })
 }
 
-AudioTrackController.graph = (audioCtx) => {
+AudioTrackController.graph = (audioCtx, buffer) => {
     // const gainNode = new GainNode(audioCtx);
     return audioCtx.audioWorklet.addModule('./myProcessor.js').then(() => {
-        const gainNode = new MyWorkletNode(audioCtx, 'CustomGainProcessor')
-        return ({
-            gain: gainNode
+        const gainNode = new MyWorkletNode(audioCtx, 'CustomGainProcessor', buffer)
+        return new Promise((resolve) => {
+            gainNode.on('init', (detail) => {
+                console.log(detail)
+                resolve({
+                    gain: gainNode
+                })
+            })
         })
+        // return {gain: gainNode}
     })
 }
