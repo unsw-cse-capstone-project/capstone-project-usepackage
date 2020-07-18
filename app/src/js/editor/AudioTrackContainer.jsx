@@ -26,6 +26,7 @@ export default class AudioTrackContainer extends React.Component {
         this.pitchHandler = this.pitchHandler.bind(this);
         this.executeCut = this.executeCut.bind(this);
         this.pickSlice = this.pickSlice.bind(this);
+        this.cropHandler = this.cropHandler.bind(this);
         this.updateSlice = this.updateSlice.bind(this);
         this.updateTime = this.updateTime.bind(this);
         this.setAnalyserCallback = this.setAnalyserCallback.bind(this);
@@ -182,6 +183,33 @@ export default class AudioTrackContainer extends React.Component {
         console.log("Slice number", this.state.track.CurrentCut);
     }
 
+    // Crops/uncrops the currently selected slice
+    // Does not work properly
+    cropHandler(){
+        let index = this.state.track.CurrentCut;
+        const cuts = this.state.track.cuts.length;
+        const len = this.state.track.cuts[index].length;
+        console.log(index);
+        if(this.state.track.cuts[index].cropped == undefined || this.state.track.cuts[index].cropped == false) {
+            //console.log("ERROR! .cropped bool not set in cut number: ", index);
+            this.state.track.cuts[index].cropped = true;
+            // Decrement the time values for the following cuts
+            // for(let incr = index + 1; incr < cuts; incr++) {
+            //     console.log(incr);
+            //     this.state.track.cuts[incr].time -= len;
+            // }
+            console.log("Cropping out section: ", index);
+        } else {
+            this.state.track.cuts[index].cropped = false;
+            // Increment the time values for the following cuts
+            // for(let incr = index + 1; incr < cuts; incr++) {
+            //     this.state.track.cuts[incr].time += len;
+            // }
+            console.log("Uncropping section: ", index);
+        }
+        
+    }
+
     componentDidMount() {
         this.props.onMounted({
             play: this.play,
@@ -204,13 +232,11 @@ export default class AudioTrackContainer extends React.Component {
                     {this.state.visualisers}
                     {"Cuts in samples:"}
                     <ol>
-                    {this.state.track ? this.state.track.cuts.map(cut => (
-                        <li key = {cut.time}>{cut.time}</li>
+                    {this.state.track ? this.state.track.cuts.map((cut, index) => (
+                        <li key = {index}>{cut.time}</li>
                     )): "No cuts"}
                     </ol>
-                    {/* {this.state.cutBar} */}
                     {this.state.track && this.state.track.cuts ? this.state.cutBar : "TESTING"}
-                    {/*this.state.track ? (this.state.track.cuts[1] ? this.state.track.cuts[1].time : "not enough cuts") : "no cuts"*/}
                     <SelectTime
                         handleTime={this.executeCut}
                         handleSlice={this.pickSlice}
@@ -219,6 +245,7 @@ export default class AudioTrackContainer extends React.Component {
                         formatHandler={(e) => this.formatHandler(e.target)}
                         downloadHandler={this.downloadHandler}
                     />
+                    <Button onClick={this.cropHandler} id="cropButton">Crop</Button>
                 </div>  
             </div>
         );
@@ -230,7 +257,7 @@ export const SelectTime = (props) => {
         <div>
         <InputGroup>
             <InputGroup.Prepend>
-                <InputGroup.Text>Cut interval</InputGroup.Text>
+                <InputGroup.Text>Cut Interval</InputGroup.Text>
             </InputGroup.Prepend>
             <FormControl onChange={props.updateTime} aria-label="Time" className="col-2"/>
             <InputGroup.Append>
