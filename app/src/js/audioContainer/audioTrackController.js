@@ -57,7 +57,7 @@ export default class AudioTrackController {
     }
 
     time() {
-        this._timeCb(this.graph.gain.getTime())
+        this.timeCb(this.graph.gain.getTime())
     }
 
     seek(val) {
