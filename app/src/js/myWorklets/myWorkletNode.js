@@ -1,11 +1,12 @@
+
 export default class MyWorkletNode extends AudioWorkletNode {
-    constructor(context, processor, buffer) {
+    /*
+        The options parameters is an object that we can freely manipulate to add stuff
+    */
+    constructor(context, processor, options) {
         super(context, processor);
-        this._buffer = buffer;
+        this._buffer = options.buffer;
         this.listeners = [];
-        // this.on = this.on.bind(this) 
-        // this.off = this.off.bind(this)
-        this._initializeProcessor = this._initializeProcessor.bind(this);
         this.port.onmessage = this._messageProcessor.bind(this);
     }  
 
@@ -50,6 +51,12 @@ export default class MyWorkletNode extends AudioWorkletNode {
         }
     }
 
+    /*
+        The possible return values for messaging are:
+        Initialised: This tells us when the processor has its constructer updated with the relevant information as well as general setup
+        Ready: This is called back after the initialised state, and is used simply to let the user know that they can start to use the processor
+        Position: Updates the user with the current buffer position
+    */
     _messageProcessor(e) {
         const msg = e.data;
         let title = msg.title;
@@ -65,6 +72,14 @@ export default class MyWorkletNode extends AudioWorkletNode {
                 detail: data
             })
             this.dispatchEvent(init);
+            return;
+        }
+        if ( "Position" === title ) {
+            let pos = new CustomEvent("pos", {
+                detail: data
+            })
+            this.dispatchEvent(pos);
+            return;
         }
     }
 

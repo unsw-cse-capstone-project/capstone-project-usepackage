@@ -4,8 +4,18 @@ class TestProcessor extends AudioWorkletProcessor {
 
     constructor() {
         super();
-        this._bufferInfo = {};
+        this._bufferInfo = {
+            sampleRate: 0,
+            duration: 0,
+            numberOfChannels: 0,
+            length: 0,
+            channelOne: [],
+            channelTwo: []
+        };
         this._initialized = false;
+        this._frame = 0;
+        // The buffer parsed to the output after undergoing some processing
+        this._samples = new Float32Array(2 * 128)
         this.port.onmessage =  (e) => {
             const msg = e.data;
             let title = msg.title;
@@ -25,6 +35,15 @@ class TestProcessor extends AudioWorkletProcessor {
         })
     }
 
+
+    update() {
+        this._frame += 1;
+        this.port.postMessage({
+            title: "Position",
+            data: this._frame
+        })
+    }
+
     process(inputs, outputs, params) {
         if (!this._initialized || !inputs[0].length) return true;
         const input = inputs[0]
@@ -34,9 +53,11 @@ class TestProcessor extends AudioWorkletProcessor {
                 channel[i] = input[num][i]*params['customGain'][0]
             }
         })
+        this.update();
         return true
     }
 
+    // The parameter descripter that gets passed into the 'params' argument when processing
     static get parameterDescriptors() {
         return [{
           name: 'customGain',

@@ -17,12 +17,13 @@ export default class AudioTrackController {
         this.graph = props.graph
         this.audioCtx = props.audioCtx
         this.audioElement = props.audioElement
-
         this.toggle = this.toggle.bind(this)
         this.gain = this.gain.bind(this)
+        this.time = this.time.bind(this)
         this.connectAll = this.connectAll.bind(this)
         this.connectAll()
         this.inprogress = false;
+
     }
 
     toggle(nameCb) {
@@ -36,6 +37,12 @@ export default class AudioTrackController {
             this.inprogress = true;
             nameCb("Pause")
         }
+    }
+
+    time(timeCb) {
+        return this.graph.gain.on('pos', (detail) => {
+            timeCb(detail)
+        })
     }
 
     seek(val) {
@@ -79,7 +86,9 @@ AudioTrackController.create = (audioRecord) => {
 AudioTrackController.graph = (audioCtx, buffer) => {
     // const gainNode = new GainNode(audioCtx);
     return audioCtx.audioWorklet.addModule('./myProcessor.js').then(() => {
-        const gainNode = new MyWorkletNode(audioCtx, 'CustomGainProcessor', buffer);
+        const gainNode = new MyWorkletNode(audioCtx, 'CustomGainProcessor', {
+            buffer: buffer
+        });
         return new Promise((resolve) => {
             gainNode.on('init', (detail) => {
                 console.log("MSG: ", detail)
