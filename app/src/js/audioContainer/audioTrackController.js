@@ -17,11 +17,15 @@ export default class AudioTrackController {
         this.graph = props.graph
         this.audioCtx = props.audioCtx
         this.audioElement = props.audioElement
-        this.toggle = this.toggle.bind(this)
-        this.gain = this.gain.bind(this)
-        this.time = this.time.bind(this)
-        this.connectAll = this.connectAll.bind(this)
-        this.connectAll()
+
+        // Callbacks
+        this._timeCb = null;
+        // Functions bindings
+        this.toggle = this.toggle.bind(this);
+        this.gain = this.gain.bind(this);
+        this.time = this.time.bind(this);
+        this.connectAll = this.connectAll.bind(this);
+        this.connectAll();
         this.inprogress = false;
 
     }
@@ -37,12 +41,23 @@ export default class AudioTrackController {
             this.inprogress = true;
             nameCb("Pause")
         }
+        this.graph.gain.port.postMessage({
+            title: "Update",
+            data: { 
+               paused: !this.inprogress
+            }
+        })
     }
 
-    time(timeCb) {
-        return this.graph.gain.on('pos', (detail) => {
-            timeCb(detail)
-        })
+    get timeCb() {
+        return this._timeCb
+    }
+    set timeCb(timeCb) {
+        this._timeCb = timeCb
+    }
+
+    time() {
+        this._timeCb(this.graph.gain.getTime())
     }
 
     seek(val) {

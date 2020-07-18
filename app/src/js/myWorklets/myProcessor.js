@@ -14,6 +14,7 @@ class TestProcessor extends AudioWorkletProcessor {
         };
         this._initialized = false;
         this._frame = 0;
+        this._paused = false;
         // The buffer parsed to the output after undergoing some processing
         this._samples = new Float32Array(2 * 128)
         this.port.onmessage =  (e) => {
@@ -28,6 +29,10 @@ class TestProcessor extends AudioWorkletProcessor {
                 })
                 this._initialized = true;
             }
+
+            if ( "Update" === title ) {
+                this._paused = data.paused
+            }
         }
         this.port.postMessage({
             title: "Initialised",
@@ -40,7 +45,9 @@ class TestProcessor extends AudioWorkletProcessor {
         this._frame += 1;
         this.port.postMessage({
             title: "Position",
-            data: this._frame
+            data:  {
+                time: this._frame
+            }
         })
     }
 
@@ -53,7 +60,7 @@ class TestProcessor extends AudioWorkletProcessor {
                 channel[i] = input[num][i]*params['customGain'][0]
             }
         })
-        this.update();
+        if ( !this._paused ) this.update();
         return true
     }
 

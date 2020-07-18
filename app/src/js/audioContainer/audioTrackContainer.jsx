@@ -11,6 +11,8 @@ export default class AudioTrackContainer extends React.Component {
             controller: null,
             time: "0.00"
         }
+        this.timeInteval = null;
+        this.paused = true;
         // Perform setup after promise is fulfilled
         AudioTrackController.create(props.audioRecord).then(controller => {
             this.setState({
@@ -18,17 +20,26 @@ export default class AudioTrackContainer extends React.Component {
             })
             return this.state
         }).then((state) => {
-            setInterval(() => {
-                state.controller.time((time) => this.setState({time: time.toString()}))
-            }, 1000)
+            state.controller.timeCb = (time) => this.setState({time: time.toString()})
         })
+        this.startTime = this.startTime.bind(this)
         this.toggle = this.toggle.bind(this)
         this.gain = this.gain.bind(this)
+    }
+
+    startTime() {
+        this.timeInteval = this.state.controller.time()
+    }
+
+    stopTime() {
+        clearInterval(this.timeInteval)
     }
 
     toggle() {
         if ( this.state.controller ) {
             this.state.controller.toggle((name) => this.setState({toggleName: name}));
+            this.startTime()
+            this.paused = !this.paused;
         }
     }
 

@@ -7,9 +7,17 @@ export default class MyWorkletNode extends AudioWorkletNode {
         super(context, processor);
         this._buffer = options.buffer;
         this.listeners = [];
+        this.time = 0;
         this.port.onmessage = this._messageProcessor.bind(this);
     }  
 
+    getTime() {
+        return this.time
+    }
+
+    // set time(time) {
+    //     this.time = time
+    // }
 
     /* event listener handling */
     /**
@@ -61,6 +69,8 @@ export default class MyWorkletNode extends AudioWorkletNode {
         const msg = e.data;
         let title = msg.title;
         let data = msg.data;
+
+        // From the processor
         if ( "Initialised" === title ) {
             this.port.postMessage({
                 title: "Begin",
@@ -75,11 +85,20 @@ export default class MyWorkletNode extends AudioWorkletNode {
             return;
         }
         if ( "Position" === title ) {
+            this.time = data.time
             let pos = new CustomEvent("pos", {
                 detail: data
             })
             this.dispatchEvent(pos);
             return;
+        }
+
+        // From the container
+        if ( "Update" === title ) {
+            this.port.postMessage({
+                title: "Update",
+                data: this.data
+            })
         }
     }
 
