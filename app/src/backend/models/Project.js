@@ -14,7 +14,7 @@ const ProjectSchema = new Schema({
     },
 
     owners: {
-        type: [String],
+        type: [mongoose.Types.ObjectId],
         required: true
     },
 

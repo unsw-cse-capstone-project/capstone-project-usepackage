@@ -2,22 +2,52 @@ const express = require('express');
 const projects = express.Router();
 const Project = require('../models/Project');
 const jwt = require('jsonwebtoken');
+const multer = require('multer');
+const GridFsStorage = require('multer-gridfs-storage');
+// const { mongo, connection } = require('mongoose');
+const mongoose = require('mongoose');
+const mongoDriver = mongoose.mongo;
+const Grid = require('gridfs-stream');
+const conn = require('../server')
+    // Grid.mongo = mongo;
+
+console.log("GridFS Connected")
+
+const gfs = Grid(conn, mongoDriver);
+
+// set up connection to db for file storage
+const storage = GridFsStorage({
+    db: conn,
+    file: (req, file) => {
+        console.log("In storage: ", req.token)
+        return {
+            filename: req.token.username + "-" + file.originalname
+        }
+    }
+});
 
 process.env.SECRET_KEY = 'secret'
 
-
-// checks if header is undefined. 
 const checkToken = (req, res, next) => {
-    const header = req.headers['authorization'];
-    if (typeof header !== 'undefined') {
-        const bearer = header.split(' ');
-        const token = bearer[1];
-        req.token = token;
-        next();
+    const token = req.headers['authorization'];
+    if (typeof token !== 'undefined') {
+        jwt.verify(token, process.env.SECRET_KEY, (err, authorisedData) => {
+            if(err) {
+                res.sendStatus(403);
+                throw new Error("ERROR: could not connect to the protected route")
+            }
+            else {
+                req.token = authorisedData;
+                next();
+            }
+        });   
     } else {
         res.sendStatus(403);
     }
 }
+
+// checks if header is undefined. 
+const testMiddleWare = multer({ storage: storage }).single('file');
 
 // list of routes that need to be implemented"
 // GET /projects/getprojects      -> retrieves a list of projects that a certain user has access to
@@ -36,28 +66,23 @@ const checkToken = (req, res, next) => {
  * token must be verified (to check if the given user is logged in)
  * and only list the projects if the token is verified
  */
-projects.get('/getprojects', checkToken, (req, res) => {
+projects.get('/', checkToken, (req, res) => {
     // verify validity of token here
-    jwt.verify(req.token, process.env.SECRET_KEY, (err, authorisedData) => {
-        if (err) {
-            console.log("ERROR: could not connect to the protected route");
-            res.sendStatus(403);
-        } else {
-            console.log("SUCCESS: retrieving list of projects of user");
-            console.log(authorisedData);
-            // query here; if authorisedData contains username,
-            // there is no need to have req.body.username
-            // leave for now
-            const query = {
-                owners: { $elemMatch: { $eq: req.body.username } }
-            };
-            Project.find(query).toArray((err, result) => {
-                if (err) throw err;
-                // need to send array of projects back to client here
-                res.send(result);
-            });
-        }
+
+    const query = {
+        owners: { $elemMatch: { $eq: req.body.username } }
+    };
+    Project.find(query).toArray((err, result) => {
+        if (err) throw err;
+        // need to send array of projects back to client here
+        res.send(result);
     });
 });
 
+projects.post('/', [checkToken, testMiddleWare], (req, res, next) => {
+    console.log(req.token)
+    console.log(req.file)
+});
+
 // deal with profile later.
+module.exports = projects;

@@ -1,16 +1,20 @@
 const files = require('express').Router();
 const multer = require('multer');
+const GridFsStorage = require('multer-gridfs-storage');
 // const { mongo, connection } = require('mongoose');
 const mongoose = require('mongoose');
 const mongoDriver = mongoose.mongo;
 const Grid = require('gridfs-stream');
-const db = require('../server')
+const conn = require('../server')
     // Grid.mongo = mongo;
-var gfs = Grid(db, mongoDriver);
+
+console.log("GridFS Connected")
+
+const gfs = Grid(conn, mongoDriver);
 
 // set up connection to db for file storage
-const storage = require('multer-gridfs-storage')({
-    db: db,
+const storage = GridFsStorage({
+    db: conn,
     file: (req, file) => {
         return {
             filename: file.originalname
@@ -21,7 +25,7 @@ const storage = require('multer-gridfs-storage')({
 const singleUpload = multer({ storage: storage }).single('file');
 
 // downloads provided file. :filename is given as argument/parameter. 
-files.get('/files/:filename', (req, res) => {
+files.get('/:filename', (req, res) => {
     gfs.files.find({ filename: req.params.filename }).toArray((err, files) => {
         if (!files || files.length === 0) {
             return res.status(404).json({
@@ -38,7 +42,7 @@ files.get('/files/:filename', (req, res) => {
 });
 
 // gets all files. We will need to modify this so that only files with the correct username is obtained
-files.get('/files', (req, res) => {
+files.get('/', (req, res) => {
     gfs.files.find().toArray((err, files) => {
         if (!files || files.length === 0) {
             return res.status(404).json({
@@ -50,7 +54,8 @@ files.get('/files', (req, res) => {
 });
 
 // uploads files using gridFS
-files.post('/files', singleUpload, (req, res) => {
+files.post('/', singleUpload, (req, res) => {
+    console.log(req.file)
     if (req.file) {
         return res.json({
             success: true,
@@ -61,7 +66,7 @@ files.post('/files', singleUpload, (req, res) => {
 });
 
 // deletes files in the the db
-files.delete('/files/:id', (req, res) => {
+files.delete('/:id', (req, res) => {
     gfs.remove({ _id: req.params.id }, (err) => {
         if (err) return res.status(500).json({ success: false })
         return res.json({ success: true });
@@ -69,4 +74,3 @@ files.delete('/files/:id', (req, res) => {
 })
 
 module.exports = files;
-db

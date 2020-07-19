@@ -32,11 +32,17 @@ export default class MainContainer extends React.Component {
 
     saveFiles() {
         const blobs = this.audioStack.record();
-        console.log(blobs[0])
-        if ( blobs[0].size > 100 ) {
+        if ( blobs[0].size > 100 && localStorage.usertoken) {
+            // const URI = URL.createObjectURL(blobs[0])
+            let data = new FormData();
+            let file = new File([blobs[0]], "testfile.mp3", {type: "audio/mpeg"});
+            data.append('file', file);
             console.log("Attempting to save blob")
-            MainContainer.Save(blobs[0])
+            MainContainer.Save(data);
+        } else {
+            console.log("NOT LOGGED IN")
         }
+        // localStorage.usertoken
         // let a = document.createElement('a');
         // a.download = 'test.mp3'
         // a.href = URL.createObjectURL(blob);
@@ -121,10 +127,12 @@ MainContainer.UploadHandler = (fileURL) => {
 MainContainer.Save = (obj) => {
     const requestOptions = {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+            'Authorization': localStorage.usertoken
+        },
         // body: JSON.stringify(obj)
-        file: obj
+        body: obj
     };
     
-    return Promise.resolve(fetch(dbURL + '/files', requestOptions))
+    return Promise.resolve(fetch(dbURL + '/projects', requestOptions))
 };
