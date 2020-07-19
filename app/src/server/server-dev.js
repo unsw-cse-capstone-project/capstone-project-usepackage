@@ -9,9 +9,9 @@ import fetch from 'cross-fetch'
 
 const app = express(),
     DIST_DIR = __dirname,
-    LIB_DIR = path.join(DIST_DIR, '../lib'),
+    WORKLET_DIR = path.join(DIST_DIR, '../src/js/myWorklets'),
     HTML_FILE = path.join(DIST_DIR, 'index.html'),
-    compiler = webpack(config)  
+    compiler = webpack(config)
 
 app.use(webpackDevMiddleware(compiler, {
     publicPath: config.output.publicPath
@@ -28,7 +28,7 @@ const dbURL = "http://localhost:5000"
 app.post('/confirmation', (req, res, next) => {
     console.log(req.body);
     var jsonBody = null;
-    if(req.body.password !== req.body.confirmPassword) {
+    if (req.body.password !== req.body.confirmPassword) {
         res.send("password mismatch");
         return;
     }
@@ -46,8 +46,8 @@ app.post('/confirmation', (req, res, next) => {
     };
 
     return new Promise((resolve) => fetch(dbURL + '/users/register', requestOptions)
-    .then(res2 => res2.json())
-    .then(josn => console.log(josn)));
+        .then(res2 => res2.json())
+        .then(josn => console.log(josn)));
 
 });
 
@@ -55,15 +55,15 @@ app.post('/confirmation', (req, res, next) => {
 
 app.get('/', (req, res, next) => {
     compiler.outputFileSystem.readFile(HTML_FILE, (err, result) => {
-        if (err) {
-            console.log(req.url)
-            return next(err)
-        }
-        res.set('content-type', 'text/html')
-        res.send(result)
-        res.end()
-    })
-    // res.sendFile(HTML_FILE)
+            if (err) {
+                console.log(req.url)
+                return next(err)
+            }
+            res.set('content-type', 'text/html')
+            res.send(result)
+            res.end()
+        })
+        // res.sendFile(HTML_FILE)
 })
 
 app.get('/home', (req, res, next) => {
@@ -79,33 +79,10 @@ app.get('/home', (req, res, next) => {
     res.sendFile(HTML_FILE)
 })
 
-app.get('/ffmpeg/ffmpeg-worker.js', (req, res, next) => {
-    res.sendFile(path.join(LIB_DIR, 'ffmpeg/ffmpeg-worker.js'));
+app.get('/myProcessor.js', (req, res, next) => {
+    res.sendFile(path.join(WORKLET_DIR, 'myProcessor.js'))
 })
 
-app.get('/ffmpeg/ffmpeg.js', (req, res, next) => {
-    res.sendFile(path.join(LIB_DIR, 'ffmpeg/ffmpeg.js'));
-})
-
-app.get('/recorder/recorder.js', (req, res, next) => {
-    res.sendFile(path.join(LIB_DIR, 'recorder/recorder.js'));
-})
-
-app.get('/soundtouch/soundtouch-worklet.js', (req, res, next) => {
-    res.sendFile(path.join(LIB_DIR, 'soundtouch/soundtouch-worklet.js'));
-})
-
-app.get('/lamejs.js', (req, res, next) => {
-    res.sendFile(path.join(LIB_DIR, 'lamejs.js'));
-})
-
-app.get('/libvorbis.js', (req, res, next) => {
-    res.sendFile(path.join(LIB_DIR, 'vorbis.js'));
-})
-
-app.get('/vorbis.js', (req, res, next) => {
-    res.sendFile(path.join(LIB_DIR, 'ogg.js'));
-})
 
 
 app.get('/register', (req, res, next) => {

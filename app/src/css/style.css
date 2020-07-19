@@ -1,9 +1,10 @@
-ul li {
-    list-style: none;
-    outline: 1px solid black;
+.main {
+    padding: 2% 2% 0 2%;
 }
 
+
 /* For the stack controller */
+
 .stackController {
     padding-top: 100px;
 }
@@ -40,4 +41,8 @@ a:hover {
 
 .inputStyle {
     display: none;
+}
+
+.trackContainer {
+    padding-top: 2%;
 }

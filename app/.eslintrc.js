@@ -9,12 +9,11 @@ module.exports = {
         "react": {
             "version": "detect"
         }
-    },
-    "env": {
-        "browser": true,
-        "es6": true
+    }, "env": {
+      "browser": true,
+      "es6": true
     },
     "rules": {
-        "global-require": "off"
+      "global-require": "off"
     }
 };
