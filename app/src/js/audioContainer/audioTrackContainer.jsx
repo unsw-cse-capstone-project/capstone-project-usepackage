@@ -2,6 +2,8 @@ import React from 'react'
 import Button from 'react-bootstrap/Button'
 import AudioTrackController from './audioTrackController'
 import Slider from '../BasicComponents/Slider.jsx'
+import InputGroup from 'react-bootstrap/InputGroup';
+import FormControl from 'react-bootstrap/FormControl';
 
 export default class AudioTrackContainer extends React.Component {
     constructor(props) {
@@ -18,6 +20,12 @@ export default class AudioTrackContainer extends React.Component {
         this.toggle = this.toggle.bind(this)
         this.record = this.record.bind(this)
         this.gain = this.gain.bind(this)
+        this.executeCut = this.executeCut.bind(this);
+        this.pickSlice = this.pickSlice.bind(this);
+        this.updateSlice = this.updateSlice.bind(this);
+        this.updateTime = this.updateTime.bind(this);
+        this.time = 0;
+        this.slice = 0;
         AudioTrackController.create(props.audioRecord).then(controller => {
             this.setState({
                 controller: controller
@@ -63,10 +71,34 @@ export default class AudioTrackContainer extends React.Component {
         }
     }
 
+    updateSlice(e) {
+        this.slice = e.target.value;
+    }
+
+    updateTime(e) {
+        this.time = e.target.value;
+    }
+
+    // Note: need to add stuff for cutbar later
+    executeCut(){
+        const val = this.time;
+        const timeSample = Math.floor(parseFloat(val)*this.state.track.rate);
+        if ( this.state.track) {
+            this.state.track.cut(timeSample);
+        }
+    }
+    
+    pickSlice() {
+        // const val = this.slice;
+        // if ( this.state.track)
+        //     this.state.track.CurrentCut = parseInt(val);
+        // console.log("Slice number", this.state.track.CurrentCut);
+    }
+
     componentDidMount() {
         this.props.onMounted(this.record)
     }
-
+    
     render() {
         return (
             <div className="trackContainer row">
@@ -74,7 +106,46 @@ export default class AudioTrackContainer extends React.Component {
                 <div className="col-12 timeFont">{this.state.time}</div>
                 <div className="col-6"><Button onClick={this.toggle}>{this.state.toggleName}</Button></div>
                 <div className="col-6"><Slider name="Volume" controlId="gainController" changeCallBack={this.gain} /></div>
+                <div className="col-6">
+                    <SelectTime 
+                        handleTime={this.executeCut} 
+                        handleSlice={this.pickSlice}
+                        updateTime={this.updateTime}
+                        updateSlice={this.updateSlice}
+                        formatHandler={(e) => this.formatHandler(e.target)}
+                        downloadHandler={this.downloadHandler}
+                    />
+                </div>
             </div>
         );
     }
+}
+
+export const SelectTime = (props) => {
+    return (
+        <div className="row">
+            <div className="col-6">
+                <InputGroup>
+                    <InputGroup.Prepend>
+                        <InputGroup.Text>Cut interval</InputGroup.Text>
+                    </InputGroup.Prepend>
+                    <FormControl onChange={props.updateTime} aria-label="Time" className="col-2"/>
+                    <InputGroup.Append>
+                        <Button onClick={props.handleTime} variant="outline-secondary">Enter</Button>
+                    </InputGroup.Append>
+                </InputGroup>
+            </div>
+            <div className="col-6">
+                <InputGroup>
+                    <InputGroup.Prepend>
+                        <InputGroup.Text>Pick Slice</InputGroup.Text>
+                    </InputGroup.Prepend>
+                    <FormControl onChange={props.updateSlice} aria-label="Slice" className="col-2"/>
+                    <InputGroup.Append>
+                        <Button onClick={props.handleSlice} variant="outline-secondary">Enter</Button>
+                    </InputGroup.Append>
+                </InputGroup>
+            </div>
+        </div>
+    );
 }

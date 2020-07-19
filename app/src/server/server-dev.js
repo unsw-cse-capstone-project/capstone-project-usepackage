@@ -88,6 +88,18 @@ app.get('/AbstractFifoSamplePipe.js', (req, res, next) => {
     res.sendFile(path.join(WORKLET_DIR, 'AbstractFifoSamplePipe.js'))
 })
 
+app.get('/RateTransposer.js', (req, res, next) => {
+    res.sendFile(path.join(WORKLET_DIR, 'RateTransposer.js'))
+})
+
+app.get('/Cut.js', (req, res, next) => {
+    res.sendFile(path.join(WORKLET_DIR, 'Cut.js'))
+})
+
+app.get('/ActionStack.js', (req, res, next) => {
+    res.sendFile(path.join(WORKLET_DIR, 'ActionStack.js'))
+})
+
 app.get('/Stretch.js', (req, res, next) => {
     res.sendFile(path.join(WORKLET_DIR, 'Stretch.js'))
 })
