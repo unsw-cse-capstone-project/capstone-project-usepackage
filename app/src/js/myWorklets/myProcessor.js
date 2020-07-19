@@ -1,4 +1,3 @@
-
 // myProcessor.js
 class TestProcessor extends AudioWorkletProcessor {
 
@@ -17,11 +16,11 @@ class TestProcessor extends AudioWorkletProcessor {
         this._paused = false;
         // The buffer parsed to the output after undergoing some processing
         this._samples = new Float32Array(2 * 128)
-        this.port.onmessage =  (e) => {
+        this.port.onmessage = (e) => {
             const msg = e.data;
             let title = msg.title;
             let data = msg.data;
-            if ( "Begin" === title ) {
+            if ("Begin" === title) {
                 this._bufferInfo = data;
                 this.port.postMessage({
                     title: "Ready",
@@ -30,7 +29,7 @@ class TestProcessor extends AudioWorkletProcessor {
                 this._initialized = true;
             }
 
-            if ( "Update" === title ) {
+            if ("Update" === title) {
                 this._paused = data.paused
             }
         }
@@ -45,7 +44,7 @@ class TestProcessor extends AudioWorkletProcessor {
         this._frame += 1;
         this.port.postMessage({
             title: "Position",
-            data:  {
+            data: {
                 time: this._frame
             }
         })
@@ -56,22 +55,22 @@ class TestProcessor extends AudioWorkletProcessor {
         const input = inputs[0]
         const output = outputs[0]
         output.forEach((channel, num) => {
-            for ( let i = 0; i < channel.length; i++ ) {
-                channel[i] = input[num][i]*params['customGain'][0]
+            for (let i = 0; i < channel.length; i++) {
+                channel[i] = input[num][i] * params['customGain'][0]
             }
         })
-        if ( !this._paused ) this.update();
+        if (!this._paused) this.update();
         return true
     }
 
     // The parameter descripter that gets passed into the 'params' argument when processing
     static get parameterDescriptors() {
         return [{
-          name: 'customGain',
-          defaultValue: 1,
-          minValue: 0,
-          maxValue: 2,
-          automationRate: 'k-rate'
+            name: 'customGain',
+            defaultValue: 1,
+            minValue: 0,
+            maxValue: 2,
+            automationRate: 'k-rate'
         }]
     }
 
