@@ -10,6 +10,7 @@ import fetch from 'cross-fetch'
 const app = express(),
     DIST_DIR = __dirname,
     WORKLET_DIR = path.join(DIST_DIR, '../src/js/myWorklets'),
+    LIB_DIR = path.join(DIST_DIR, '../lib'),
     HTML_FILE = path.join(DIST_DIR, 'index.html'),
     compiler = webpack(config)
 
@@ -81,6 +82,42 @@ app.get('/home', (req, res, next) => {
 
 app.get('/myProcessor.js', (req, res, next) => {
     res.sendFile(path.join(WORKLET_DIR, 'myProcessor.js'))
+})
+
+app.get('/AbstractFifoSamplePipe.js', (req, res, next) => {
+    res.sendFile(path.join(WORKLET_DIR, 'AbstractFifoSamplePipe.js'))
+})
+
+app.get('/Stretch.js', (req, res, next) => {
+    res.sendFile(path.join(WORKLET_DIR, 'Stretch.js'))
+})
+
+app.get('/FifoSampleBuffer.js', (req, res, next) => {
+    res.sendFile(path.join(WORKLET_DIR, 'FifoSampleBuffer.js'))
+})
+
+app.get('/recorder/recorder.js', (req, res, next) => {
+    res.sendFile(path.join(LIB_DIR, 'recorder/recorder.js'));
+})
+
+app.get('/soundtouch/soundtouch-worklet.js', (req, res, next) => {
+    res.sendFile(path.join(LIB_DIR, 'soundtouch/soundtouch-worklet.js'));
+})
+
+app.get('/lamejs.js', (req, res, next) => {
+    res.sendFile(path.join(LIB_DIR, 'lamejs.js'));
+})
+
+app.get('/libvorbis.js', (req, res, next) => {
+    res.sendFile(path.join(LIB_DIR, 'vorbis.js'));
+})
+
+app.get('/vorbis.js', (req, res, next) => {
+    res.sendFile(path.join(LIB_DIR, 'ogg.js'));
+})
+
+app.get('/stretch.js', (req, res, next) => {
+    res.sendFile(path.join(LIB_DIR, 'stretch.js'));
 })
 
 

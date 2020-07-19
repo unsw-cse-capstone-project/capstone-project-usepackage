@@ -3,7 +3,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 // Custom react components
-
 import "core-js/stable";
 import "regenerator-runtime/runtime";
 import './img/favicon.ico';

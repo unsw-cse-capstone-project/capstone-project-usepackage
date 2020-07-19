@@ -1,4 +1,3 @@
-
 export default class MyWorkletNode extends AudioWorkletNode {
     /*
         The options parameters is an object that we can freely manipulate to add stuff
@@ -9,7 +8,7 @@ export default class MyWorkletNode extends AudioWorkletNode {
         this.listeners = [];
         this.time = 0;
         this.port.onmessage = this._messageProcessor.bind(this);
-    }  
+    }
 
     getTime() {
         return this.time
@@ -38,15 +37,15 @@ export default class MyWorkletNode extends AudioWorkletNode {
      *   If no 'name' was passed, we remove all of the event listeners in the listeners array
      */
     off(eventName = null) {
-        let listeners = this.listeners;
-        if (eventName) {
-            listeners = listeners.filter((e) => e.name === eventName);
+            let listeners = this.listeners;
+            if (eventName) {
+                listeners = listeners.filter((e) => e.name === eventName);
+            }
+            listeners.forEach((e) => {
+                this.removeEventListener(e.name, (event) => e.cb(event.detail));
+            });
         }
-        listeners.forEach((e) => {
-            this.removeEventListener(e.name, (event) => e.cb(event.detail));
-        });
-    }
-    /* end event listener handling */
+        /* end event listener handling */
 
     _initializeProcessor(data) {
         return {
@@ -71,20 +70,20 @@ export default class MyWorkletNode extends AudioWorkletNode {
         let data = msg.data;
 
         // From the processor
-        if ( "Initialised" === title ) {
+        if ("Initialised" === title) {
             this.port.postMessage({
                 title: "Begin",
                 data: this._initializeProcessor(this._buffer)
             })
         }
-        if ( "Ready" === title ) {
+        if ("Ready" === title) {
             let init = new CustomEvent("init", {
                 detail: data
             })
             this.dispatchEvent(init);
             return;
         }
-        if ( "Position" === title ) {
+        if ("Position" === title) {
             this.time = data.time
             let pos = new CustomEvent("pos", {
                 detail: data
@@ -94,11 +93,20 @@ export default class MyWorkletNode extends AudioWorkletNode {
         }
 
         // From the container
-        if ( "Update" === title ) {
+        if ("Update" === title) {
             this.port.postMessage({
                 title: "Update",
                 data: this.data
             })
+        }
+
+        if ("Stop" === title) {
+            this.time = data.time
+            let stop = new CustomEvent("stop", {
+                detail: "Stop"
+            })
+            this.dispatchEvent(stop);
+            return;
         }
     }
 

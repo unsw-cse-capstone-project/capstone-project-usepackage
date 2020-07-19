@@ -2,6 +2,10 @@
     padding: 2% 2% 0 2%;
 }
 
+.timeFont {
+    font-family: 'Courier New', Courier, monospace;
+}
+
 
 /* For the stack controller */
 
