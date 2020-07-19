@@ -103,41 +103,43 @@ export default class EditorGUI extends React.Component {
             <main className="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
                 <h1>{this.props.title}</h1>
                 <div className="row">
-                <div className="col-6">
-                    <UploadForm uploadButtonHandler={this.uploadButtonHandler} uploadFileHandler={this.uploadFileHandler} />
-                </div>
-                <div className="col-6">
-                    <Form>
-                        <Form.Group>
-                            <Form.Label as="legend" column sm={5}>
-                                Download File Formats
-                            </Form.Label>
-                            <div className="row">
-                            <div className="col">
-                            <Form.Check onChange={(e) => this.formatHandler(e.target)} type="radio" label="MP3" data-label="MP3" id="MP3-rad" name="format" defaultChecked />
-                            </div>
-                            <div className="col">
-                            <Form.Check onChange={(e) => this.formatHandler(e.target)} type="radio" label="Mono" data-label={1} id="Mono-rad" name="SM" />
-                            </div>
-                            </div>
-                            <div className="row">
-                            <div className="col">
-                            <Form.Check onChange={(e) => this.formatHandler(e.target)} type="radio" label="WAV" data-label="WAV" id="WAV-rad" name="format" />
-                            </div>
-                            <div className="col">
-                            <Form.Check onChange={(e) => this.formatHandler(e.target)} type="radio" label="Stereo" data-label={2} id="Stereo-rad" name="SM" defaultChecked />
-                            </div>
-                            </div>
-                            <div className= "row">
-                            <div className="col">
-                            <Form.Check onChange={(e) => this.formatHandler(e.target)} type="radio" label="OGG" data-label="OGG" id="OGG-rad" name="format" />            
-                            </div>
-                            </div>
-                        </Form.Group>
-                        <Button onClick={this.downloadHandler} id="downloadButton">Download</Button>
-                    </Form>
-                </div>
-                <AudioStack onMounted={(f, r) => {this.audioStack = f; this.record = r;}} />
+                    <div className="col-6">
+                        <UploadForm uploadButtonHandler={this.uploadButtonHandler} uploadFileHandler={this.uploadFileHandler} />
+                    </div>
+                    <div className="col-6">
+                        <Form>
+                            <Form.Group>
+                                <Form.Label as="legend" column sm={5}>
+                                    Download File Formats
+                                </Form.Label>
+                                <div className="row">
+                                <div className="col">
+                                <Form.Check onChange={(e) => this.formatHandler(e.target)} type="radio" label="MP3" data-label="MP3" id="MP3-rad" name="format" defaultChecked />
+                                </div>
+                                <div className="col">
+                                <Form.Check onChange={(e) => this.formatHandler(e.target)} type="radio" label="Mono" data-label={1} id="Mono-rad" name="SM" />
+                                </div>
+                                </div>
+                                <div className="row">
+                                <div className="col">
+                                <Form.Check onChange={(e) => this.formatHandler(e.target)} type="radio" label="WAV" data-label="WAV" id="WAV-rad" name="format" />
+                                </div>
+                                <div className="col">
+                                <Form.Check onChange={(e) => this.formatHandler(e.target)} type="radio" label="Stereo" data-label={2} id="Stereo-rad" name="SM" defaultChecked />
+                                </div>
+                                </div>
+                                <div className= "row">
+                                <div className="col">
+                                <Form.Check onChange={(e) => this.formatHandler(e.target)} type="radio" label="OGG" data-label="OGG" id="OGG-rad" name="format" />            
+                                </div>
+                                </div>
+                            </Form.Group>
+                            <Button onClick={this.downloadHandler} id="downloadButton">Download</Button>
+                        </Form>
+                    </div>
+                    <div className="col-12">
+                        <AudioStack onMounted={(f, r) => {this.audioStack = f; this.record = r;}} />
+                    </div>
                 </div>
             </main>
         );

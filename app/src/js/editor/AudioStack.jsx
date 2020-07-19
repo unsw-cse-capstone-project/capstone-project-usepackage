@@ -251,19 +251,23 @@ export default class AudioStack extends React.Component {
 
     render() {
         return (
-            <div>
-                <PlayButton handler={(e) => this.togglePlay(e.target)} />
-                <StopButton handler={this.stop} />
-                <SlideController min={0.5} max={2} step = {0.01} handler={this.playBackHandler} text={"Playback Rate"}/>
-                <InputGroup>
-                    <InputGroup.Prepend>
-                        <InputGroup.Text>Seek</InputGroup.Text>
-                    </InputGroup.Prepend>
-                    <FormControl onChange={this.updateSeek} aria-label="Seek" className="col-2"/>
-                    <InputGroup.Append>
-                        <Button onClick={this.doSeek} variant="outline-secondary">Enter</Button>
-                    </InputGroup.Append>
-                </InputGroup>
+            <div className="row stackController">
+                <div className='col-4'>
+                    <PlayButton handler={(e) => this.togglePlay(e.target)} />
+                    <StopButton handler={this.stop} />
+                </div>
+                <div className="col-4"><SlideController min={0.5} max={2} step = {0.01} handler={this.playBackHandler} text={"Playback Rate"}/></div>
+                <div className="col-4">
+                    <InputGroup>
+                        <InputGroup.Prepend>
+                            <InputGroup.Text>Seek</InputGroup.Text>
+                        </InputGroup.Prepend>
+                        <FormControl onChange={this.updateSeek} aria-label="Seek" className="col-2"/>
+                        <InputGroup.Append>
+                            <Button onClick={this.doSeek} variant="outline-secondary">Enter</Button>
+                        </InputGroup.Append>
+                    </InputGroup>
+                </div>
                 {this.state.tracks}
             </div>
         );

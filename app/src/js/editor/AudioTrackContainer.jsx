@@ -185,13 +185,14 @@ export default class AudioTrackContainer extends React.Component {
      
     render() {
         return (
-            <div className="row">
-                <div className="col-9 sliderContainer">
+            <div className="row trackContainer">
+                <div clasName="col-6">
                     <SlideController min={0} max={2} step={0.01} handler={(e) => this.gainHandler(e, 0)} text={"Left Volume"}/>
                     <SlideController min={0} max={2} step={0.01} handler={(e) => this.gainHandler(e, 1)} text={"Right Volume"}/>
                     <SlideController min={0.5} max={1.5} step={0.01} handler={(e) => this.pitchHandler(e, 1)} text={"Pitch"}/>
-                    {/*this.state.track ? this.state.track.getTime() : "0:00"*/}
-                    {this.state.visualisers}
+                </div>
+                {/*this.state.track ? this.state.track.getTime() : "0:00"*/}
+                <div className="col-6">
                     <SelectTime 
                         handleTime={this.executeCut} 
                         handleSlice={this.pickSlice}
@@ -200,33 +201,40 @@ export default class AudioTrackContainer extends React.Component {
                         formatHandler={(e) => this.formatHandler(e.target)}
                         downloadHandler={this.downloadHandler}
                     />
-                </div>  
-            </div>
+                </div>
+                <div className="col-12">
+                    {this.state.visualisers}
+                </div>
+            </div>  
         );
     }
 }
 
 export const SelectTime = (props) => {
     return (
-        <div>
-        <InputGroup>
-            <InputGroup.Prepend>
-                <InputGroup.Text>Cut interval</InputGroup.Text>
-            </InputGroup.Prepend>
-            <FormControl onChange={props.updateTime} aria-label="Time" className="col-2"/>
-            <InputGroup.Append>
-                <Button onClick={props.handleTime} variant="outline-secondary">Enter</Button>
-            </InputGroup.Append>
-        </InputGroup>
-        <InputGroup>
-            <InputGroup.Prepend>
-                <InputGroup.Text>Pick Slice</InputGroup.Text>
-            </InputGroup.Prepend>
-            <FormControl onChange={props.updateSlice} aria-label="Slice" className="col-2"/>
-            <InputGroup.Append>
-                <Button onClick={props.handleSlice} variant="outline-secondary">Enter</Button>
-            </InputGroup.Append>
-        </InputGroup>
+        <div className="row">
+            <div class="col-6">
+                <InputGroup>
+                    <InputGroup.Prepend>
+                        <InputGroup.Text>Cut interval</InputGroup.Text>
+                    </InputGroup.Prepend>
+                    <FormControl onChange={props.updateTime} aria-label="Time" className="col-2"/>
+                    <InputGroup.Append>
+                        <Button onClick={props.handleTime} variant="outline-secondary">Enter</Button>
+                    </InputGroup.Append>
+                </InputGroup>
+            </div>
+            <div className="col-6">
+                <InputGroup>
+                    <InputGroup.Prepend>
+                        <InputGroup.Text>Pick Slice</InputGroup.Text>
+                    </InputGroup.Prepend>
+                    <FormControl onChange={props.updateSlice} aria-label="Slice" className="col-2"/>
+                    <InputGroup.Append>
+                        <Button onClick={props.handleSlice} variant="outline-secondary">Enter</Button>
+                    </InputGroup.Append>
+                </InputGroup>
+            </div>
         </div>
     );
 }
