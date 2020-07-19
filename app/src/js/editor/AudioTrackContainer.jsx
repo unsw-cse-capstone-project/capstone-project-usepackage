@@ -258,7 +258,7 @@ export default class AudioTrackContainer extends React.Component {
 export const SelectTime = (props) => {
     return (
         <div className="row">
-            <div class="col-6">
+            <div className="col-6">
                 <InputGroup>
                     <InputGroup.Prepend>
                         <InputGroup.Text>Cut interval</InputGroup.Text>
