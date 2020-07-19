@@ -5,6 +5,8 @@ const HtmlWebPackPlugin = require('html-webpack-plugin')
 module.exports = {
     entry: {
         main: ['webpack-hot-middleware/client?path=/__webpack_hmr&timeout=20000', './src/index.jsx'],
+        register: ['webpack-hot-middleware/client?path=/__webpack_hmr&timeout=20000', './src/register.jsx'],
+        login: ['webpack-hot-middleware/client?path=/__webpack_hmr&timeout=20000', './src/login.jsx']
     },
     output: {
         path: path.join(__dirname, 'dist'),
@@ -56,7 +58,19 @@ module.exports = {
             template: "./src/html/index.html",
             filename: "./index.html",
             favicon: './src/img/favicon.ico',
-            excludeChunks: ['server']
+            chunks: ['main']
+        }),
+        new HtmlWebPackPlugin({
+            template: "./src/html/register.html",
+            filename: "./register.html",
+            favicon: './src/img/favicon.ico',
+            chunks: ['register']
+        }),
+        new HtmlWebPackPlugin({
+            template: "./src/html/login.html",
+            filename: "./login.html",
+            favicon: './src/img/favicon.ico',
+            chunks: ['login']
         }),
         new webpack.HotModuleReplacementPlugin(),
         new webpack.NoEmitOnErrorsPlugin()

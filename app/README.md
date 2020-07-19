@@ -36,3 +36,15 @@ Then navigate to `http://localhost:8080`
 
     npm run coverage
 
+## Run the backend on a local webserver
+
+    npm run backend
+
+The backend is located at `http://localhost:5000`
+Please note: Simply running the backend won't work.
+Ensure the following commands are executed
+before running the backend:
+
+    ttyd1: mongod
+    ttyd2: mongo (followed by use usepackage)
+

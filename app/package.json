@@ -8,7 +8,9 @@
         "coverage": "jest --coverage",
         "buildDev": "rm -rf dist && webpack --mode development --config webpack.server.config.js && webpack --mode development --config webpack.dev.config.js",
         "buildProd": "rm -rf dist && webpack --mode production --config webpack.server.config.js && webpack --mode production --config webpack.prod.config.js",
-        "start": "node ./dist/server.js"
+        "start": "node ./dist/server.js",
+        "backend": "node ./src/backend/server.js",
+        "backend_dev": "nodemon ./src/backend/server.js"
     },
     "repository": "https://github.com/unsw-cse-capstone-project/capstone-project-usepackage.git",
     "keywords": [],
@@ -19,14 +21,20 @@
         "bcrypt": "^5.0.0",
         "body-parser": "^1.19.0",
         "cors": "^2.8.5",
+        "cross-fetch": "^3.0.5",
         "express": "^4.17.1",
+        "gridfs-stream": "^1.1.1",
         "jsonwebtoken": "^8.5.1",
         "mongodb": "^3.5.9",
-        "mongoose": "^5.9.22",
+        "mongoose": "^5.9.25",
+        "morgan": "^1.10.0",
+        "multer": "^1.4.2",
+        "multer-gridfs-storage": "^4.2.0",
         "nodemon": "^2.0.4",
         "react": "^16.13.1",
         "react-bootstrap": "^1.0.1",
-        "react-dom": "^16.13.1"
+        "react-dom": "^16.13.1",
+        "react-router-dom": "^5.2.0"
     },
     "engines": {
         "node": ">=4.3.2"

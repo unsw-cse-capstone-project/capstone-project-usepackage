@@ -2,27 +2,24 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 // Create Schema
-const UserSchema = new Schema ({
-    first_name: {
-        type: String
-    },
-    
-    last_name: {
-        type: String
-    },
-
-    email: {
+const Schema = new Schema ({
+    name: {
         type: String,
         required: true
     },
     
-    password: {
-        type: String,
-        required: true
-    },
     date: {
         type: Date,
         default: Date.now
+    },
+
+    owners: {
+        type: [String],
+        required: true
+    },
+
+    files: {
+        type: [mongoose.Types.ObjectId]
     }
 });
 

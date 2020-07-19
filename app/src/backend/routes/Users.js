@@ -11,19 +11,27 @@ users.use(cors());
 process.env.SECRET_KEY = 'secret'
 
 users.post('/register', (req, res) => {
+    if(req.body.password !== req.body.confirmPassword) {
+        res.send("Passwords do not match.");
+        return;
+    }
+    if(req.body.password === "") {
+        res.send("Password is required");
+        return;
+    }
     const today = new Date();
     // construct initial userdata object
+    // console.log(req);
     const userData = {
         first_name: req.body.first_name,
         last_name: req.body.last_name,
-        email: req.body.email,
+        username: req.body.username,
         password: req.body.password,
         created: today
     };
-    
     // find if email exists within database
     User.findOne({
-        email: req.body.email
+        username: req.body.username
     }).then(user => {
         // successful case: user does not exist and registration can be done
         if(!user) {
@@ -32,9 +40,10 @@ users.post('/register', (req, res) => {
                 userData.password = hash;
                 // insert userdata to database
                 User.create(userData).then(user => {
-                    res.json({ 
-                        status: user.email + 'Registered!' 
-                    });
+                    res.send("success");
+                    // res.json({ 
+                    //     status: user.username + ' Registered!' 
+                    // });
                 }).catch(err => {
                     res.send('error: ' + err);
                 });
@@ -42,9 +51,10 @@ users.post('/register', (req, res) => {
         }
         // unsuccessful case: user with email already exists within database
         else {
-            res.json({
-                error: 'User already exists'
-            });
+            res.send("User Already exists. Registration unsuccessful. ");
+            // res.json({
+            //     error: 'User already exists'
+            // });
         }
     }).catch(err => {
         res.send('error: ' + err);
@@ -53,7 +63,7 @@ users.post('/register', (req, res) => {
 
 users.post('/login', (req, res) => {
     User.findOne({
-        email: req.body.email
+        username: req.body.username
     }).then(user => {
         if(user) {
             // check if hashed password equals what's in the database
@@ -63,7 +73,7 @@ users.post('/login', (req, res) => {
                     _id: user._id,
                     first_name: user.first_name,
                     last_name: user.last_name,
-                    email: user.email
+                    username: user.username
                 };
                 let token = jwt.sign(payload, process.env.SECRET_KEY, {
                     expiresIn: 1440
@@ -72,16 +82,18 @@ users.post('/login', (req, res) => {
             }
             // password mismatch
             else {
-                res.json({
-                    error: 'Incorrect username or password' 
-                });
+                res.send("Incorrect username or password");
+                // res.json({
+                //     error: 'Incorrect username or password' 
+                // });
             }
         }
         else {
             // user mismatch
-            res.json({
-                error: 'Incorrect username or password'
-            });
+            res.send("Incorrect username or password");
+            // res.json({
+            //     error: 'Incorrect username or password'
+            // });
         }
     }).catch(err => {
         res.send('error: ' + err);
@@ -89,3 +101,4 @@ users.post('/login', (req, res) => {
 });
 
 // deal with profile later.
+module.exports = users;

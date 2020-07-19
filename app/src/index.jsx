@@ -9,6 +9,7 @@ import Container from './js/Container.jsx'
 import './img/favicon.ico';
 import './css/style.css'
 import {initWorker} from './js/converter/converter.js' 
+import EditorGUI from './js/editor/EditorGUI.jsx'
 
 initWorker();
 // The following tests how parseFunction works. 
@@ -20,7 +21,7 @@ ReactDOM.render(
 )
 
 ReactDOM.render(
-  <Container />,
+<Container main={<EditorGUI title="Screaming Goat" />}/>,
   document.getElementById('react-container') // eslint-disable-line no-undef
 )
 
