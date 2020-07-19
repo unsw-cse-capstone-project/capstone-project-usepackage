@@ -3,12 +3,15 @@ import React from 'react';
 import SlideController from './controller/SlideController.jsx';
 import FreqVisualiser from './FreqVisualiser.jsx';
 import TimeVisualiser from './TimeVisualiser.jsx';
+import CutBar from './CutBar.jsx';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Button from 'react-bootstrap/Button';
 import FormControl from 'react-bootstrap/FormControl';
 import Form from 'react-bootstrap/Form';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Col from 'react-bootstrap/Col';
+
+//import minsSecs, { diffSecs } from '../soundtouch/minsSecs';
 
 export default class AudioTrackContainer extends React.Component {
 
@@ -23,9 +26,11 @@ export default class AudioTrackContainer extends React.Component {
         this.pitchHandler = this.pitchHandler.bind(this);
         this.executeCut = this.executeCut.bind(this);
         this.pickSlice = this.pickSlice.bind(this);
+        this.cropHandler = this.cropHandler.bind(this);
         this.updateSlice = this.updateSlice.bind(this);
         this.updateTime = this.updateTime.bind(this);
         this.setAnalyserCallback = this.setAnalyserCallback.bind(this);
+        //this.setCutBarCallback = this.setCutBarCallback.bind(this);
         this.record = this.record.bind(this);
         this.slice = 0;
         this.time = 0;
@@ -33,6 +38,7 @@ export default class AudioTrackContainer extends React.Component {
             track: null,
             visualisers: null,
             analyser: [null, null],
+            cutBar: null,
             time: "0.00"
         }
         this.audioTrack = AudioTrack.create(props.file).then((track) => {
@@ -109,7 +115,7 @@ export default class AudioTrackContainer extends React.Component {
         if (this.state.track)
             this.state.track.setAnalyserCallback(cb);
     }
-
+    
     playFrom(time) {
         if (this.state.track)
             this.state.track.playFrom(time);
@@ -161,8 +167,13 @@ export default class AudioTrackContainer extends React.Component {
     executeCut() {
         const val = this.time;
         const timeSample = Math.floor(parseFloat(val)*this.state.track.rate);
-        if ( this.state.track)
+        if ( this.state.track) {
             this.state.track.cut(timeSample);
+            this.setState({
+                track: this.state.track,
+                cutBar: <CutBar width={600} height={60} cuts={this.state.track.cuts} />
+            });
+        }
     }
 
     pickSlice() {
@@ -170,6 +181,33 @@ export default class AudioTrackContainer extends React.Component {
         if ( this.state.track)
             this.state.track.CurrentCut = parseInt(val);
         console.log("Slice number", this.state.track.CurrentCut);
+    }
+
+    // Crops/uncrops the currently selected slice
+    // Does not work properly
+    cropHandler(){
+        let index = this.state.track.CurrentCut;
+        const cuts = this.state.track.cuts.length;
+        const len = this.state.track.cuts[index].length;
+        console.log(index);
+        if(this.state.track.cuts[index].cropped == undefined || this.state.track.cuts[index].cropped == false) {
+            //console.log("ERROR! .cropped bool not set in cut number: ", index);
+            this.state.track.cuts[index].cropped = true;
+            // Decrement the time values for the following cuts
+            // for(let incr = index + 1; incr < cuts; incr++) {
+            //     console.log(incr);
+            //     this.state.track.cuts[incr].time -= len;
+            // }
+            console.log("Cropping out section: ", index);
+        } else {
+            this.state.track.cuts[index].cropped = false;
+            // Increment the time values for the following cuts
+            // for(let incr = index + 1; incr < cuts; incr++) {
+            //     this.state.track.cuts[incr].time += len;
+            // }
+            console.log("Uncropping section: ", index);
+        }
+        
     }
 
     componentDidMount() {
@@ -182,16 +220,23 @@ export default class AudioTrackContainer extends React.Component {
             record: this.record
         });
     }
-     
+
     render() {
         return (
             <div className="row trackContainer">
-                <div clasName="col-6">
+                <div className="col-6">
                     <SlideController min={0} max={2} step={0.01} handler={(e) => this.gainHandler(e, 0)} text={"Left Volume"}/>
                     <SlideController min={0} max={2} step={0.01} handler={(e) => this.gainHandler(e, 1)} text={"Right Volume"}/>
                     <SlideController min={0.5} max={1.5} step={0.01} handler={(e) => this.pitchHandler(e, 1)} text={"Pitch"}/>
+                    <Button onClick={this.cropHandler} id="cropButton">Crop</Button>
+                    <p>Cuts in samples:</p>
+                    <ol>
+                        {this.state.track ? this.state.track.cuts.map((cut, index) => (
+                            <li key = {index}>{cut.time}</li>
+                        )): "No cuts"}
+                    </ol>
+                    {this.state.track && this.state.track.cuts ? this.state.cutBar : "TESTING"}
                 </div>
-                {/*this.state.track ? this.state.track.getTime() : "0:00"*/}
                 <div className="col-6">
                     <SelectTime 
                         handleTime={this.executeCut} 

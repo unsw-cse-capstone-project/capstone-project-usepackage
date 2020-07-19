@@ -17,3 +17,31 @@ Saturday and Sunday - Wrote what we had for the proposal in overleaf. Made a tab
 other audio editors. Simon and I worked in the interface flow diagrams, while Rajiv worked
 on the system architecture diagram and Ethan drew them up in tikz. Rui did most of the 
 writing and editing of the report itself. We submitted the report on Sunday.
+
+Week 4
+Friday - After bits and pieces of work throughout the week, by Friday we had uploading files, playing them and stopping them working.
+I implemented some visualisers that display the waveform while the song is being played, some of the others moved them into their
+own classes to make our code cleaner.
+The weekend - This weekend was kind of a blur as we were all working on bits and pieces together in preparation for the next sprint.
+I implemented a playback slider using the audio element, but this method probably won't work in the long-run since we can't 
+do this for different slices of audio. I found a library called soundTouch that's used by audacity, which is capable of altering
+both pitch and tempo independently. Rajiv and Ethan used this library to achieve this effect.
+
+Week 5
+Monday - The day before the first sprint was due, we were all busy finishing off the remaining user stories. Unfortunately, this is when we
+discovered that the user stories were insufficiently granular. Downloading files and converting between file formats were present in about
+3 user stories, and since they were much harder than we thought, they were preventing us from having those stories completed even though
+they were otherwise done. We all worked together over multiple files to work past this problem.
+Tuesday - On Tuesday, Ethan presented our demo. We had gotten the user stories done and the presentation seemed to go fine, and we completed our
+retrospective after the meeting. After the amount of work we had recently done, we decided to spend some time taking a break from this course.
+
+Week 6
+Week 6 was flexibility week, and most of us were busy catching up on other courses and doing other assignments. However, we did discuss
+how we would move forward into the next sprint, and divided the user stories into two groups; one that would deal with registration,
+composed of Rui and Simon. And one that would deal with the audio editing features, composed of Ethan, Rajiv and myself.
+
+
+Week 7
+Tuesday - I added an ordered list that displays where sound files have been cut into segments.
+Thursday - I wrote a "CutBar" that displays when cuts are made in sound tracks, and marks them with the index for their corresponding slice.
+Rajiv helped me debug it and fix the connection to the AudioTrackContainer.

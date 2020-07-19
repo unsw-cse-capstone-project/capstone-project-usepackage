@@ -183,7 +183,8 @@ export default class AudioTrack {
             return;
         }
         const calls = this.cuts.filter((cut) => {
-            return cut.time + cut.length > time;
+            // TODO remove second condition if not using Madhav's crop
+            return cut.time + cut.length > time && cut.cropped != true;
         }).map((cut, index) => {
             return {
                 cut: cut,
@@ -310,7 +311,8 @@ AudioTrack.newNode = (fileData) => {
                     cut: {
                         graph: graph,
                         time: 0,
-                        length: fileData.audioBuffer.length
+                        length: fileData.audioBuffer.length,
+                        cropped: false
                     }
                 });
             });
