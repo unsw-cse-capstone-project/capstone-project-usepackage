@@ -3,6 +3,11 @@ ul li {
     outline: 1px solid black;
 }
 
+/* For the stack controller */
+.stackController {
+    padding-top: 100px;
+}
+
 .slider {
     margin: 5% 0 5% 0;
     height: 25vh;
