@@ -10,15 +10,29 @@ export default class AudioStack {
 
     constructor() {
         this.tracks = []
+        this.records = []
+        this.controllers = []
         this.add = this.add.bind(this)
+        this.record = this.record.bind(this)
     }
 
     add(audioRecord) {
-        this.tracks.push(<AudioTrackContainer key={audioRecord.fileURL} audioRecord={audioRecord}/> );
-    }
+        this.tracks.push( < AudioTrackContainer key = { audioRecord.fileURL }
+            audioRecord = { audioRecord }
+            onMounted = { f => { this.records[this.records.length] = f } }
+            /> );
+        }
 
-    tracks() {
-        return this.tracks
-    }
+        record() {
+            let blobs = []
+            this.tracks.forEach((_, i) => {
+                blobs.push(this.records[i]())
+            })
+            return blobs
+        }
 
-}
+        tracks() {
+            return this.tracks
+        }
+
+    }

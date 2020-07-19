@@ -95,5 +95,14 @@ export default class MyWorkletNode extends AudioWorkletNode {
                 data: this.data
             })
         }
+
+        if ("Stop" === title) {
+            this.time = data.time
+            let stop = new CustomEvent("stop", {
+                detail: "Stop"
+            })
+            this.dispatchEvent(stop);
+            return;
+        }
     }
 }

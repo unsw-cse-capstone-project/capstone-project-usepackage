@@ -3,6 +3,8 @@ import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import AudioStack from '../audioContainer/audioStack'
 
+const dbURL = "http://localhost:5000"
+
 export default class MainContainer extends React.Component {
     constructor(props) {
         super(props);
@@ -12,19 +14,36 @@ export default class MainContainer extends React.Component {
         }
         this.fileURLs = []
         this.addFiles = this.addFiles.bind(this);
+        this.saveFiles = this.saveFiles.bind(this);
         this.uploadFiles = this.uploadFiles.bind(this);
     }
 
     addFiles(Newfiles) {        
         let filteredFileURLs = Array.from(Newfiles).filter(file => file.type.includes("audio"))
             .map(file => (window.URL || window.webkitURL).createObjectURL(file))
-        // Temporarily store the file urls
+        // Temporarily nstore the file urls
         this.fileURLs = this.fileURLs.concat(filteredFileURLs)
     }
     //For debugging purposes
     getSnapshotBeforeUpdate() {
         console.log("Before update")
         return null
+    }
+
+    saveFiles() {
+        const blobs = this.audioStack.record();
+        console.log(blobs[0])
+        if ( blobs[0].size > 100 ) {
+            console.log("Attempting to save blob")
+            MainContainer.Save(blobs[0])
+        }
+        // let a = document.createElement('a');
+        // a.download = 'test.mp3'
+        // a.href = URL.createObjectURL(blob);
+        // a.innerText = "Download Link!";
+        // a.hidden = true;
+        // document.body.appendChild(a);
+        // a.click();
     }
 
     uploadFiles() {
@@ -60,6 +79,7 @@ export default class MainContainer extends React.Component {
                         />
                     </Form.Group>
                     <Button onClick={this.uploadFiles} variant="outline-primary">Upload</Button>
+                    <Button onClick={this.saveFiles} variant="outline-primary">Save</Button>
                 </Form>
                 <div className="col-12">
                     {this.audioStack.tracks}
@@ -97,3 +117,14 @@ MainContainer.UploadHandler = (fileURL) => {
         })
     );
 }
+
+MainContainer.Save = (obj) => {
+    const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        // body: JSON.stringify(obj)
+        file: obj
+    };
+    
+    return Promise.resolve(fetch(dbURL + '/files', requestOptions))
+};
