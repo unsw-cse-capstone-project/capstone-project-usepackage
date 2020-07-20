@@ -14,9 +14,79 @@ export default class MyWorkletNode extends AudioWorkletNode {
         return this.time
     }
 
-    // set time(time) {
-    //     this.time = time
-    // }
+    executeCut(timeSample) {
+        this.port.postMessage({
+            title: "Cut",
+            data: timeSample
+        });
+        console.log("Executing cut in myWorkletNode");
+    }
+
+    setTempo(val, cut) {
+        this.port.postMessage({
+            title: "Tempo",
+            data: {
+                index: cut,
+                value: val
+            }
+        })
+    }
+
+    setGain(val, channel, cut) {
+        this.port.postMessage({
+            title: "Gain",
+            data: {
+                index: cut,
+                channel: channel,
+                value: val
+            }
+        })
+    }
+
+    setPitch(val, cut) {
+        this.port.postMessage({
+            title: "Pitch",
+            data: {
+                index: cut,
+                value: val
+            }
+        })
+    }
+
+    crop(slice) {
+        this.port.postMessage({
+            title: "Crop",
+            data: slice
+        })
+    }
+
+    copy(slice, destination) {
+        this.port.postMessage({
+            title: "Copy",
+            data: {
+                from: slice,
+                to: destination
+            }
+        })
+    }
+
+    move(slice, destination) {
+        this.port.postMessage({
+            title: "Move",
+            data: {
+                from: slice,
+                to: destination
+            }
+        })
+    }
+
+    undo() {
+        this.port.postMessage({ title: "Undo" });
+    }
+
+    redo() {
+        this.port.postMessage({ title: "Redo" });
+    }
 
     /* event listener handling */
     /**
@@ -108,6 +178,13 @@ export default class MyWorkletNode extends AudioWorkletNode {
             this.dispatchEvent(stop);
             return;
         }
-    }
 
+        if ("Lengths" === title) {
+            let length = new CustomEvent("lengthUpdate", {
+                detail: data
+            });
+            this.dispatchEvent(length);
+            return;
+        }
+    }
 }

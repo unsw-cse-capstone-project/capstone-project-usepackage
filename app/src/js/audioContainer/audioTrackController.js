@@ -30,8 +30,18 @@ export default class AudioTrackController {
         this.connectAll = this.connectAll.bind(this);
         this.connectAll();
         this.inprogress = false;
-        this.graph.gain.on('stop', (detail) => {
+        this.lengthHandle = null;
+        this.posHandle = null;
+        this.graph.node.on('stop', (detail) => {
             this.toggle(detail)
+        });
+        this.graph.node.on('lengthUpdate', (detail) => {
+            if (this.lengthHandle)
+                this.lengthHandle(detail);
+        });
+        this.graph.node.on('pos', (detail) => {
+            if (this.posHandle)
+                this.posHandle({ pos: detail.time });
         })
     }
 
@@ -81,7 +91,7 @@ export default class AudioTrackController {
             this.inprogress = true;
             this._buttonNameCb(name)
         }
-        this.graph.gain.port.postMessage({
+        this.graph.node.port.postMessage({
             title: "Update",
             data: {
                 paused: !this.inprogress
@@ -105,23 +115,54 @@ export default class AudioTrackController {
     }
 
     time() {
-        this.timeCb(this.graph.gain.getTime())
+        this.timeCb(this.graph.node.getTime())
     }
 
     seek(val) {
 
     }
 
-    gain(val) {
-        console.log("Changing the gain")
-        const gainParam = this.graph.gain.parameters.get('customGain')
-        gainParam.setValueAtTime(val, this.audioCtx.currentTime)
+    gain(val, channel, cut) {
+        this.graph.node.setGain(val, channel, cut);
+    }
+
+    tempo(val, cut) {
+        this.graph.node.setTempo(val, cut);
+    }
+
+    pitch(val, cut) {
+        this.graph.node.setPitch(val, cut);
     }
 
     connectAll() {
         console.log("Graph connected")
-        this.source.connect(this.graph.gain)
-        this.graph.gain.connect(this.audioCtx.destination)
+        this.source.connect(this.graph.node)
+        this.graph.node.connect(this.audioCtx.destination)
+    }
+
+    executeCut(timeSample) {
+        this.graph.node.executeCut(timeSample);
+        console.log("Executing cut in audioTrackController");
+    }
+
+    undo() {
+        this.graph.node.undo();
+    }
+
+    redo() {
+        this.graph.node.redo();
+    }
+
+    crop(slice) {
+        this.graph.node.crop(slice);
+    }
+
+    copy(slice, destination) {
+        this.graph.node.copy(slice, destination);
+    }
+
+    move(slice, destination) {
+        this.graph.node.move(slice, destination);
     }
 
 }
@@ -149,13 +190,13 @@ AudioTrackController.create = (audioRecord) => {
 AudioTrackController.graph = (audioCtx, buffer) => {
     // const gainNode = new GainNode(audioCtx);
     return audioCtx.audioWorklet.addModule('/myProcessor.js').then(() => {
-        const gainNode = new MyWorkletNode(audioCtx, 'CustomGainProcessor', {
+        const workNode = new MyWorkletNode(audioCtx, 'CustomGainProcessor', {
             buffer: buffer
         });
         return new Promise((resolve) => {
-                gainNode.on('init', (detail) => {
+                workNode.on('init', (detail) => {
                     console.log("MSG: ", detail)
-                    resolve({ gain: gainNode })
+                    resolve({ node: workNode })
                 })
             })
             // return {gain: gainNode}
