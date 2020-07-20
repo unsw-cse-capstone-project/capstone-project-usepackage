@@ -8,6 +8,10 @@ export default class ActionStack {
     }
 
     applyPop(cuts) {
+        return this._stack.pop();
+    }
 
+    dump() {
+        this._stack = [];
     }
 }
