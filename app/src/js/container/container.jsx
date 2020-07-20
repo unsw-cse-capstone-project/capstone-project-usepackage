@@ -3,7 +3,7 @@ import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import AudioStack from '../audioContainer/audioStack'
 
-const dbURL = "http://localhost:5000"
+const dbURL = "http://localhost:8080"
 
 export default class MainContainer extends React.Component {
     constructor(props) {
@@ -38,7 +38,14 @@ export default class MainContainer extends React.Component {
             let file = new File([blobs[0]], "testfile.mp3", {type: "audio/mpeg"});
             data.append('file', file);
             console.log("Attempting to save blob")
-            MainContainer.Save(data);
+            MainContainer.Save(data)
+            .then(data => 
+                data.body.getReader())
+            .then(reader => reader.read())
+            .then(data => {
+                const message = new TextDecoder("utf-8").decode(data.value)
+                console.log(message)
+            }).catch(err => console.log(err));
         } else {
             console.log("NOT LOGGED IN")
         }
@@ -49,7 +56,7 @@ export default class MainContainer extends React.Component {
         // a.innerText = "Download Link!";
         // a.hidden = true;
         // document.body.appendChild(a);
-        // a.click();
+        // a.click()
     }
 
     uploadFiles() {
@@ -128,11 +135,12 @@ MainContainer.Save = (obj) => {
     const requestOptions = {
         method: 'POST',
         headers: { 
-            'Authorization': localStorage.usertoken
+            'Authorization': localStorage.usertoken,
+            'ProjMetadata': localStorage.poname
         },
         // body: JSON.stringify(obj)
         body: obj
     };
     
-    return Promise.resolve(fetch(dbURL + '/projects', requestOptions))
+    return Promise.resolve(fetch('/projects/save', requestOptions))
 };

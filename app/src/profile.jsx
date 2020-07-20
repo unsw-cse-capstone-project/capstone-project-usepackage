@@ -6,9 +6,7 @@ import Topnav from './js/Topnav.jsx'
 import Container from './js/Container.jsx'
 import './img/favicon.ico';
 import './css/style.css'
-import LoginContainer from './js/reglog/LoginContainer.jsx'
-
-console.log("test")
+import Profile from './js/reglog/Profile.jsx'
 
 ReactDOM.render(
     <Topnav name="Screaming Goat" />,
@@ -16,6 +14,6 @@ ReactDOM.render(
   )
   
 ReactDOM.render(
-<Container main={<LoginContainer />} />,
-document.getElementById('react-container') // eslint-disable-line no-undef
-)
+<Container main={<Profile />} />,
+document.getElementById('react-container') 
+) // eslint-disable-line no-undef

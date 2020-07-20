@@ -9,28 +9,34 @@ export default class Container extends React.Component {
         super(props);
         this.state = {
             navItems: ["Home", "Register", "Login"],
-            loggedInItems: ["Home", "Profile", "Logout"]
+            loggedInItems: ["Home", "Profile", "Logout"],
+            menu: null,
+            components: props.components
+        }
+        this.pickMenu = this.pickMenu.bind(this);
+    }
+
+    componentDidMount() {
+        this.pickMenu()
+    }
+    
+    pickMenu() {
+        if ( localStorage.usertoken ) {
+            this.setState({menu: <SideMenu items={this.state.loggedInItems}/>})
+        } else {
+            this.setState({menu: <SideMenu items={this.state.navItems}/>});
         }
     }
 
     render() {
-        return localStorage.usertoken 
-        ? (
+        return (
             <div className="container-fluid">
                 <div className="row">
-                    <SideMenu items={this.state.loggedInItems}/>
+                    {this.state.menu}
                     {this.props.main}
                 </div>
             </div>
-        )
-        : (
-            <div className="container-fluid">
-                <div className="row">
-                    <SideMenu items={this.state.navItems}/>
-                    {this.props.main}
-                </div>
-            </div>
-        )
+        );
     }
 }
 

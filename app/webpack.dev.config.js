@@ -6,7 +6,8 @@ module.exports = {
     entry: {
         main: ['webpack-hot-middleware/client?path=/__webpack_hmr&timeout=20000', './src/index.jsx'],
         register: ['webpack-hot-middleware/client?path=/__webpack_hmr&timeout=20000', './src/register.jsx'],
-        login: ['webpack-hot-middleware/client?path=/__webpack_hmr&timeout=20000', './src/login.jsx']
+        login: ['webpack-hot-middleware/client?path=/__webpack_hmr&timeout=20000', './src/login.jsx'],
+        profile: ['webpack-hot-middleware/client?path=/__webpack_hmr&timeout=20000', './src/profile.jsx']
     },
     output: {
         path: path.join(__dirname, 'dist'),
@@ -71,6 +72,12 @@ module.exports = {
             filename: "./login.html",
             favicon: './src/img/favicon.ico',
             chunks: ['login']
+        }),
+        new HtmlWebPackPlugin({
+            template: "./src/html/profile.html",
+            filename: "./profile.html",
+            favicon: './src/img/favicon.ico',
+            chunks: ['profile']
         }),
         new webpack.HotModuleReplacementPlugin(),
         new webpack.NoEmitOnErrorsPlugin()

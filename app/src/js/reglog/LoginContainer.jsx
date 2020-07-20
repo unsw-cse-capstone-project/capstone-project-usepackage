@@ -3,7 +3,7 @@ import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 import Alert from 'react-bootstrap/Alert'
 
-const dbURL = "http://localhost:5000"
+const dbURL = "http://localhost:8080"
 
 export default class RegisterContainer extends React.Component {
     constructor(props) {
@@ -33,7 +33,7 @@ export default class RegisterContainer extends React.Component {
                 alert.removeAttribute("hidden");
                 localStorage.setItem('usertoken', message);
                 const a = document.createElement('a');
-                a.href = "/";
+                a.href = "/profile";
                 a.hidden = true;
                 document.body.appendChild(a);
                 a.click();
@@ -75,7 +75,7 @@ const sendLogin = (obj) => {
         body: JSON.stringify(obj)
     };
     
-    return new Promise((resolve) => fetch(dbURL + '/users/login', requestOptions)
+    return new Promise((resolve) => fetch('/users/login', requestOptions)
     .then(data => 
         data.body.getReader())
     .then(reader => reader.read())

@@ -1,17 +1,24 @@
-import path from 'path'
-import express from 'express'
-import webpack from 'webpack'
-import webpackDevMiddleware from 'webpack-dev-middleware'
-import webpackHotMiddleware from 'webpack-hot-middleware'
-import config from '../../webpack.dev.config.js'
-import bodyParser from 'body-parser'
-import fetch from 'cross-fetch'
+const path = require('path');
+const express = require('express')
+const webpack = require('webpack')
+const webpackDevMiddleware = require('webpack-dev-middleware')
+const webpackHotMiddleware = require('webpack-hot-middleware')
+const config = require('../../webpack.dev.config.js')
+const bodyParser = require('body-parser')
+const fetch = require('cross-fetch')
+const cors = require('cors')
+const mongoose = require('mongoose')
 
 const app = express(),
     DIST_DIR = __dirname,
     WORKLET_DIR = path.join(DIST_DIR, '../src/js/myWorklets'),
     LIB_DIR = path.join(DIST_DIR, '../lib'),
+
+
     HTML_FILE = path.join(DIST_DIR, 'index.html'),
+    PROFILE_FILE = path.join(DIST_DIR, 'profile.html'),
+    LOGIN_FILE = path.join(DIST_DIR, 'login.html'),
+    REGISTER_FILE = path.join(DIST_DIR, 'register.html'),
     compiler = webpack(config)
 
 app.use(webpackDevMiddleware(compiler, {
@@ -21,38 +28,31 @@ app.use(webpackHotMiddleware(compiler));
 app.use(bodyParser.json());
 app.use(express.static(DIST_DIR));
 
-// POST Requests
+app.use(cors());
+app.use(
+    bodyParser.urlencoded({
+        extended: true
+    })
+);
 
-const dbURL = "http://localhost:5000"
+const mongoURI = 'mongodb://localhost:27017/usepackage'
 
-// deprecated; do not use
-app.post('/confirmation', (req, res, next) => {
-    console.log(req.body);
-    var jsonBody = null;
-    if (req.body.password !== req.body.confirmPassword) {
-        res.send("password mismatch");
-        return;
-    }
-    res.send("Password matches");
-    const userData = {
-        first_name: req.body.firstname,
-        last_name: req.body.lastname,
-        email: req.body.email,
-        password: req.body.password
-    }
-    const requestOptions = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(userData)
-    };
+let Users = null, Files = null, Projects = null;
 
-    return new Promise((resolve) => fetch(dbURL + '/users/register', requestOptions)
-        .then(res2 => res2.json())
-        .then(josn => console.log(josn)));
+mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true }).then(conn => {
+    const db = conn.connections[0].db
+    module.exports = db
+    Users = require('./backend/routes/Users');
+    Files = require('./backend/routes/Files');
+    Projects = require('./backend/routes/Projects');
 
-});
+    app.use('/users', Users);
+    app.use('/files', Files);
+    app.use('/projects', Projects);
 
-// GET Requests
+    console.log('MongoDB Connected');  
+}).catch(err => { console.log(err); });
+
 
 app.get('/', (req, res, next) => {
     compiler.outputFileSystem.readFile(HTML_FILE, (err, result) => {
@@ -123,28 +123,17 @@ app.get('/stretch.js', (req, res, next) => {
 
 
 app.get('/register', (req, res, next) => {
-    // compiler.outputFileSystem.readFile(REGISTER_FILE, (err, result) => {
-    //     if (err) {
-    //         return next(err)
-    //     }
-    //     res.set('content-type', 'text/html')
-    //     res.send(result)
-    //     res.end()
-    // })
-    res.sendFile(path.join(DIST_DIR, 'register.html'));
+    res.sendFile(REGISTER_FILE)
 });
 
 app.get('/login', (req, res, next) => {
-    // compiler.outputFileSystem.readFile(HTML_FILE, (err, result) => {
-    //     if (err) {
-    //         return next(err)
-    //     }
-    //     res.set('content-type', 'text/html')
-    //     res.send(result)
-    //     res.end()
-    // })
-    res.sendFile(path.join(DIST_DIR, 'login.html'));
+    res.sendFile(LOGIN_FILE);
 })
+
+app.get('/profile', (req, res, next) => {
+    res.sendFile(PROFILE_FILE)
+})
+
 
 
 

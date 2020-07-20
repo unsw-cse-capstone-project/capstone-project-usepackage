@@ -8,13 +8,13 @@ const GridFsStorage = require('multer-gridfs-storage');
 const mongoose = require('mongoose');
 const mongoDriver = mongoose.mongo;
 const Grid = require('gridfs-stream');
-const conn = require('../server')
+const db = require('../../server-dev')
 const User = require('../models/User');
 
 //PREFLIGHT REQUEST
 const cors = require('cors');
 projects.use(cors({
-    'allowedHeaders': ['authorization', 'Content-Type'],
+    'allowedHeaders': ['authorization', 'Content-Type', 'ProjMetadata'],
 }));
 
 projects.use(function(req, res, next) {
@@ -25,16 +25,44 @@ projects.use(function(req, res, next) {
 
 // Grid.mongo = mongo;
 
-const gfs = Grid(conn, mongoDriver);
+
+let gfs = Grid(db, mongoDriver);
 
 // set up connection to db for file storage
 const storage = GridFsStorage({
-    db: conn,
+    db: db,
     file: (req, file) => {
-        console.log("In storage: ", req.token)
-        return {
-            filename: req.token.username + "-" + file.originalname
+        const metaData = JSON.parse(req.headers.projmetadata);
+        const query = {
+            filename: metaData.owner + "-" + metaData.name + "-" + file.originalname
         }
+        return new Promise((resolve, reject) => {
+            gfs.files.findOne(query).then(fileObj => {
+                console.log("file originally not in db");
+                console.log(req.headers.projmetadata)
+                if ( !fileObj ) {
+                    console.log("file does not exist; create");
+                    req.audiofilename = query.filename
+                    req.metadata = metaData
+                    resolve({
+                        filename: metaData.owner + "-" + metaData.name + "-" + file.originalname
+                    })
+                }
+                else {
+                    console.log("file exists; replace");
+                    req.prevaid = fileObj._id; // if previous audio file exists, obtain id, pass it, then replace old id with new id in proj.files
+                    gfs.remove({ _id: fileObj._id}).then(() => {
+                        console.log("SUCCESS");
+                        req.audiofilename = query.filename
+                        req.metadata = metaData
+                        resolve({
+                            filename: metaData.owner + "-" + metaData.name + "-" + file.originalname
+                        })
+                    });
+                    
+                }
+            })
+        }).catch(err => reject(err))
     }
 });
 
@@ -95,9 +123,7 @@ projects.get('/', checkToken, (req, res) => {
                 }
             })
             return toSend
-        })
-        
-        .then(toSend => {
+        }).then(toSend => {
             const collabQuery = {
                 // query
                 collaborators: { $elemMatch: { $eq: userObj._id } }
@@ -122,8 +148,18 @@ projects.get('/', checkToken, (req, res) => {
 });
 
 projects.get('/:uname/:pname', (req, res, next) => {
-    // req.param.projname --> projname provided in url
-    console.log("Here")
+    // req.params.projname --> projname provided in url
+    console.log(req.params.uname, " ", req.params.pname)
+    const userQuery = {
+        username: req.params.uname
+    };
+    User.findOne(userQuery).then(userObj => {
+        const projectData = {
+            name: req.params.pname,
+            owner: userObj._id
+        };
+    });
+    res.sendFile(path.join(__dirname, 'index.html'))
 });
 
 projects.post('/create', checkToken, (req, res, next) => {
@@ -149,6 +185,55 @@ projects.post('/create', checkToken, (req, res, next) => {
             else {
                 res.send("fail");
             }
+        });
+    });
+});
+
+projects.post('/save', [checkToken, testMiddleWare], (req, res, next) => {
+    console.log("REACHED POST AYY");
+    /* 
+        id of the owner of the project
+        name of the project itself : 
+            name of the owner of the project --> 
+                project object from db --> 
+                    query ids of all audio files --> 
+                        insert this to files in project
+
+        req.audiofilename = filename
+        req.metadata = metaData
+    */
+    const projname = req.metadata.name
+    const ownername = req.metadata.owner
+    const userQuery = {
+        username: ownername
+    };
+    User.findOne(userQuery).then(userObj => {
+        console.log("FOUND YSer");
+        const uid = userObj._id;
+        const projQuery = {
+            name: projname,
+            owner: uid
+        }
+        Project.findOne(projQuery).then(projObj => {
+            console.log("FOUND PROJCET");
+            const audioQuery = {
+                filename: req.audiofilename
+            }
+            gfs.files.findOne(audioQuery).then(audioObj => {
+                console.log("FOUND FILE IN GRIDFS");
+                const audid = audioObj._id;
+                // const newProjObj = {
+                //     _id: projObj._id,
+                //     name: projObj.name,
+                //     owner: projObj.owner,
+                //     collaborators: projObj.collaborators,
+                //     files: [...projObj.files, audid],
+                // }
+                Project.updateOne({_id: projObj._id}, {$set : {files: [audid]}}).then( (stat) => {
+                    console.log("UPDATED", stat);
+                    res.send("success");
+                }); 
+            });
         });
     });
 });

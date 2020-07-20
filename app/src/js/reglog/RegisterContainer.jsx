@@ -3,7 +3,7 @@ import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 import Alert from 'react-bootstrap/Alert'
 
-const dbURL = "http://localhost:5000"
+const dbURL = "http://localhost:8080"
 
 export default class RegisterContainer extends React.Component {
     constructor(props) {
@@ -86,7 +86,7 @@ const sendRego = (obj) => {
         body: JSON.stringify(obj)
     };
     
-    return new Promise((resolve) => fetch(dbURL + '/users/register', requestOptions)
+    return new Promise((resolve) => fetch('/users/register', requestOptions)
     .then(data => 
         data.body.getReader())
     .then(reader => reader.read())
