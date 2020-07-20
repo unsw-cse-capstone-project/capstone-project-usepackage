@@ -30,8 +30,18 @@ export default class AudioTrackController {
         this.connectAll = this.connectAll.bind(this);
         this.connectAll();
         this.inprogress = false;
+        this.lengthHandle = null;
+        this.posHandle = null;
         this.graph.node.on('stop', (detail) => {
             this.toggle(detail)
+        });
+        this.graph.node.on('lengthUpdate', (detail) => {
+            if (this.lengthHandle)
+                this.lengthHandle(detail);
+        });
+        this.graph.node.on('pos', (detail) => {
+            if (this.posHandle)
+                this.posHandle({ pos: detail.time });
         })
     }
 
@@ -112,16 +122,14 @@ export default class AudioTrackController {
 
     }
 
-    gain(val) {
-        console.log("Changing the gain")
-        const gainParam = this.graph.node.parameters.get('customGain')
-        gainParam.setValueAtTime(val, this.audioCtx.currentTime)
+    gain(val, channel, cut) {
+        this.graph.node.setGain(val, channel, cut);
     }
 
     tempo(val, cut) {
         this.graph.node.setTempo(val, cut);
     }
-    
+
     pitch(val, cut) {
         this.graph.node.setPitch(val, cut);
     }
@@ -132,9 +140,29 @@ export default class AudioTrackController {
         this.graph.node.connect(this.audioCtx.destination)
     }
 
-    executeCut(timeSample){
+    executeCut(timeSample) {
         this.graph.node.executeCut(timeSample);
         console.log("Executing cut in audioTrackController");
+    }
+
+    undo() {
+        this.graph.node.undo();
+    }
+
+    redo() {
+        this.graph.node.redo();
+    }
+
+    crop(slice) {
+        this.graph.node.crop(slice);
+    }
+
+    copy(slice, destination) {
+        this.graph.node.copy(slice, destination);
+    }
+
+    move(slice, destination) {
+        this.graph.node.move(slice, destination);
     }
 
 }
