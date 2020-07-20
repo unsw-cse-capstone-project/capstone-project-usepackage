@@ -15,6 +15,7 @@ export default class MainContainer extends React.Component {
         this.fileURLs = []
         this.addFiles = this.addFiles.bind(this);
         this.saveFiles = this.saveFiles.bind(this);
+        this.loadFiles = this.loadFiles.bind(this);
         this.uploadFiles = this.uploadFiles.bind(this);
     }
 
@@ -28,6 +29,19 @@ export default class MainContainer extends React.Component {
     getSnapshotBeforeUpdate() {
         console.log("Before update")
         return null
+    }
+
+    loadFiles() {
+        
+        MainContainer.Load()
+        .then(data => 
+            data.body.getReader())
+        .then(reader => reader.read())
+        .then(data => {
+            const message = new TextDecoder("utf-8").decode(data.value)
+            console.log(message)
+        }).catch(err => console.log(err));
+    
     }
 
     saveFiles() {
@@ -93,6 +107,7 @@ export default class MainContainer extends React.Component {
                     </Form.Group>
                     <Button onClick={this.uploadFiles} variant="outline-primary">Upload</Button>
                     <Button onClick={this.saveFiles} variant="outline-primary">Save</Button>
+                    <Button onClick={this.loadFiles} variant="outline-primary">Load</Button>
                 </Form>
                 <div className="col-12">
                     {this.audioStack.tracks}
@@ -143,4 +158,16 @@ MainContainer.Save = (obj) => {
     };
     
     return Promise.resolve(fetch('/projects/save', requestOptions))
+};
+
+MainContainer.Load = () => {
+    const requestOptions = {
+        method: 'GET',
+        headers: { 
+            'Authorization': localStorage.usertoken,
+            'ProjMetadata': localStorage.poname
+        },
+    };
+    
+    return Promise.resolve(fetch('/projects/load', requestOptions))
 };

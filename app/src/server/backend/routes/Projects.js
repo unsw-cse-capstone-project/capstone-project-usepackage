@@ -58,8 +58,7 @@ const storage = GridFsStorage({
                         resolve({
                             filename: metaData.owner + "-" + metaData.name + "-" + file.originalname
                         })
-                    });
-                    
+                    });    
                 }
             })
         }).catch(err => reject(err))
@@ -147,6 +146,7 @@ projects.get('/', checkToken, (req, res) => {
     })
 });
 
+// deprecated. do not use. 
 projects.get('/:uname/:pname', (req, res, next) => {
     // req.params.projname --> projname provided in url
     console.log(req.params.uname, " ", req.params.pname)
@@ -188,6 +188,35 @@ projects.post('/create', checkToken, (req, res, next) => {
         });
     });
 });
+
+projects.get('/load', [checkToken], (req, res, next) => {
+    /*
+        Pass through project information
+        For the project find the list of files -> get the first file in the array
+        Create a readstream from the gridFS filesys
+        Pipe it to the response
+    */
+    const metaData = JSON.parse(req.headers.projmetadata);
+    // Get the owner
+    const UserQuery = {
+        username: metaData.owner
+    }
+    User.findOne(UserQuery).then(userObj => {
+        const ProjQuery = {
+            owner: userObj._id,
+            name: metaData.name
+        }
+        Project.findOne(ProjQuery).then(projObj => {
+            const GFSQuery = {
+                _id: projObj.files[0] 
+            }
+            let readStream = gfs.createReadStream(GFSQuery);
+            readStream.pipe(res).then((res) => {
+                res.send()
+            })
+        })
+    })
+})
 
 projects.post('/save', [checkToken, testMiddleWare], (req, res, next) => {
     console.log("REACHED POST AYY");
