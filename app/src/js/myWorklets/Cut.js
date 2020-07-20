@@ -175,6 +175,23 @@ export default class CutManager {
             this.setGain(i, channel, old, false);
         }
 
+        if (action.type === 'crop') {
+            const i = action.index;
+            this.cuts[i].cropped = !this.cuts[i].cropped;
+        }
+
+        if (action.type === 'copy') {
+            const to = action.to;
+            this.cuts.splice(to, 1);
+        }
+
+        if (action.type === 'move') {
+            const to = action.to;
+            const from = action.from;
+            let traveller = this.cuts.splice(to, 1);
+            this.cuts.splice(from, 0, traveller[0]);
+        }
+
         this.stack._stack.forEach(act => { return console.log(act.type); });
         this.redoStack.push(action);
     }
@@ -205,6 +222,23 @@ export default class CutManager {
             const channel = action.channel;
             const newVal = action.to;
             this.setGain(i, channel, newVal);
+        }
+
+        if (action.type === 'crop') {
+            const i = action.index;
+            this.crop(i);
+        }
+
+        if (action.type === 'copy') {
+            const from = action.from;
+            const to = action.to;
+            this.copy(from, to);
+        }
+
+        if (action.type === 'move') {
+            const to = action.to;
+            const from = action.from;
+            this.move(from, to);
         }
 
     }

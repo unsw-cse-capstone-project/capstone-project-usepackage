@@ -1,7 +1,27 @@
 export default class UploadHandler {
     constructor() {
         this.handleChange = this.handleChange.bind(this);
+        this.loadFiles = this.loadFiles.bind(this);
         this.fileCount = 0;
+
+        console.log('fetching1');
+        if (localStorage.usertoken && localStorage.poname) {
+            console.log('fetching2');
+            this.loadFiles();
+        }
+    }
+
+    loadFiles() {
+        console.log('fetching');
+        fetch('/projects/audiofiles', {
+            method: 'GET',
+            headers: {
+                'authorization': localStorage.usertoken,
+                'ProjMetadata': localStorage.poname
+            }
+        }).then(file => {
+            console.log(file);
+        });
     }
 
     handleChange(files) {
