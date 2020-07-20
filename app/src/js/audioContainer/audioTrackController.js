@@ -82,6 +82,10 @@ export default class AudioTrackController {
     }
 
     toggle(name) {
+        if(this.audioCtx.state === 'suspended') {
+            this.audioCtx.resume()
+        }
+        
         if (this.inprogress) {
             this.audioElement.pause()
             this.inprogress = false;
@@ -170,7 +174,7 @@ export default class AudioTrackController {
 AudioTrackController.create = (audioRecord) => {
     return new Promise((resolve) => {
         console.log("Creating a new controller with record: ", audioRecord)
-        const audioCtx = new AudioContext()
+        const audioCtx = new AudioContext();
         AudioTrackController.graph(audioCtx, audioRecord.audioData).then(graph => {
             console.log("Graph: ", graph)
                 // Create the source

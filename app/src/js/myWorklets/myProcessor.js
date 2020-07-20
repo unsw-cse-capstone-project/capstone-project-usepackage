@@ -263,7 +263,8 @@ class TestProcessor extends AudioWorkletProcessor {
         if (!this._initialized)
             return true;
         if (!this._playing || !this.loadIntoBuffer()) {
-            outputs.forEach(channel => {
+            // Hotfix
+            outputs[0].forEach(channel => {
                 channel.fill(0);
             });
             return true;
