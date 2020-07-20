@@ -4,6 +4,7 @@ import AudioTrackController from './audioTrackController'
 import Slider from '../BasicComponents/Slider.jsx'
 import InputGroup from 'react-bootstrap/InputGroup';
 import FormControl from 'react-bootstrap/FormControl';
+import CutBar from '../BasicComponents/CutBar.jsx';
 
 export default class AudioTrackContainer extends React.Component {
     constructor(props) {
@@ -11,6 +12,7 @@ export default class AudioTrackContainer extends React.Component {
         this.state = {
             toggleName: "Start",
             controller: null,
+            cutBar: null,
             time: "0.00"
         }
         this.timeInterval = null;
@@ -125,7 +127,8 @@ export default class AudioTrackContainer extends React.Component {
         console.log("Executing cut in audioTrackContainer");
         console.log(this.virtualCuts);
         this.setState({
-            virtualCuts: this.virtualCuts
+            virtualCuts: this.virtualCuts,
+            cutBar: <CutBar width={600} height={60} cuts={this.virtualCuts} duration={this.state.controller.audioRecord.audioData.length / this.state.controller.audioRecord.audioData.sampleRate}/>
         })
     }
     
@@ -157,6 +160,7 @@ export default class AudioTrackContainer extends React.Component {
                             <li key = {index}>{cut}</li>
                         ))}
                     </ol>
+                    {this.state.cutBar}
                     <SelectTime 
                         handleTime={this.executeCut} 
                         handleSlice={this.pickSlice}
