@@ -7,10 +7,12 @@ export default class CutBar extends React.Component {
         this.state = {
             width: props.width,
             height: props.height,
-            cuts: props.cuts
+            cuts: []
         }
         this.ref = React.createRef();
         this.draw = this.draw.bind(this);
+        console.log(props.lengthHandle);
+        props.lengthHandle(this.drawLengths.bind(this));
     }
 
     componentDidMount() {
@@ -18,6 +20,14 @@ export default class CutBar extends React.Component {
         this.canvasCtx = canvas.getContext("2d");
         //???this.dataArray = new Uint8Array(bufferLength);
         this.draw();
+        console.log(this.lengthHandle);
+    }
+
+    drawLengths(lengths) {
+        this.setState({
+            cuts: lengths
+        });
+        console.log(lengths);
     }
 
     draw() {
