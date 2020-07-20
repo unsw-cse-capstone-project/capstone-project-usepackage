@@ -53,6 +53,8 @@ export default class RateTransposer extends AbstractFifoSamplePipe {
         const numFramesOutput = this.transpose(numFrames);
         this._inputBuffer.receive();
         this._outputBuffer.put(numFramesOutput);
+        // console.log("IN:", numFrames);
+        // console.log("OUT:", numFramesOutput);
     }
 
     transpose(numFrames = 0) {
