@@ -5,6 +5,24 @@ import AudioStack from '../audioContainer/audioStack'
 
 const dbURL = "http://localhost:8080"
 
+const addUpload = (fileURL, blob, resolve) => {
+    const reader = new FileReader()
+    reader.readAsArrayBuffer(blob);
+    reader.onloadend = () => {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        // Create an audio stream
+        audioCtx.decodeAudioData(reader.result.slice()).then(audioData => {
+            let state = {
+                fileBuffer: reader.result,
+                audioData: audioData,
+                fileURL: fileURL,
+                fileBlob: blob
+            }
+            resolve(state)          
+        })
+    }
+}
+
 export default class MainContainer extends React.Component {
     constructor(props) {
         super(props);
@@ -17,6 +35,40 @@ export default class MainContainer extends React.Component {
         this.saveFiles = this.saveFiles.bind(this);
         this.loadFiles = this.loadFiles.bind(this);
         this.uploadFiles = this.uploadFiles.bind(this);
+        this.loadFiles = this.loadFiles.bind(this);
+        if (localStorage.usertoken && localStorage.poname) {
+            this.loadFiles();
+        }
+    }
+
+    loadFiles() {
+        console.log('fetching');
+        fetch('/projects/audiofiles', {
+            method: 'GET',
+            headers: {
+                'authorization': localStorage.usertoken,
+                'ProjMetadata': localStorage.poname
+            }
+        }).then(file => {
+            return file.blob();
+        }).then(blob => {
+            return new Promise(resolve => {
+                addUpload(null, blob, resolve);
+            });
+        }).then(audioRecord => {
+            // Process inside the audioStack
+            // MUST COME BEFORE THE STATE CHANGE!
+            this.audioStack.add(audioRecord) 
+            this.setState({
+                audioRecords: [...this.state.audioRecords, audioRecord]
+            })               
+        }).then(() => {
+            console.log("Audio stack tracks: ", this.audioStack.tracks);
+            // Empty the fileURLs since they have already been processed
+            this.fileURLs = [];
+        }).catch(err => {
+            console.log(err);
+        });
     }
 
     addFiles(Newfiles) {        
@@ -126,22 +178,8 @@ MainContainer.UploadHandler = (fileURL) => {
     return (
         new Promise((resolve) => {
             fetch(fileURL).then(res => res.blob()).then(blob => {
-                const reader = new FileReader()
-                reader.readAsArrayBuffer(blob);
-                reader.onloadend = () => {
-                    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                    // Create an audio stream
-                    audioCtx.decodeAudioData(reader.result.slice()).then(audioData => {
-                        let state = {
-                            fileBuffer: reader.result,
-                            audioData: audioData,
-                            fileURL: fileURL,
-                            fileBlob: blob
-                        }
-                        resolve(state)          
-                    })
-                }
-            }).catch(err => console.log(err, "Error with fetch @, ", fileURL))
+                addUpload(fileURL, blob, resolve);
+            }).catch(err => console.log(err, "Error with fetch @, ", fileURL));
         })
     );
 }
