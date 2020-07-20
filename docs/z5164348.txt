@@ -45,3 +45,8 @@ Week 7
 Tuesday - I added an ordered list that displays where sound files have been cut into segments.
 Thursday - I wrote a "CutBar" that displays when cuts are made in sound tracks, and marks them with the index for their corresponding slice.
 Rajiv helped me debug it and fix the connection to the AudioTrackContainer.
+Saturday - I attempted to implement cropping. However, due to the details of cuts, it didnt' really work.
+It only works when trying to crop the last section. I will try again another day after we refactor our worklet.
+Sunday - People broke off into two main groups to work on the two larger sections of the sprint. I added a Cuts class
+that should hopefully be easier to use than the last cut object we have, and should allow us to implement
+gain, pitch and tempo modulation as well as splicing.
