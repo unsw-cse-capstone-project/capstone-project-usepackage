@@ -51,14 +51,30 @@ class TestProcessor extends AudioWorkletProcessor {
                     this._interleave[2 * i + 1] = data.channelTwo[i];
                 }
                 this._cuts = new CutManager(data.channelOne.length);
-                this._cuts.addCut(data.sampleRate * 2);
-                this._cuts.cuts[1].tempo = 2;
+                // this._cuts.addCut(data.sampleRate * 2);
+                // this._cuts.cuts[1].tempo = 2;
                 console.log(this._interleave);
                 this._initialized = true;
             }
 
             if ("Update" === title) {
-                this._playing = !data.paused
+                this._playing = !data.paused;
+            }
+            
+            if("Cut" === title) {
+                this._cuts.addCut(data);
+            }
+            
+            if("Tempo" === title) {
+                console.log("Slice: ", data[1]);
+                console.log("Tempo:", data[0]);
+                this._cuts.cuts[data[1]].tempo = data[0];
+            }
+            
+            if("Pitch" === title) {
+                console.log("Slice: ", data[1]);
+                console.log("Pitch:", data[0]);
+                this._cuts.cuts[data[1]].pitch = data[0];
             }
         }
         this.port.postMessage({

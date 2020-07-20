@@ -30,7 +30,7 @@ export default class AudioTrackController {
         this.connectAll = this.connectAll.bind(this);
         this.connectAll();
         this.inprogress = false;
-        this.graph.gain.on('stop', (detail) => {
+        this.graph.node.on('stop', (detail) => {
             this.toggle(detail)
         })
     }
@@ -81,7 +81,7 @@ export default class AudioTrackController {
             this.inprogress = true;
             this._buttonNameCb(name)
         }
-        this.graph.gain.port.postMessage({
+        this.graph.node.port.postMessage({
             title: "Update",
             data: {
                 paused: !this.inprogress
@@ -105,7 +105,7 @@ export default class AudioTrackController {
     }
 
     time() {
-        this.timeCb(this.graph.gain.getTime())
+        this.timeCb(this.graph.node.getTime())
     }
 
     seek(val) {
@@ -114,14 +114,27 @@ export default class AudioTrackController {
 
     gain(val) {
         console.log("Changing the gain")
-        const gainParam = this.graph.gain.parameters.get('customGain')
+        const gainParam = this.graph.node.parameters.get('customGain')
         gainParam.setValueAtTime(val, this.audioCtx.currentTime)
+    }
+
+    tempo(val, cut) {
+        this.graph.node.setTempo(val, cut);
+    }
+    
+    pitch(val, cut) {
+        this.graph.node.setPitch(val, cut);
     }
 
     connectAll() {
         console.log("Graph connected")
-        this.source.connect(this.graph.gain)
-        this.graph.gain.connect(this.audioCtx.destination)
+        this.source.connect(this.graph.node)
+        this.graph.node.connect(this.audioCtx.destination)
+    }
+
+    executeCut(timeSample){
+        this.graph.node.executeCut(timeSample);
+        console.log("Executing cut in audioTrackController");
     }
 
 }
@@ -149,13 +162,13 @@ AudioTrackController.create = (audioRecord) => {
 AudioTrackController.graph = (audioCtx, buffer) => {
     // const gainNode = new GainNode(audioCtx);
     return audioCtx.audioWorklet.addModule('/myProcessor.js').then(() => {
-        const gainNode = new MyWorkletNode(audioCtx, 'CustomGainProcessor', {
+        const workNode = new MyWorkletNode(audioCtx, 'CustomGainProcessor', {
             buffer: buffer
         });
         return new Promise((resolve) => {
-                gainNode.on('init', (detail) => {
+                workNode.on('init', (detail) => {
                     console.log("MSG: ", detail)
-                    resolve({ gain: gainNode })
+                    resolve({ node: workNode })
                 })
             })
             // return {gain: gainNode}

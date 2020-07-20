@@ -20,12 +20,15 @@ export default class AudioTrackContainer extends React.Component {
         this.toggle = this.toggle.bind(this)
         this.record = this.record.bind(this)
         this.gain = this.gain.bind(this)
+        this.tempo = this.tempo.bind(this);
+        this.pitch = this.pitch.bind(this);
         this.executeCut = this.executeCut.bind(this);
         this.pickSlice = this.pickSlice.bind(this);
         this.updateSlice = this.updateSlice.bind(this);
         this.updateTime = this.updateTime.bind(this);
         this.time = 0;
         this.slice = 0;
+        this.virtualCuts = [0];
         AudioTrackController.create(props.audioRecord).then(controller => {
             this.setState({
                 controller: controller
@@ -70,9 +73,30 @@ export default class AudioTrackContainer extends React.Component {
             this.state.controller.gain(normalizedVal*2);
         }
     }
+    
+    tempo(target) {
+        const normalisedVal = target.value/50;
+        if(target.value === 0) target.value = 0.01;
+        if(this.state.controller) {
+            console.log("Changing tempo");
+            this.state.controller.tempo(normalisedVal, this.slice);
+        }
+    }
+    
+    pitch(target) {
+        const normalisedVal = target.value/50;
+        if(target.value === 0) target.value = 0.01;
+        if(this.state.controller) {
+            this.state.controller.pitch(normalisedVal, this.slice);
+        }
+    }
 
     updateSlice(e) {
-        this.slice = e.target.value;
+        if(e.target.value <= this.virtualCuts.length) {
+            this.slice = e.target.value;
+        } else {
+            this.slice = this.virtualCuts.length;
+        }
     }
 
     updateTime(e) {
@@ -82,13 +106,32 @@ export default class AudioTrackContainer extends React.Component {
     // Note: need to add stuff for cutbar later
     executeCut(){
         const val = this.time;
-        const timeSample = Math.floor(parseFloat(val)*this.state.track.rate);
-        if ( this.state.track) {
-            this.state.track.cut(timeSample);
+        const timeSample = Math.floor(parseFloat(val)*this.state.controller.audioRecord.audioData.sampleRate);
+        this.state.controller.executeCut(timeSample);
+ 
+        const time = parseFloat(val);
+        console.log(time);
+        for(let i = 0; i < this.virtualCuts.length; i++){
+            if(this.virtualCuts[i] === time) break;
+            if(this.virtualCuts[i] > time) {
+                this.virtualCuts.splice(i, 0, time);
+                break;
+            }
+            if(i === this.virtualCuts.length - 1){
+                this.virtualCuts.push(time);
+                break;
+            }
         }
+        console.log("Executing cut in audioTrackContainer");
+        console.log(this.virtualCuts);
+        this.setState({
+            virtualCuts: this.virtualCuts
+        })
     }
     
     pickSlice() {
+        // I don't think we need this function.
+        // Need to change the form control.
         // const val = this.slice;
         // if ( this.state.track)
         //     this.state.track.CurrentCut = parseInt(val);
@@ -106,7 +149,14 @@ export default class AudioTrackContainer extends React.Component {
                 <div className="col-12 timeFont">{this.state.time}</div>
                 <div className="col-6"><Button onClick={this.toggle}>{this.state.toggleName}</Button></div>
                 <div className="col-6"><Slider name="Volume" controlId="gainController" changeCallBack={this.gain} /></div>
+                <div className="col-6"><Slider name="Tempo" controlId="tempoController" changeCallBack={this.tempo} /></div>
+                <div className="col-6"><Slider name="Pitch" controlId="pitchController" changeCallBack={this.pitch} /></div>
                 <div className="col-6">
+                    <ol>
+                        {this.virtualCuts.map((cut, index) => (
+                            <li key = {index}>{cut}</li>
+                        ))}
+                    </ol>
                     <SelectTime 
                         handleTime={this.executeCut} 
                         handleSlice={this.pickSlice}
@@ -138,7 +188,7 @@ export const SelectTime = (props) => {
             <div className="col-6">
                 <InputGroup>
                     <InputGroup.Prepend>
-                        <InputGroup.Text>Pick Slice</InputGroup.Text>
+                        <InputGroup.Text>Current Slice</InputGroup.Text>
                     </InputGroup.Prepend>
                     <FormControl onChange={props.updateSlice} aria-label="Slice" className="col-2"/>
                     <InputGroup.Append>

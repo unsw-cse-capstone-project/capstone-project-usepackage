@@ -1,4 +1,4 @@
-import ActionStack from "/ActionStack.js";
+import ActionStack from "./ActionStack.js";
 
 export default class CutManager {
     // Constructor takes in the length of the buffer

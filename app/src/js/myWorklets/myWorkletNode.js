@@ -14,6 +14,28 @@ export default class MyWorkletNode extends AudioWorkletNode {
         return this.time
     }
 
+    executeCut(timeSample){
+        this.port.postMessage({
+            title: "Cut",
+            data: timeSample
+        });
+        console.log("Executing cut in myWorkletNode");
+    }
+    
+    setTempo(val, cut){
+        this.port.postMessage({
+            title: "Tempo",
+            data: [val, cut]
+        })
+    }
+    
+    setPitch(val, cut){
+        this.port.postMessage({
+            title: "Pitch",
+            data: [val, cut]
+        })
+    }
+
     /* event listener handling */
     /**
      * @on
