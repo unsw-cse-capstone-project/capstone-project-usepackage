@@ -13,10 +13,10 @@ export default class AudioTrackContainer extends React.Component {
             toggleName: "Start",
             controller: null,
             cutBar: null,
-            time: "0.00"
+            time: "0.00",
+            paused: true
         }
         this.timeInterval = null;
-        this.paused = true;
         // Perform setup after promise is fulfilled
         this.startTime = this.startTime.bind(this)
         this.toggle = this.toggle.bind(this)
@@ -49,7 +49,10 @@ export default class AudioTrackContainer extends React.Component {
             return this.state
         }).then((state) => {
             state.controller.timeCb = (time) => this.setState({time: Number.parseFloat(128*time/44100).toFixed(3).toString()})
-            state.controller.buttonNameCb = (name) => this.setState({toggleName: name})
+            state.controller.buttonNameCb = (name, paused) => this.setState({
+                toggleName: name,
+                paused: paused
+            })
             state.controller.lengthHandle = this.lengthHandleFunc;
             state.controller.posHandle = this.posHandleFunc;
         })
@@ -83,13 +86,12 @@ export default class AudioTrackContainer extends React.Component {
 
     toggle() {
         if ( this.state.controller ) {
-            this.paused = !this.paused;
-            if (this.paused) {
-                this.state.controller.toggle("Play");
+            if (!this.state.paused) {
+                this.state.controller.toggle("Play", true);
                 this.stopTime()
             }
             else { 
-                this.state.controller.toggle("Pause");
+                this.state.controller.toggle("Pause", false);
                 this.startTime()
             }
         }

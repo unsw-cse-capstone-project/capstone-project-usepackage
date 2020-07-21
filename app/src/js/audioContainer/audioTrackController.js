@@ -33,7 +33,7 @@ export default class AudioTrackController {
         this.lengthHandle = null;
         this.posHandle = null;
         this.graph.node.on('stop', (detail) => {
-            this.toggle(detail)
+            this.toggle(detail, true)
         });
         this.graph.node.on('lengthUpdate', (detail) => {
             if (this.lengthHandle)
@@ -81,19 +81,19 @@ export default class AudioTrackController {
         return new Blob(mp3Data, { type: 'audio/mp3' });
     }
 
-    toggle(name) {
+    toggle(name, paused) {
         if(this.audioCtx.state === 'suspended') {
             this.audioCtx.resume()
         }
-        
+
         if (this.inprogress) {
             this.audioElement.pause()
             this.inprogress = false;
-            this._buttonNameCb(name)
+            this._buttonNameCb(name, paused)
         } else {
             this.audioElement.play()
             this.inprogress = true;
-            this._buttonNameCb(name)
+            this._buttonNameCb(name, paused)
         }
         this.graph.node.port.postMessage({
             title: "Update",
