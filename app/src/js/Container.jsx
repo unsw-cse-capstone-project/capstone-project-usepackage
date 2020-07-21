@@ -44,6 +44,7 @@ const SideMenu = (props) => {
     const menuItems = props.items.map((item, idx) => {
         const logout = () => {
             localStorage.removeItem('usertoken');
+            localStorage.removeItem('poname');
             const a = document.createElement('a');
             a.href = "/";
             a.hidden = true;

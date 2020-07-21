@@ -96,10 +96,10 @@ export default class MainContainer extends React.Component {
             .then(reader => reader.read())
             .then(data => {
                 const message = new TextDecoder("utf-8").decode(data.value)
-                console.log(message)
+                alert(message)
             }).catch(err => console.log(err));
         } else {
-            console.log("NOT LOGGED IN")
+            alert("NOT LOGGED IN")
         }
         // localStorage.usertoken
         // let a = document.createElement('a');
