@@ -162,37 +162,36 @@ projects.get('/:uname/:pname', (req, res, next) => {
     res.sendFile(path.join(__dirname, 'index.html'))
 });
 
+//redacted
+// projects.get("/audiofiles", checkToken, (req, res, next) => {
+//     console.log("LOAD REACHED");
+//     const metaData = JSON.parse(req.headers.projmetadata);
+//     const query = {
+//         filename: {$regex: metaData.owner + "-" + metaData.name + "-" + "[0-9]+\.mp3"} 
+//     }
+//     gfs.files.find(query).toArray((err, files) => {
+//         console.log("LENGTH: " + files.length);
+//         console.log(files);
+//         if (!files || files.length === 0) {
+//             return res.status(404).json({
+//                 message: "Could not find file"
+//             });
+//         }
+
+//         var readstream = gfs.createReadStream({
+//             filename: files[0].filename
+//         })
+//         res.set('Content-Type', files[0].contentType);
+//         return readstream.pipe(res);
+//     });
+
+// });
+
 projects.get("/audiofiles", checkToken, (req, res, next) => {
-    // we have the token and the req.headers.projmetadata
-    // const userQuery = {
-    //     name: req.token.username
-    // };
-    // User.findOne(userQuery).then(userObj => {
-    //     const projectData = {
-    //         name: req.body.projectName,
-    //         owner: oserObj._id
-    //     };
-    //     Project.findOne(projectData).then(proj => {
-
-    //         // gfs.files.find({ filename: req.params.filename }).toArray((err, files) => {
-    //         //     if (!files || files.length === 0) {
-    //         //         return res.status(404).json({
-    //         //             message: "Could not find file"
-    //         //         });
-    //         //     }
-
-    //         //     var readstream = gfs.createReadStream({
-    //         //         filename: files[0].filename
-    //         //     })
-    //         //     res.set('Content-Type', files[0].contentType);
-    //         //     return readstream.pipe(res);
-    //         // });
-    //     });
-    // });
-    // for now just send the file itself right away
+    console.log("LOAD REACHED");
     const metaData = JSON.parse(req.headers.projmetadata);
     const query = {
-        filename: metaData.owner + "-" + metaData.name + "-" + "testfile.mp3"
+        filename: {$regex: metaData.owner + "-" + metaData.name + "-" + req.headers.nth + ".mp3"} 
     }
     gfs.files.find(query).toArray((err, files) => {
         if (!files || files.length === 0) {
@@ -208,6 +207,29 @@ projects.get("/audiofiles", checkToken, (req, res, next) => {
         return readstream.pipe(res);
     });
 
+});
+
+projects.get("/numfiles", checkToken, (req, res, next) => {
+    console.log("GETTIN NUM FILES");
+    const metaData = JSON.parse(req.headers.projmetadata);
+    const userQuery = {
+        username: req.token.username
+    };
+    User.findOne(userQuery).then(userObj => {
+        const projectData = {
+            name: metaData.name,
+            owner: userObj._id
+        };
+        console.log("project info: ", projectData);
+        Project.findOne(projectData).then(proj => {
+            console.log(proj.files.length.toString());
+            if (proj) {
+                res.send(proj.files.length.toString());
+            } else {
+                res.send("fail");
+            }
+        });
+    });
 });
 
 projects.post('/create', checkToken, (req, res, next) => {
@@ -276,7 +298,7 @@ projects.post('/save', [checkToken, testMiddleWare], (req, res, next) => {
                 //     collaborators: projObj.collaborators,
                 //     files: [...projObj.files, audid],
                 // }
-                Project.updateOne({ _id: projObj._id }, { $set: { files: [audid] } }).then((stat) => {
+                Project.updateOne({ _id: projObj._id }, { $push: { files: audid } }).then((stat) => {
                     console.log("UPDATED", stat);
                     res.send("success");
                 });

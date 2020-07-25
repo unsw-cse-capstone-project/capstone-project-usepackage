@@ -41,33 +41,55 @@ export default class MainContainer extends React.Component {
     }
 
     loadFiles() {
-        console.log('fetching');
-        fetch('/projects/audiofiles', {
+        console.log("obtaining number of files info");
+        let len = 0;
+        fetch('/projects/numfiles', {
             method: 'GET',
             headers: {
                 'authorization': localStorage.usertoken,
                 'ProjMetadata': localStorage.poname
             }
-        }).then(file => {
-            return file.blob();
-        }).then(blob => {
-            return new Promise(resolve => {
-                addUpload(null, blob, resolve);
-            });
-        }).then(audioRecord => {
-            // Process inside the audioStack
-            // MUST COME BEFORE THE STATE CHANGE!
-            this.audioStack.add(audioRecord) 
-            this.setState({
-                audioRecords: [...this.state.audioRecords, audioRecord]
-            })               
-        }).then(() => {
-            console.log("Audio stack tracks: ", this.audioStack.tracks);
-            // Empty the fileURLs since they have already been processed
-            this.fileURLs = [];
-        }).catch(err => {
-            console.log(err);
-        });
+        })
+        .then(data => 
+            data.body.getReader())
+        .then(reader => reader.read())
+        .then(data => {
+            const message = new TextDecoder("utf-8").decode(data.value)
+            if(message === "fail") console.log(message);
+            // console.log(message);
+            len = parseInt(message);
+            console.log("total number of files: ", len);
+            console.log('fetching');
+            for(let i = 0; i < len; i++) {
+                fetch('/projects/audiofiles', {
+                    method: 'GET',
+                    headers: {
+                        'authorization': localStorage.usertoken,
+                        'ProjMetadata': localStorage.poname,
+                        'nth': i
+                    }
+                }).then(file => {
+                    return file.blob();
+                }).then(blob => {
+                    return new Promise(resolve => {
+                        addUpload(null, blob, resolve);
+                    });
+                }).then(audioRecord => {
+                    // Process inside the audioStack
+                    // MUST COME BEFORE THE STATE CHANGE!
+                    this.audioStack.add(audioRecord) 
+                    this.setState({
+                        audioRecords: [...this.state.audioRecords, audioRecord]
+                    })               
+                }).then(() => {
+                    console.log("Audio stack tracks: ", this.audioStack.tracks);
+                    // Empty the fileURLs since they have already been processed
+                    this.fileURLs = [];
+                }).catch(err => {
+                    console.log(err);
+                });
+            }
+        }).catch(err => console.log(err));
     }
 
     addFiles(Newfiles) {        
@@ -84,23 +106,26 @@ export default class MainContainer extends React.Component {
 
     saveFiles() {
         const blobs = this.audioStack.record();
-        if ( blobs[0].size > 100 && localStorage.usertoken) {
-            // const URI = URL.createObjectURL(blobs[0])
-            let data = new FormData();
-            let file = new File([blobs[0]], "testfile.mp3", {type: "audio/mpeg"});
-            data.append('file', file);
-            console.log("Attempting to save blob")
-            MainContainer.Save(data)
-            .then(data => 
-                data.body.getReader())
-            .then(reader => reader.read())
-            .then(data => {
-                const message = new TextDecoder("utf-8").decode(data.value)
-                alert(message)
-            }).catch(err => console.log(err));
-        } else {
-            alert("NOT LOGGED IN")
-        }
+        blobs.forEach( (blob, i) => {
+            if ( blob.size > 100 && localStorage.usertoken && localStorage.poname) {
+                // const URI = URL.createObjectURL(blobs[0])
+                let data = new FormData();
+                let file = new File([blob], i + ".mp3", {type: "audio/mpeg"});
+                data.append('file', file);
+                console.log("Attempting to save blob")
+                MainContainer.Save(data)
+                .then(data => 
+                    data.body.getReader())
+                .then(reader => reader.read())
+                .then(data => {
+                    const message = new TextDecoder("utf-8").decode(data.value)
+                    alert(message)
+                }).catch(err => console.log(err));
+            } else {
+                alert("NOT LOGGED IN")
+            }
+        });
+        
         // localStorage.usertoken
         // let a = document.createElement('a');
         // a.download = 'test.mp3'
