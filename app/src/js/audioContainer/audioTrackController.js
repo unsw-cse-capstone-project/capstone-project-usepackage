@@ -6,9 +6,9 @@
     modified by sections
 */
 
+import workletURL from '../myWorklets/custom.worklet.js';
 import MyWorkletNode from '../myWorklets/myWorkletNode';
-
-const lamejs = window.lamejs;
+import lamejs from '../lib/lamejs.js';
 
 export default class AudioTrackController {
 
@@ -49,6 +49,7 @@ export default class AudioTrackController {
         // Time to do the recording
         let buffer = this.audioRecord.audioData
         console.log("Recording buffer...", buffer)
+
         const encoder = new lamejs.Mp3Encoder(2, buffer.sampleRate, 128);
         let mp3Data = [];
         let mp3buf;
@@ -82,7 +83,7 @@ export default class AudioTrackController {
     }
 
     toggle(name, paused) {
-        if(this.audioCtx.state === 'suspended') {
+        if (this.audioCtx.state === 'suspended') {
             this.audioCtx.resume()
         }
 
@@ -193,8 +194,8 @@ AudioTrackController.create = (audioRecord) => {
 
 AudioTrackController.graph = (audioCtx, buffer) => {
     // const gainNode = new GainNode(audioCtx);
-    return audioCtx.audioWorklet.addModule('/myProcessor.js').then(() => {
-        const workNode = new MyWorkletNode(audioCtx, 'CustomGainProcessor', {
+    return audioCtx.audioWorklet.addModule(workletURL).then(() => {
+        const workNode = new MyWorkletNode(audioCtx, 'CustomProcessor', {
             buffer: buffer
         });
         return new Promise((resolve) => {

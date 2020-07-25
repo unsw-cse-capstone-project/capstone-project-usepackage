@@ -1,5 +1,5 @@
 //import createSoundTouchNode from '../soundtouch/createSoundTouchNode.js';
-import WavAudioEncoder from '../soundtouch/WavAudioEncoder.js'
+import WavAudioEncoder from '../lib/WavAudioEncoder.js'
 import PromiseQueue from '../PromiseQueue.jsx';
 
 const lamejs = window.lamejs;

@@ -20,7 +20,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-import FifoSampleBuffer from '/FifoSampleBuffer.js';
+import FifoSampleBuffer from './FifoSampleBuffer.js';
 
 export default class AbstractFifoSamplePipe {
     constructor(createBuffers) {

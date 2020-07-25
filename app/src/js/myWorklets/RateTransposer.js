@@ -20,7 +20,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-import AbstractFifoSamplePipe from '/AbstractFifoSamplePipe.js';
+import AbstractFifoSamplePipe from './AbstractFifoSamplePipe.js';
 
 export default class RateTransposer extends AbstractFifoSamplePipe {
     constructor(createBuffers) {

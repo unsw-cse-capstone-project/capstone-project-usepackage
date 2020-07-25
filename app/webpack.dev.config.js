@@ -1,6 +1,6 @@
-const path = require('path')
-const webpack = require('webpack')
-const HtmlWebPackPlugin = require('html-webpack-plugin')
+const path = require('path');
+const webpack = require('webpack');
+const HtmlWebPackPlugin = require('html-webpack-plugin');
 
 module.exports = {
     entry: {
@@ -21,13 +21,18 @@ module.exports = {
         rules: [{
                 enforce: "pre",
                 test: /\.jsx?$/,
-                exclude: /node_modules/,
+                exclude: /(node_modules|lib\/)/,
                 loader: "eslint-loader",
                 options: {
                     emitWarning: true,
                     failOnError: false,
                     failOnWarning: false
                 }
+            },
+            {
+                test: /\.worklet\.js$/,
+                exclude: /node_modules/,
+                loader: 'worklet-loader'
             },
             {
                 test: /\.jsx?$/,

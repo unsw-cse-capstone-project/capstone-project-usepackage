@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import WavAudioEncoder from '../soundtouch/WavAudioEncoder.js';
+import WavAudioEncoder from '../lib/WavAudioEncoder.js';
 import AudioTrack from './AudioTrack.jsx';
 import AudioTrackContainer from './AudioTrackContainer.jsx';
 import SlideController from './controller/SlideController.jsx';

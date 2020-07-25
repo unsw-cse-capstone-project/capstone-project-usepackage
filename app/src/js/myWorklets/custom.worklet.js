@@ -1,12 +1,11 @@
-import Stretch from '/Stretch.js'
-import RateTransposer from '/RateTransposer.js';
-import FifoSampleBuffer from '/FifoSampleBuffer.js'
-import CutManager from '/Cut.js'
+import Stretch from './Stretch.js'
+import RateTransposer from './RateTransposer.js';
+import FifoSampleBuffer from './FifoSampleBuffer.js'
+import CutManager from './Cut.js'
 
 const FRAMESIZE = 128;
 
-// myProcessor.js
-class TestProcessor extends AudioWorkletProcessor {
+class CustomProcessor extends AudioWorkletProcessor {
 
     constructor() {
         super();
@@ -289,4 +288,5 @@ class TestProcessor extends AudioWorkletProcessor {
         return true;
     }
 }
-registerProcessor('CustomGainProcessor', TestProcessor);
+
+registerProcessor('CustomProcessor', CustomProcessor);

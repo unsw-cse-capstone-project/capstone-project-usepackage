@@ -37,7 +37,9 @@ app.use(
 
 const mongoURI = 'mongodb://localhost:27017/usepackage'
 
-let Users = null, Files = null, Projects = null;
+let Users = null,
+    Files = null,
+    Projects = null;
 
 mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true }).then(conn => {
     const db = conn.connections[0].db
@@ -50,7 +52,7 @@ mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true }).
     app.use('/files', Files);
     app.use('/projects', Projects);
 
-    console.log('MongoDB Connected');  
+    console.log('MongoDB Connected');
 }).catch(err => { console.log(err); });
 
 
@@ -79,60 +81,6 @@ app.get('/home', (req, res, next) => {
     // })
     res.sendFile(HTML_FILE)
 })
-
-app.get('/myProcessor.js', (req, res, next) => {
-    res.sendFile(path.join(WORKLET_DIR, 'myProcessor.js'))
-})
-
-app.get('/AbstractFifoSamplePipe.js', (req, res, next) => {
-    res.sendFile(path.join(WORKLET_DIR, 'AbstractFifoSamplePipe.js'))
-})
-
-app.get('/RateTransposer.js', (req, res, next) => {
-    res.sendFile(path.join(WORKLET_DIR, 'RateTransposer.js'))
-})
-
-app.get('/Cut.js', (req, res, next) => {
-    res.sendFile(path.join(WORKLET_DIR, 'Cut.js'))
-})
-
-app.get('/ActionStack.js', (req, res, next) => {
-    res.sendFile(path.join(WORKLET_DIR, 'ActionStack.js'))
-})
-
-app.get('/Stretch.js', (req, res, next) => {
-    res.sendFile(path.join(WORKLET_DIR, 'Stretch.js'))
-})
-
-app.get('/FifoSampleBuffer.js', (req, res, next) => {
-    res.sendFile(path.join(WORKLET_DIR, 'FifoSampleBuffer.js'))
-})
-
-app.get('/recorder/recorder.js', (req, res, next) => {
-    res.sendFile(path.join(LIB_DIR, 'recorder/recorder.js'));
-})
-
-app.get('/soundtouch/soundtouch-worklet.js', (req, res, next) => {
-    res.sendFile(path.join(LIB_DIR, 'soundtouch/soundtouch-worklet.js'));
-})
-
-app.get('/lamejs.js', (req, res, next) => {
-    res.sendFile(path.join(LIB_DIR, 'lamejs.js'));
-})
-
-app.get('/libvorbis.js', (req, res, next) => {
-    res.sendFile(path.join(LIB_DIR, 'vorbis.js'));
-})
-
-app.get('/vorbis.js', (req, res, next) => {
-    res.sendFile(path.join(LIB_DIR, 'ogg.js'));
-})
-
-app.get('/stretch.js', (req, res, next) => {
-    res.sendFile(path.join(LIB_DIR, 'stretch.js'));
-})
-
-
 
 app.get('/register', (req, res, next) => {
     res.sendFile(REGISTER_FILE)

@@ -3,14 +3,29 @@ function lamejs() {
 
     function K(c) { return new Float32Array(c) }
 
-    function ca(c) { if (1 == c.length) return K(c[0]); var k = c[0];
-        c = c.slice(1); for (var n = [], u = 0; u < k; u++) n.push(ca(c)); return n }
+    function ca(c) {
+        if (1 == c.length) return K(c[0]);
+        var k = c[0];
+        c = c.slice(1);
+        for (var n = [], u = 0; u < k; u++) n.push(ca(c));
+        return n
+    }
 
-    function Ia(c) { if (1 == c.length) return X(c[0]); var k = c[0];
-        c = c.slice(1); for (var n = [], u = 0; u < k; u++) n.push(Ia(c)); return n }
+    function Ia(c) {
+        if (1 == c.length) return X(c[0]);
+        var k = c[0];
+        c = c.slice(1);
+        for (var n = [], u = 0; u < k; u++) n.push(Ia(c));
+        return n
+    }
 
-    function dc(c) { if (1 == c.length) return new Int16Array(c[0]); var k = c[0];
-        c = c.slice(1); for (var n = [], u = 0; u < k; u++) n.push(dc(c)); return n }
+    function dc(c) {
+        if (1 == c.length) return new Int16Array(c[0]);
+        var k = c[0];
+        c = c.slice(1);
+        for (var n = [], u = 0; u < k; u++) n.push(dc(c));
+        return n
+    }
 
     function Ob(c) {
         if (1 == c.length) return Array(c[0]);
@@ -26,12 +41,14 @@ function lamejs() {
 
     function la(c) { this.ordinal = function() { return c } }
 
-    function mc() { this.getLameVersion = function() { return "3.98.4" };
+    function mc() {
+        this.getLameVersion = function() { return "3.98.4" };
         this.getLameShortVersion = function() { return "3.98.4" };
         this.getLameVeryShortVersion = function() { return "LAME3.98r" };
         this.getPsyVersion = function() { return "0.93" };
         this.getLameUrl = function() { return "http://www.mp3dev.org/" };
-        this.getLameOsBitness = function() { return "32bits" } }
+        this.getLameOsBitness = function() { return "32bits" }
+    }
 
     function Y() {
         function c(f, b, c, a, m, k) { for (; 0 != m--;) c[a] = 1E-10 + f[b + 0] * k[0] - c[a - 1] * k[1] + f[b - 1] * k[2] - c[a - 2] * k[3] + f[b - 2] * k[4] - c[a - 3] * k[5] + f[b - 3] * k[6] - c[a - 4] * k[7] + f[b - 4] * k[8] - c[a - 5] * k[9] + f[b - 5] * k[10] - c[a - 6] * k[11] + f[b - 6] * k[12] - c[a - 7] * k[13] + f[b - 7] * k[14] - c[a - 8] * k[15] + f[b - 8] * k[16] - c[a - 9] * k[17] + f[b - 9] * k[18] - c[a - 10] * k[19] + f[b - 10] * k[20], ++a, ++b }
@@ -77,25 +94,36 @@ function lamejs() {
                     f.rstepbuf[c] = f.routbuf[c] = 0;
                 switch (0 | b) {
                     case 48E3:
-                        f.reqindex = 0; break;
+                        f.reqindex = 0;
+                        break;
                     case 44100:
-                        f.reqindex = 1; break;
+                        f.reqindex = 1;
+                        break;
                     case 32E3:
-                        f.reqindex = 2; break;
+                        f.reqindex = 2;
+                        break;
                     case 24E3:
-                        f.reqindex = 3; break;
+                        f.reqindex = 3;
+                        break;
                     case 22050:
-                        f.reqindex = 4; break;
+                        f.reqindex = 4;
+                        break;
                     case 16E3:
-                        f.reqindex = 5; break;
+                        f.reqindex = 5;
+                        break;
                     case 12E3:
-                        f.reqindex = 6; break;
+                        f.reqindex = 6;
+                        break;
                     case 11025:
-                        f.reqindex = 7; break;
+                        f.reqindex = 7;
+                        break;
                     case 8E3:
-                        f.reqindex = 8; break;
+                        f.reqindex = 8;
+                        break;
                     default:
-                        b = INIT_GAIN_ANALYSIS_ERROR; break a }
+                        b = INIT_GAIN_ANALYSIS_ERROR;
+                        break a
+                }
                 f.sampleWindow = 0 | (b * V + E - 1) / E;f.lsum = 0;f.rsum = 0;f.totsamp = 0;na.ill(f.A, 0);b = INIT_GAIN_ANALYSIS_OK
             }
             if (b != INIT_GAIN_ANALYSIS_OK) return INIT_GAIN_ANALYSIS_ERROR;
@@ -109,17 +137,24 @@ function lamejs() {
             switch (e) {
                 case 1:
                     a = b;
-                    m = v; break;
+                    m = v;
+                    break;
                 case 2:
                     break;
                 default:
-                    return GAIN_ANALYSIS_ERROR }
+                    return GAIN_ANALYSIS_ERROR
+            }
             u < MAX_ORDER ? (T.arraycopy(b, v, f.linprebuf, MAX_ORDER, u), T.arraycopy(a, m, f.rinprebuf, MAX_ORDER, u)) : (T.arraycopy(b, v, f.linprebuf, MAX_ORDER, MAX_ORDER), T.arraycopy(a, m, f.rinprebuf, MAX_ORDER,
                 MAX_ORDER));
             for (; 0 < d;) {
                 var g = d > f.sampleWindow - f.totsamp ? f.sampleWindow - f.totsamp : d;
-                if (l < MAX_ORDER) { e = f.linpre + l; var q = f.linprebuf; var D = f.rinpre + l; var p = f.rinprebuf;
-                    g > MAX_ORDER - l && (g = MAX_ORDER - l) } else e = v + l, q = b, D = m + l, p = a;
+                if (l < MAX_ORDER) {
+                    e = f.linpre + l;
+                    var q = f.linprebuf;
+                    var D = f.rinpre + l;
+                    var p = f.rinprebuf;
+                    g > MAX_ORDER - l && (g = MAX_ORDER - l)
+                } else e = v + l, q = b, D = m + l, p = a;
                 c(q, e, f.lstepbuf, f.lstep + f.totsamp, g, B[f.reqindex]);
                 c(p, D, f.rstepbuf, f.rstep + f.totsamp, g, B[f.reqindex]);
                 k(f.lstepbuf, f.lstep + f.totsamp, f.loutbuf, f.lout + f.totsamp, g, w[f.reqindex]);
@@ -141,16 +176,28 @@ function lamejs() {
                 f.linprebuf, 0, MAX_ORDER), T.arraycopy(a, m + u - MAX_ORDER, f.rinprebuf, 0, MAX_ORDER));
             return GAIN_ANALYSIS_OK
         };
-        this.GetTitleGain = function(f) { var b = f.A; var c = f.A.length,
-                a, m = 0; for (a = 0; a < c; a++) m += b[a]; if (0 == m) b = GAIN_NOT_ENOUGH_SAMPLES;
-            else { m = 0 | Math.ceil(m * (1 - .95)); for (a = c; 0 < a-- && !(0 >= (m -= b[a])););
-                b = 64.82 - a / Y.STEPS_per_dB } for (c = 0; c < f.A.length; c++) f.B[c] += f.A[c], f.A[c] = 0; for (c = 0; c < MAX_ORDER; c++) f.linprebuf[c] = f.lstepbuf[c] = f.loutbuf[c] = f.rinprebuf[c] = f.rstepbuf[c] = f.routbuf[c] = 0;
+        this.GetTitleGain = function(f) {
+            var b = f.A;
+            var c = f.A.length,
+                a, m = 0;
+            for (a = 0; a < c; a++) m += b[a];
+            if (0 == m) b = GAIN_NOT_ENOUGH_SAMPLES;
+            else {
+                m = 0 | Math.ceil(m * (1 - .95));
+                for (a = c; 0 < a-- && !(0 >= (m -= b[a])););
+                b = 64.82 - a / Y.STEPS_per_dB
+            }
+            for (c = 0; c < f.A.length; c++) f.B[c] += f.A[c], f.A[c] = 0;
+            for (c = 0; c < MAX_ORDER; c++) f.linprebuf[c] = f.lstepbuf[c] = f.loutbuf[c] = f.rinprebuf[c] = f.rstepbuf[c] = f.routbuf[c] = 0;
             f.totsamp = 0;
-            f.lsum = f.rsum = 0; return b }
+            f.lsum = f.rsum = 0;
+            return b
+        }
     }
 
     function wc() {
-        function c(b, c, a, f, k, e, l, d, g, q, D, p, r, t, J) { this.vbr_q = b;
+        function c(b, c, a, f, k, e, l, d, g, q, D, p, r, t, J) {
+            this.vbr_q = b;
             this.quant_comp = c;
             this.quant_comp_s = a;
             this.expY = f;
@@ -164,7 +211,8 @@ function lamejs() {
             this.interch = p;
             this.safejoint = r;
             this.sfb21mod = t;
-            this.msfix = J }
+            this.msfix = J
+        }
 
         function k(b, c, a, f, k, e, l, d, g, q, D, p, r, t) {
             this.quant_comp = c;
@@ -233,9 +281,11 @@ function lamejs() {
             320 < b.VBR_mean_bitrate_kbps && (b.disable_reservoir = !0);
             0 < f[m].safejoint && (b.exp_nspsytune |= 2);
             0 < f[m].sfscale && (b.internal_flags.noise_shaping = 2);
-            if (0 < Math.abs(f[m].nsbass)) { var k = int(4 * f[m].nsbass);
+            if (0 < Math.abs(f[m].nsbass)) {
+                var k = int(4 * f[m].nsbass);
                 0 > k && (k += 64);
-                b.exp_nspsytune |= k << 2 }
+                b.exp_nspsytune |= k << 2
+            }
             0 != a ? b.quant_comp = f[m].quant_comp : 0 < Math.abs(b.quant_comp - -1) || (b.quant_comp = f[m].quant_comp);
             0 != a ? b.quant_comp_short = f[m].quant_comp_s : 0 < Math.abs(b.quant_comp_short - -1) || (b.quant_comp_short = f[m].quant_comp_s);
             0 != a ? b.msfix = f[m].nsmsfix : 0 < Math.abs(b.msfix - -1) || (b.msfix = f[m].nsmsfix);
@@ -316,7 +366,8 @@ function lamejs() {
                 case W.V1:
                     return n(b, 1, a), c;
                 case W.V0:
-                    return n(b, 0, a), c }
+                    return n(b, 0, a), c
+            }
             if (8 <= c && 320 >= c) return V(b, c, a);
             b.preset = 0;
             return c
@@ -332,7 +383,17 @@ function lamejs() {
                 0 : 1, e[c++] = d > p[b++] ? 0 : 1
         }
 
-        function n(a, d, b, e, c, l) { a >>= 1; var h = a % 2; for (a >>= 1; 0 != a--;) { var p = b[e++] * d; var r = b[e++] * d; var t = 0 | p; var f = b[e++] * d; var g = 0 | r; var J = b[e++] * d; var D = 0 | f;
+        function n(a, d, b, e, c, l) {
+            a >>= 1;
+            var h = a % 2;
+            for (a >>= 1; 0 != a--;) {
+                var p = b[e++] * d;
+                var r = b[e++] * d;
+                var t = 0 | p;
+                var f = b[e++] * d;
+                var g = 0 | r;
+                var J = b[e++] * d;
+                var D = 0 | f;
                 p += B.adj43[t];
                 t = 0 | J;
                 r += B.adj43[g];
@@ -341,16 +402,20 @@ function lamejs() {
                 c[l++] = 0 | r;
                 J += B.adj43[t];
                 c[l++] = 0 | f;
-                c[l++] = 0 | J }
-            0 != h && (p = b[e++] * d, r = b[e++] * d, p += B.adj43[0 | p], r += B.adj43[0 | r], c[l++] = 0 | p, c[l++] = 0 | r) }
+                c[l++] = 0 | J
+            }
+            0 != h && (p = b[e++] * d, r = b[e++] * d, p += B.adj43[0 | p], r += B.adj43[0 | r], c[l++] = 0 | p, c[l++] = 0 | r)
+        }
 
         function V(a, d, b, e) {
             var p, c = d,
                 h = p = 0;
-            do { var r = a[c++],
+            do {
+                var r = a[c++],
                     l = a[c++];
                 p < r && (p = r);
-                h < l && (h = l) } while (c < b);
+                h < l && (h = l)
+            } while (c < b);
             p < h && (p = h);
             switch (p) {
                 case 0:
@@ -395,11 +460,13 @@ function lamejs() {
                     var g = w.ht[d].hlen,
                         D = w.ht[d + 1].hlen,
                         q = w.ht[d + 2].hlen;
-                    do { var m = a[c + 0] * l + a[c + 1];
+                    do {
+                        var m = a[c + 0] * l + a[c + 1];
                         c += 2;
                         p += g[m];
                         h += D[m];
-                        r += q[m] } while (c < b);
+                        r += q[m]
+                    } while (c < b);
                     a = d;
                     p > h && (p = h, a++);
                     p > r && (p = r, a = d + 2);
@@ -471,9 +538,11 @@ function lamejs() {
             null != p && (p.sfb_count1 = 0);
             for (; 1 < e && 0 == (b[e - 1] | b[e - 2]); e -= 2);
             d.count1 = e;
-            for (var l = 0, h = 0; 3 < e && !(1 < ((b[e - 1] | b[e - 2] | b[e - 3] | b[e - 4]) & 2147483647)); e -= 4) { var f = 2 * (2 * (2 * b[e - 4] + b[e - 3]) + b[e - 2]) + b[e - 1];
+            for (var l = 0, h = 0; 3 < e && !(1 < ((b[e - 1] | b[e - 2] | b[e - 3] | b[e - 4]) & 2147483647)); e -= 4) {
+                var f = 2 * (2 * (2 * b[e - 4] + b[e - 3]) + b[e - 2]) + b[e - 1];
                 l += w.t32l[f];
-                h += w.t33l[f] }
+                h += w.t33l[f]
+            }
             f = l;
             d.count1table_select = 0;
             l > h && (f = h, d.count1table_select = 1);
@@ -488,8 +557,10 @@ function lamejs() {
             l < h && (f = new u(f), d.table_select[1] = V(b, l, h, f), f = f.bits);
             2 == a.use_best_huffman &&
                 (d.part2_3_length = f, best_huffman_divide(a, d), f = d.part2_3_length);
-            if (null != p && d.block_type == c.NORM_TYPE) { for (b = 0; a.scalefac_band.l[b] < d.big_values;) b++;
-                p.sfb_count1 = b }
+            if (null != p && d.block_type == c.NORM_TYPE) {
+                for (b = 0; a.scalefac_band.l[b] < d.big_values;) b++;
+                p.sfb_count1 = b
+            }
             return f
         };
         this.count_bits = function(a, d, e, b) {
@@ -519,8 +590,11 @@ function lamejs() {
                     0 == g && 0 == r && (q = p, v = m, C = d, I = D);
                     null != b && 0 < b.sfb_count1 && h >= b.sfb_count1 && 0 < b.step[h] && u >= b.step[h] ? (0 != g && (n(g, l, C, I, q, v), g = 0, q = p, v = m, C = d, I = D), r += Z) : (0 != r && (k(r, l, C, I, q, v), r = 0, q =
                         p, v = m, C = d, I = D), g += Z);
-                    if (0 >= Z) { 0 != r && (k(r, l, C, I, q, v), r = 0);
-                        0 != g && (n(g, l, C, I, q, v), g = 0); break }
+                    if (0 >= Z) {
+                        0 != r && (k(r, l, C, I, q, v), r = 0);
+                        0 != g && (n(g, l, C, I, q, v), g = 0);
+                        break
+                    }
                 }
                 h <= S && (m += e.width[h], D += e.width[h], f += e.width[h])
             }
@@ -542,16 +616,27 @@ function lamejs() {
                 g = X(23);
             if (d.block_type != c.SHORT_TYPE || 1 != a.mode_gr) {
                 e.assign(d);
-                if (d.block_type == c.NORM_TYPE) { for (var y = d.big_values, m = 0; 22 >= m; m++) l[m] = ia.LARGE_BITS; for (m = 0; 16 > m; m++) { var D = a.scalefac_band.l[m + 1]; if (D >= y) break; var q = 0,
+                if (d.block_type == c.NORM_TYPE) {
+                    for (var y = d.big_values, m = 0; 22 >= m; m++) l[m] = ia.LARGE_BITS;
+                    for (m = 0; 16 > m; m++) {
+                        var D = a.scalefac_band.l[m + 1];
+                        if (D >= y) break;
+                        var q = 0,
                             k = new u(q),
                             v = V(b, 0, D, k);
-                        q = k.bits; for (var C = 0; 8 > C; C++) { var I = a.scalefac_band.l[m + C + 2]; if (I >= y) break;
+                        q = k.bits;
+                        for (var C = 0; 8 > C; C++) {
+                            var I = a.scalefac_band.l[m + C + 2];
+                            if (I >= y) break;
                             k = q;
                             k = new u(k);
                             I = V(b, D, I, k);
                             k = k.bits;
-                            l[m + C] > k && (l[m + C] = k, f[m + C] = m, h[m + C] = v, g[m + C] = I) } }
-                    E(a, e, d, b, l, f, h, g) }
+                            l[m + C] > k && (l[m + C] = k, f[m + C] = m, h[m + C] = v, g[m + C] = I)
+                        }
+                    }
+                    E(a, e, d, b, l, f, h, g)
+                }
                 y = e.big_values;
                 if (!(0 == y || 1 < (b[y - 2] | b[y - 1]) || (y = d.count1 + 2, 576 < y))) {
                     e.assign(d);
@@ -574,9 +659,12 @@ function lamejs() {
         this.best_scalefac_store = function(d, e, p, l) {
             var f = l.tt[e][p],
                 g, h, r = 0;
-            for (g = h = 0; g < f.sfbmax; g++) { var y = f.width[g];
-                h += y; for (y = -y; 0 > y && 0 == f.l3_enc[y + h]; y++);
-                0 == y && (f.scalefac[g] = r = -2) }
+            for (g = h = 0; g < f.sfbmax; g++) {
+                var y = f.width[g];
+                h += y;
+                for (y = -y; 0 > y && 0 == f.l3_enc[y + h]; y++);
+                0 == y && (f.scalefac[g] = r = -2)
+            }
             if (0 == f.scalefac_scale && 0 == f.preflag) {
                 for (g = h = 0; g < f.sfbmax; g++) 0 < f.scalefac[g] && (h |= f.scalefac[g]);
                 if (0 == (h & 1) && 0 != h) {
@@ -585,8 +673,13 @@ function lamejs() {
                     f.scalefac_scale = r = 1
                 }
             }
-            if (0 == f.preflag && f.block_type != c.SHORT_TYPE && 2 == d.mode_gr) { for (g = 11; g < c.SBPSY_l && !(f.scalefac[g] < B.pretab[g] && -2 != f.scalefac[g]); g++); if (g == c.SBPSY_l) { for (g = 11; g < c.SBPSY_l; g++) 0 < f.scalefac[g] && (f.scalefac[g] -= B.pretab[g]);
-                    f.preflag = r = 1 } }
+            if (0 == f.preflag && f.block_type != c.SHORT_TYPE && 2 == d.mode_gr) {
+                for (g = 11; g < c.SBPSY_l && !(f.scalefac[g] < B.pretab[g] && -2 != f.scalefac[g]); g++);
+                if (g == c.SBPSY_l) {
+                    for (g = 11; g < c.SBPSY_l; g++) 0 < f.scalefac[g] && (f.scalefac[g] -= B.pretab[g]);
+                    f.preflag = r = 1
+                }
+            }
             for (g = 0; 4 > g; g++) l.scfsi[p][g] = 0;
             if (2 == d.mode_gr && 1 == e && l.tt[0][p].block_type != c.SHORT_TYPE && l.tt[1][p].block_type != c.SHORT_TYPE) {
                 e = l.tt[1][p];
@@ -594,8 +687,10 @@ function lamejs() {
                 for (r = 0; r < w.scfsi_band.length - 1; r++) {
                     for (g = w.scfsi_band[r]; g <
                         w.scfsi_band[r + 1] && !(h.scalefac[g] != e.scalefac[g] && 0 <= e.scalefac[g]); g++);
-                    if (g == w.scfsi_band[r + 1]) { for (g = w.scfsi_band[r]; g < w.scfsi_band[r + 1]; g++) e.scalefac[g] = -1;
-                        l.scfsi[p][r] = 1 }
+                    if (g == w.scfsi_band[r + 1]) {
+                        for (g = w.scfsi_band[r]; g < w.scfsi_band[r + 1]; g++) e.scalefac[g] = -1;
+                        l.scfsi[p][r] = 1
+                    }
                 }
                 for (g = l = p = 0; 11 > g; g++) - 1 != e.scalefac[g] && (l++, p < e.scalefac[g] && (p = e.scalefac[g]));
                 for (y = h = 0; g < c.SBPSY_l; g++) - 1 != e.scalefac[g] && (y++, h < e.scalefac[g] && (h = e.scalefac[g]));
@@ -613,8 +708,10 @@ function lamejs() {
             var d, g = 0,
                 f = 0,
                 t = a.scalefac;
-            if (a.block_type == c.SHORT_TYPE) { var m = z;
-                0 != a.mixed_block_flag && (m = e) } else if (m = l, 0 == a.preflag) {
+            if (a.block_type == c.SHORT_TYPE) {
+                var m = z;
+                0 != a.mixed_block_flag && (m = e)
+            } else if (m = l, 0 == a.preflag) {
                 for (d = 11; d < c.SBPSY_l && !(t[d] < B.pretab[d]); d++);
                 if (d == c.SBPSY_l)
                     for (a.preflag = 1, d = 11; d < c.SBPSY_l; d++) t[d] -=
@@ -642,8 +739,11 @@ function lamejs() {
             if (e.block_type == c.SHORT_TYPE) {
                 var y = 1;
                 var k = B.nr_of_sfb_block[a][y];
-                for (b = m = 0; 4 > b; b++) { var q = k[b] / 3; for (l = 0; l < q; l++, m++)
-                        for (f = 0; 3 > f; f++) x[3 * m + f] > h[b] && (h[b] = x[3 * m + f]) }
+                for (b = m = 0; 4 > b; b++) {
+                    var q = k[b] / 3;
+                    for (l = 0; l < q; l++, m++)
+                        for (f = 0; 3 > f; f++) x[3 * m + f] > h[b] && (h[b] = x[3 * m + f])
+                }
             } else
                 for (y = 0, k = B.nr_of_sfb_block[a][y], b = m = 0; 4 > b; b++)
                     for (q = k[b], l = 0; l < q; l++, m++) x[m] > h[b] && (h[b] = x[m]);
@@ -676,11 +776,17 @@ function lamejs() {
             return q
         };
         var g = [0, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4];
-        this.huffman_init = function(a) { for (var d = 2; 576 >= d; d += 2) { for (var e = 0, b; a.scalefac_band.l[++e] < d;); for (b = ha[e][0]; a.scalefac_band.l[b + 1] > d;) b--;
+        this.huffman_init = function(a) {
+            for (var d = 2; 576 >= d; d += 2) {
+                for (var e = 0, b; a.scalefac_band.l[++e] < d;);
+                for (b = ha[e][0]; a.scalefac_band.l[b + 1] > d;) b--;
                 0 > b && (b = ha[e][0]);
-                a.bv_scf[d - 2] = b; for (b = ha[e][1]; a.scalefac_band.l[b + a.bv_scf[d - 2] + 2] > d;) b--;
+                a.bv_scf[d - 2] = b;
+                for (b = ha[e][1]; a.scalefac_band.l[b + a.bv_scf[d - 2] + 2] > d;) b--;
                 0 > b && (b = ha[e][1]);
-                a.bv_scf[d - 1] = b } }
+                a.bv_scf[d - 1] = b
+            }
+        }
     }
 
     function xc() {
@@ -704,7 +810,8 @@ function lamejs() {
                 (u.pinfo.mean_bits = n.bits / 2, u.pinfo.resvsize = u.ResvSize);
             return k
         };
-        this.ResvMaxBits = function(c, n, u, E) { var k = c.internal_flags,
+        this.ResvMaxBits = function(c, n, u, E) {
+            var k = c.internal_flags,
                 w = k.ResvSize,
                 f = k.ResvMax;
             0 != E && (w += n);
@@ -713,10 +820,13 @@ function lamejs() {
             10 * w > 9 * f ? (E = w - 9 * f / 10, u.bits += E, k.substep_shaping |= 128) : (E = 0, k.substep_shaping &= 127, c.disable_reservoir || 0 != (k.substep_shaping & 1) || (u.bits -= .1 * n));
             c = w < 6 * k.ResvMax / 10 ? w : 6 * k.ResvMax / 10;
             c -= E;
-            0 > c && (c = 0); return c };
+            0 > c && (c = 0);
+            return c
+        };
         this.ResvAdjust = function(c, n) { c.ResvSize -= n.part2_3_length + n.part2_length };
         this.ResvFrameEnd =
-            function(c, n) { var k, u = c.l3_side;
+            function(c, n) {
+                var k, u = c.l3_side;
                 c.ResvSize += n * c.mode_gr;
                 n = 0;
                 u.resvDrain_post = 0;
@@ -730,7 +840,8 @@ function lamejs() {
                 c.ResvSize -= 8 * k;
                 u.main_data_begin -= k;
                 u.resvDrain_post += n;
-                c.ResvSize -= n }
+                c.ResvSize -= n
+            }
     }
 
     function qa() {
@@ -757,13 +868,20 @@ function lamejs() {
             }
         }
 
-        function k(a, d) { var b = a.internal_flags,
+        function k(a, d) {
+            var b = a.internal_flags,
                 c;
             8 <= d && (u(b, 76, 8), d -= 8);
             8 <= d && (u(b, 65, 8), d -= 8);
             8 <= d && (u(b, 77, 8), d -= 8);
-            8 <= d && (u(b, 69, 8), d -= 8); if (32 <= d) { var h = e.getLameShortVersion(); if (32 <= d)
-                    for (c = 0; c < h.length && 8 <= d; ++c) d -= 8, u(b, h.charAt(c), 8) } for (; 1 <= d; --d) u(b, b.ancillary_flag, 1), b.ancillary_flag ^= a.disable_reservoir ? 0 : 1 }
+            8 <= d && (u(b, 69, 8), d -= 8);
+            if (32 <= d) {
+                var h = e.getLameShortVersion();
+                if (32 <= d)
+                    for (c = 0; c < h.length && 8 <= d; ++c) d -= 8, u(b, h.charAt(c), 8)
+            }
+            for (; 1 <= d; --d) u(b, b.ancillary_flag, 1), b.ancillary_flag ^= a.disable_reservoir ? 0 : 1
+        }
 
         function n(a, d, e) {
             for (var b = a.header[a.h_ptr].ptr; 0 < e;) {
@@ -803,8 +921,12 @@ function lamejs() {
             return h
         }
 
-        function B(a, d, e, b, h) { var c = w.ht[d],
-                g = 0; if (0 == d) return g; for (; e < b; e += 2) { var l = 0,
+        function B(a, d, e, b, h) {
+            var c = w.ht[d],
+                g = 0;
+            if (0 == d) return g;
+            for (; e < b; e += 2) {
+                var l = 0,
                     f = 0,
                     p = c.xlen,
                     r = c.xlen,
@@ -819,7 +941,10 @@ function lamejs() {
                 l += c.hlen[C];
                 u(a, c.table[C], l);
                 u(a, m, f);
-                g += l + f } return g }
+                g += l + f
+            }
+            return g
+        }
 
         function K(a, d) {
             var e = 3 * a.scalefac_band.s[3];
@@ -829,12 +954,18 @@ function lamejs() {
                 d.table_select[1], e, d.big_values, d)
         }
 
-        function f(a, d) { var e = d.big_values; var b = d.region0_count + 1; var h = a.scalefac_band.l[b];
-            b += d.region1_count + 1; var c = a.scalefac_band.l[b];
+        function f(a, d) {
+            var e = d.big_values;
+            var b = d.region0_count + 1;
+            var h = a.scalefac_band.l[b];
+            b += d.region1_count + 1;
+            var c = a.scalefac_band.l[b];
             h > e && (h = e);
             c > e && (c = e);
             b = B(a, d.table_select[0], 0, h, d);
-            b += B(a, d.table_select[1], h, c, d); return b += B(a, d.table_select[2], c, e, d) }
+            b += B(a, d.table_select[1], h, c, d);
+            return b += B(a, d.table_select[2], c, e, d)
+        }
 
         function b() { this.total = 0 }
 
@@ -862,20 +993,25 @@ function lamejs() {
             z = null,
             e = null,
             l = null;
-        this.setModules = function(a, d, b, c) { m = a;
+        this.setModules = function(a, d, b, c) {
+            m = a;
             z = d;
             e = b;
-            l = c };
+            l = c
+        };
         var d = null,
             g = 0,
             q = 0,
             D = 0;
         this.getframebits = function(a) { var d = a.internal_flags; return 8 * (0 | 72E3 * (a.version + 1) * (0 != d.bitrate_index ? w.bitrate_table[a.version][d.bitrate_index] : a.brate) / a.out_samplerate + d.padding) };
         this.CRC_writeheader =
-            function(a, d) { var e = V(d[2] & 255, 65535);
-                e = V(d[3] & 255, e); for (var b = 6; b < a.sideinfo_len; b++) e = V(d[b] & 255, e);
+            function(a, d) {
+                var e = V(d[2] & 255, 65535);
+                e = V(d[3] & 255, e);
+                for (var b = 6; b < a.sideinfo_len; b++) e = V(d[b] & 255, e);
                 d[4] = byte(e >> 8);
-                d[5] = byte(e & 255) };
+                d[5] = byte(e & 255)
+            };
         this.flush_bitstream = function(a) {
             var d = a.internal_flags,
                 e;
@@ -883,11 +1019,21 @@ function lamejs() {
             0 > (e = v(a, new b)) || (k(a, e), d.ResvSize = 0, c.main_data_begin = 0, d.findReplayGain && (c = m.GetTitleGain(d.rgdata), d.RadioGain = Math.floor(10 * c + .5) | 0), d.findPeakSample && (d.noclipGainChange = Math.ceil(200 * Math.log10(d.PeakSample / 32767)) | 0, 0 < d.noclipGainChange ? EQ(a.scale, 1) || EQ(a.scale, 0) ? d.noclipScale =
                 Math.floor(32767 / d.PeakSample * 100) / 100 : d.noclipScale = -1 : d.noclipScale = -1))
         };
-        this.add_dummy_byte = function(a, e, b) { a = a.internal_flags; for (var c; 0 < b--;) { c = e; for (var h = 8; 0 < h;) { 0 == D && (D = 8, q++, d[q] = 0); var l = Math.min(h, D);
+        this.add_dummy_byte = function(a, e, b) {
+            a = a.internal_flags;
+            for (var c; 0 < b--;) {
+                c = e;
+                for (var h = 8; 0 < h;) {
+                    0 == D && (D = 8, q++, d[q] = 0);
+                    var l = Math.min(h, D);
                     h -= l;
                     D -= l;
                     d[q] |= c >> h << D;
-                    g += l } for (c = 0; c < da.MAX_HEADER_BUF; ++c) a.header[c].write_timing += 8 } };
+                    g += l
+                }
+                for (c = 0; c < da.MAX_HEADER_BUF; ++c) a.header[c].write_timing += 8
+            }
+        };
         this.format_bitstream = function(a) {
             var d = a.internal_flags;
             var e = d.l3_side;
@@ -970,9 +1116,11 @@ function lamejs() {
                                         Math.max(C.scalefac[3 * p + 1], 0), Z), u(B, Math.max(C.scalefac[3 * p + 2], 0), Z), S += 3 * Z
                                 }
                                 q += K(B, C)
-                            } else { for (; 4 > Q; Q++)
+                            } else {
+                                for (; 4 > Q; Q++)
                                     for (w = C.sfb_partition_table[Q], Z = C.slen[Q], I = 0; I < w; I++, p++) u(B, Math.max(C.scalefac[p], 0), Z), S += Z;
-                                q += f(B, C) }
+                                q += f(B, C)
+                            }
                             q += E(B, C);
                             D += S + q
                         }
@@ -983,8 +1131,10 @@ function lamejs() {
             v(a, new b) != d.ResvSize && T.err.println("Internal buffer inconsistency. flushbits <> ResvSize");
             8 * e.main_data_begin != d.ResvSize && (T.err.printf("bit reservoir error: \nl3_side.main_data_begin: %d \nResvoir size:             %d \nresv drain (post)         %d \nresv drain (pre)          %d \nheader and sideinfo:      %d \ndata bits:                %d \ntotal bits:               %d (remainder: %d) \nbitsperframe:             %d \n",
                 8 * e.main_data_begin, d.ResvSize, e.resvDrain_post, e.resvDrain_pre, 8 * d.sideinfo_len, h - e.resvDrain_post - 8 * d.sideinfo_len, h, h % 8, l), T.err.println("This is a fatal error.  It has several possible causes:"), T.err.println("90%%  LAME compiled with buggy version of gcc using advanced optimizations"), T.err.println(" 9%%  Your system is overclocked"), T.err.println(" 1%%  bug in LAME encoding library"), d.ResvSize = 8 * e.main_data_begin);
-            if (1E9 < g) { for (a = 0; a < da.MAX_HEADER_BUF; ++a) d.header[a].write_timing -= g;
-                g = 0 }
+            if (1E9 < g) {
+                for (a = 0; a < da.MAX_HEADER_BUF; ++a) d.header[a].write_timing -= g;
+                g = 0
+            }
             return 0
         };
         this.copy_buffer = function(a, e, b, c, h) {
@@ -1010,17 +1160,22 @@ function lamejs() {
             }
             return g
         };
-        this.init_bit_stream_w = function(a) { d = new Int8Array(W.LAME_MAXMP3BUFFER);
+        this.init_bit_stream_w = function(a) {
+            d = new Int8Array(W.LAME_MAXMP3BUFFER);
             a.h_ptr = a.w_ptr = 0;
             a.header[a.h_ptr].write_timing = 0;
             q = -1;
-            g = D = 0 }
+            g = D = 0
+        }
     }
 
     function zb() {
-        function c(a, b) { var d = a[b + 0] & 255;
+        function c(a, b) {
+            var d = a[b + 0] & 255;
             d = d << 8 | a[b + 1] & 255;
-            d = d << 8 | a[b + 2] & 255; return d = d << 8 | a[b + 3] & 255 }
+            d = d << 8 | a[b + 2] & 255;
+            return d = d << 8 | a[b + 3] & 255
+        }
 
         function k(a, b, d) {
             a[b +
@@ -1030,8 +1185,10 @@ function lamejs() {
             a[b + 3] = d & 255
         }
 
-        function n(a, b, d) { a[b + 0] = d >> 8 & 255;
-            a[b + 1] = d & 255 }
+        function n(a, b, d) {
+            a[b + 0] = d >> 8 & 255;
+            a[b + 1] = d & 255
+        }
 
         function V(a, b, d) { return 255 & (a << b | d & ~(-1 << b)) }
 
@@ -1065,9 +1222,11 @@ function lamejs() {
 
         function B(a, b) { return b = b >> 8 ^ z[(b ^ a) & 255] }
         var K, f, b;
-        this.setModules = function(a, c, d) { K = a;
+        this.setModules = function(a, c, d) {
+            K = a;
             f = c;
-            b = d };
+            b = d
+        };
         var v = zb.NUMTOCENTRIES,
             a = zb.MAXFRAMESIZE,
             m = v + 4 + 4 + 4 + 4 + 4 + 9 + 1 + 1 + 8 + 1 + 1 + 3 + 1 + 1 + 2 +
@@ -1077,13 +1236,19 @@ function lamejs() {
                 48257, 31808, 46081, 29888, 30080, 46401, 30464, 47041, 46721, 30272, 29184, 45761, 45953, 29504, 45313, 29120, 28800, 45121, 20480, 37057, 37249, 20800, 37633, 21440, 21120, 37441, 38401, 22208, 22400, 38721, 21760, 38337, 38017, 21568, 39937, 23744, 23936, 40257, 24320, 40897, 40577, 24128, 23040, 39617, 39809, 23360, 39169, 22976, 22656, 38977, 34817, 18624, 18816, 35137, 19200, 35777, 35457, 19008, 19968, 36545, 36737, 20288, 36097, 19904, 19584, 35905, 17408, 33985, 34177, 17728, 34561, 18368, 18048, 34369, 33281, 17088, 17280, 33601, 16640, 33217, 32897, 16448
             ];
         this.addVbrFrame =
-            function(a) { var b = a.internal_flags; var d = b.VBR_seek_table;
+            function(a) {
+                var b = a.internal_flags;
+                var d = b.VBR_seek_table;
                 a = w.bitrate_table[a.version][b.bitrate_index];
                 d.nVbrNumFrames++;
                 d.sum += a;
-                d.seen++; if (!(d.seen < d.want) && (d.pos < d.size && (d.bag[d.pos] = d.sum, d.pos++, d.seen = 0), d.pos == d.size)) { for (a = 1; a < d.size; a += 2) d.bag[a / 2] = d.bag[a];
+                d.seen++;
+                if (!(d.seen < d.want) && (d.pos < d.size && (d.bag[d.pos] = d.sum, d.pos++, d.seen = 0), d.pos == d.size)) {
+                    for (a = 1; a < d.size; a += 2) d.bag[a / 2] = d.bag[a];
                     d.want *= 2;
-                    d.pos /= 2 } };
+                    d.pos /= 2
+                }
+            };
         this.getVbrTag = function(a) {
             var b = new VBRTagData,
                 d = 0;
@@ -1102,9 +1267,11 @@ function lamejs() {
             d += 4;
             0 != (f & 1) && (b.frames = c(a, d), d += 4);
             0 != (f & 2) && (b.bytes = c(a, d), d += 4);
-            if (0 != (f & 4)) { if (null != b.toc)
+            if (0 != (f & 4)) {
+                if (null != b.toc)
                     for (m = 0; m < v; m++) b.toc[m] = a[d + m];
-                d += v }
+                d += v
+            }
             b.vbrScale = -1;
             0 != (f & 8) && (b.vbrScale = c(a, d), d += 4);
             b.headersize = 72E3 * (e + 1) * p / b.samprate;
@@ -1142,12 +1309,17 @@ function lamejs() {
             var e = new Int8Array(v);
             if (a.free_format)
                 for (var l = 1; l < v; ++l) e[l] = 255 & 255 * l / 100;
-            else { var m = d.VBR_seek_table; if (!(0 >= m.pos))
-                    for (l = 1; l < v; ++l) { var p = 0 | Math.floor(l / v * m.pos);
+            else {
+                var m = d.VBR_seek_table;
+                if (!(0 >= m.pos))
+                    for (l = 1; l < v; ++l) {
+                        var p = 0 | Math.floor(l / v * m.pos);
                         p > m.pos - 1 && (p = m.pos - 1);
                         p = 0 | 256 * m.bag[p] / m.sum;
                         255 < p && (p = 255);
-                        e[l] = 255 & p } }
+                        e[l] = 255 & p
+                    }
+            }
             p = d.sideinfo_len;
             a.error_protection && (p -= 2);
             c[p++] = 0;
@@ -1276,10 +1448,12 @@ function lamejs() {
         }
     }
 
-    function U(c, k, n, w) { this.xlen = c;
+    function U(c, k, n, w) {
+        this.xlen = c;
         this.linmax = k;
         this.table = n;
-        this.hlen = w }
+        this.hlen = w
+    }
 
     function xa(c) { this.bits = c }
 
@@ -1347,26 +1521,33 @@ function lamejs() {
                 var z = this.quantize.qupvt.on_pe(k, n, b, a, m, m);
                 B.mode_ext ==
                     c.MPG_MD_MS_LR && (this.quantize.ms_convert(B.l3_side, m), this.quantize.qupvt.reduce_side(b, u[m], a, z));
-                for (z = 0; z < B.channels_out; z++) { var e = v.tt[m][z]; if (e.block_type != c.SHORT_TYPE) { var l = 0;
-                        l = B.PSY.mask_adjust - l } else l = 0, l = B.PSY.mask_adjust_short - l;
+                for (z = 0; z < B.channels_out; z++) {
+                    var e = v.tt[m][z];
+                    if (e.block_type != c.SHORT_TYPE) {
+                        var l = 0;
+                        l = B.PSY.mask_adjust - l
+                    } else l = 0, l = B.PSY.mask_adjust_short - l;
                     B.masking_lower = Math.pow(10, .1 * l);
                     this.quantize.init_outer_loop(B, e);
                     this.quantize.init_xrpow(B, e, f) && (this.quantize.qupvt.calc_xmin(k, w[m][z], e, E), this.quantize.outer_loop(k, e, E, f, z, b[z]));
-                    this.quantize.iteration_finish_one(B, m, z) }
+                    this.quantize.iteration_finish_one(B, m, z)
+                }
             }
             this.quantize.rv.ResvFrameEnd(B,
                 a)
         }
     }
 
-    function Cc() { this.floor = this.decay = this.adjustLimit = this.adjust = this.aaSensitivityP = this.useAdjust = 0;
+    function Cc() {
+        this.floor = this.decay = this.adjustLimit = this.adjust = this.aaSensitivityP = this.useAdjust = 0;
         this.l = K(c.SBMAX_l);
         this.s = K(c.SBMAX_s);
         this.psfb21 = K(c.PSFB21);
         this.psfb12 = K(c.PSFB12);
         this.cb_l = K(c.CBANDS);
         this.cb_s = K(c.CBANDS);
-        this.eql_w = K(c.BLKSIZE / 2) }
+        this.eql_w = K(c.BLKSIZE / 2)
+    }
 
     function za(u, k, n, w) {
         this.l = X(1 + c.SBMAX_l);
@@ -1449,19 +1630,30 @@ function lamejs() {
                 e.iteration_init_init = 1;
                 d.main_data_begin = 0;
                 d = b.internal_flags.ATH.l;
-                for (var g = b.internal_flags.ATH.psfb21, q = b.internal_flags.ATH.s, k = b.internal_flags.ATH.psfb12, p = b.internal_flags, r = b.out_samplerate, t = 0; t < c.SBMAX_l; t++) { var J = p.scalefac_band.l[t],
-                        h = p.scalefac_band.l[t + 1]; for (d[t] = Ma.MAX_VALUE; J < h; J++) { var x = J * r / 1152;
+                for (var g = b.internal_flags.ATH.psfb21, q = b.internal_flags.ATH.s, k = b.internal_flags.ATH.psfb12, p = b.internal_flags, r = b.out_samplerate, t = 0; t < c.SBMAX_l; t++) {
+                    var J = p.scalefac_band.l[t],
+                        h = p.scalefac_band.l[t + 1];
+                    for (d[t] = Ma.MAX_VALUE; J < h; J++) {
+                        var x = J * r / 1152;
                         x = u(b, x);
-                        d[t] = Math.min(d[t], x) } }
+                        d[t] = Math.min(d[t], x)
+                    }
+                }
                 for (t = 0; t < c.PSFB21; t++)
                     for (J = p.scalefac_band.psfb21[t], h = p.scalefac_band.psfb21[t + 1], g[t] = Ma.MAX_VALUE; J < h; J++) x = J * r / 1152,
                         x = u(b, x), g[t] = Math.min(g[t], x);
-                for (t = 0; t < c.SBMAX_s; t++) { J = p.scalefac_band.s[t];
-                    h = p.scalefac_band.s[t + 1]; for (q[t] = Ma.MAX_VALUE; J < h; J++) x = J * r / 384, x = u(b, x), q[t] = Math.min(q[t], x);
-                    q[t] *= p.scalefac_band.s[t + 1] - p.scalefac_band.s[t] }
-                for (t = 0; t < c.PSFB12; t++) { J = p.scalefac_band.psfb12[t];
-                    h = p.scalefac_band.psfb12[t + 1]; for (k[t] = Ma.MAX_VALUE; J < h; J++) x = J * r / 384, x = u(b, x), k[t] = Math.min(k[t], x);
-                    k[t] *= p.scalefac_band.s[13] - p.scalefac_band.s[12] }
+                for (t = 0; t < c.SBMAX_s; t++) {
+                    J = p.scalefac_band.s[t];
+                    h = p.scalefac_band.s[t + 1];
+                    for (q[t] = Ma.MAX_VALUE; J < h; J++) x = J * r / 384, x = u(b, x), q[t] = Math.min(q[t], x);
+                    q[t] *= p.scalefac_band.s[t + 1] - p.scalefac_band.s[t]
+                }
+                for (t = 0; t < c.PSFB12; t++) {
+                    J = p.scalefac_band.psfb12[t];
+                    h = p.scalefac_band.psfb12[t + 1];
+                    for (k[t] = Ma.MAX_VALUE; J < h; J++) x = J * r / 384, x = u(b, x), k[t] = Math.min(k[t], x);
+                    k[t] *= p.scalefac_band.s[13] - p.scalefac_band.s[12]
+                }
                 if (b.noATH) {
                     for (t = 0; t < c.SBMAX_l; t++) d[t] = 1E-20;
                     for (t = 0; t < c.PSFB21; t++) g[t] =
@@ -1526,11 +1718,15 @@ function lamejs() {
             b = a[0] + a[1];
             b > c && (a[0] = c * a[0] / b, a[1] = c * a[1] / b)
         };
-        this.athAdjust = function(a, b, d) { b = aa.FAST_LOG10_X(b, 10);
-            a *= a; var c = 0;
+        this.athAdjust = function(a, b, d) {
+            b = aa.FAST_LOG10_X(b, 10);
+            a *= a;
+            var c = 0;
             b -= d;
             1E-20 < a && (c = 1 + aa.FAST_LOG10_X(a, 10 / 90.30873362));
-            0 > c && (c = 0); return Math.pow(10, .1 * (b * c + (d + 90.30873362 - 94.82444863))) };
+            0 > c && (c = 0);
+            return Math.pow(10, .1 * (b * c + (d + 90.30873362 - 94.82444863)))
+        };
         this.calc_xmin = function(a, b, d, f) {
             var e = 0,
                 g = a.internal_flags,
@@ -1542,20 +1738,29 @@ function lamejs() {
                 y = g.masking_lower;
             if (a.VBR ==
                 G.vbr_mtrh || a.VBR == G.vbr_mt) y = 1;
-            for (m = 0; m < d.psy_lmax; m++) { var A = a.VBR == G.vbr_rh || a.VBR == G.vbr_mtrh ? athAdjust(v.adjust, v.l[m], v.floor) : v.adjust * v.l[m]; var n = d.width[m]; var u = A / n; var B = 2.220446049250313E-16; var z = n >> 1; var C = 0;
-                do { var I = h[l] * h[l];
+            for (m = 0; m < d.psy_lmax; m++) {
+                var A = a.VBR == G.vbr_rh || a.VBR == G.vbr_mtrh ? athAdjust(v.adjust, v.l[m], v.floor) : v.adjust * v.l[m];
+                var n = d.width[m];
+                var u = A / n;
+                var B = 2.220446049250313E-16;
+                var z = n >> 1;
+                var C = 0;
+                do {
+                    var I = h[l] * h[l];
                     C += I;
                     B += I < u ? I : u;
                     l++;
                     I = h[l] * h[l];
                     C += I;
                     B += I < u ? I : u;
-                    l++ } while (0 < --z);
+                    l++
+                } while (0 < --z);
                 C > A && k++;
                 m == c.SBPSY_l && (u = A * g.nsPsy.longfact[m], B < u && (B = u));
                 0 != x && (A = B);
                 a.ATHonly || (B = b.en.l[m], 0 < B && (u = C * b.thm.l[m] * y / B, 0 != x && (u *= g.nsPsy.longfact[m]), A < u && (A = u)));
-                0 != x ? f[e++] = A : f[e++] = A * g.nsPsy.longfact[m] }
+                0 != x ? f[e++] = A : f[e++] = A * g.nsPsy.longfact[m]
+            }
             C =
                 575;
             if (d.block_type != c.SHORT_TYPE)
@@ -1587,12 +1792,14 @@ function lamejs() {
                 f = b.s,
                 g = a.l3_enc;
             if (f > a.count1)
-                for (; 0 != d--;) { var l = a.xr[f];
+                for (; 0 != d--;) {
+                    var l = a.xr[f];
                     f++;
                     e += l * l;
                     l = a.xr[f];
                     f++;
-                    e += l * l } else if (f > a.big_values) {
+                    e += l * l
+                } else if (f > a.big_values) {
                     var k = K(2);
                     k[0] = 0;
                     for (k[1] = c; 0 != d--;) l = Math.abs(a.xr[f]) - k[g[f]], f++, e += l * l, l = Math.abs(a.xr[f]) -
@@ -1614,10 +1821,12 @@ function lamejs() {
                 n = 0;
             for (l = f.over_SSD = 0; l < a.psymax; l++) {
                 var B = a.global_gain - (A[n++] + (0 != a.preflag ? b[l] : 0) << a.scalefac_scale + 1) - 8 * a.subblock_gain[a.window[l]];
-                if (null != m && m.step[l] == B) { var z = m.noise[l];
+                if (null != m && m.step[l] == B) {
+                    var z = m.noise[l];
                     y += a.width[l];
                     d[e++] = z / c[g++];
-                    z = m.noise_log[l] } else {
+                    z = m.noise_log[l]
+                } else {
                     z = v[B + ia.Q_MAX2];
                     var w = a.width[l] >> 1;
                     y + a.width[l] >
@@ -1761,20 +1970,24 @@ function lamejs() {
     function Ec() {
         function u(c) { this.ordinal = c }
 
-        function k(c) { for (var b = 0; b < c.sfbmax; b++)
+        function k(c) {
+            for (var b = 0; b < c.sfbmax; b++)
                 if (0 == c.scalefac[b] + c.subblock_gain[c.window[b]]) return !1;
-            return !0 }
+            return !0
+        }
         var n;
         this.rv = null;
         var w;
         this.qupvt = null;
         var E, B = new yc,
             ha;
-        this.setModules = function(c, b, k, a) { n = c;
+        this.setModules = function(c, b, k, a) {
+            n = c;
             this.rv = w = b;
             this.qupvt = E = k;
             ha = a;
-            B.setModules(E, ha) };
+            B.setModules(E, ha)
+        };
         this.ms_convert = function(c, b) {
             for (var f = 0; 576 > f; ++f) {
                 var a = c.tt[b][0].xr[f],
@@ -1783,14 +1996,25 @@ function lamejs() {
                 c.tt[b][1].xr[f] = .5 * (a - m) * aa.SQRT2
             }
         };
-        this.init_xrpow = function(c, b, k) { var a = 0 | b.max_nonzero_coeff;
+        this.init_xrpow = function(c, b, k) {
+            var a = 0 | b.max_nonzero_coeff;
             b.xrpow_max = 0;
-            na.fill(k, a, 576, 0); for (var f, v = f = 0; v <= a; ++v) { var e = Math.abs(b.xr[v]);
+            na.fill(k, a, 576, 0);
+            for (var f, v = f = 0; v <= a; ++v) {
+                var e = Math.abs(b.xr[v]);
                 f += e;
                 k[v] = Math.sqrt(e * Math.sqrt(e));
-                k[v] > b.xrpow_max && (b.xrpow_max = k[v]) } if (1E-20 < f) { k = 0;
-                0 != (c.substep_shaping & 2) && (k = 1); for (a = 0; a < b.psymax; a++) c.pseudohalf[a] = k; return !0 }
-            na.fill(b.l3_enc, 0, 576, 0); return !1 };
+                k[v] > b.xrpow_max && (b.xrpow_max = k[v])
+            }
+            if (1E-20 < f) {
+                k = 0;
+                0 != (c.substep_shaping & 2) && (k = 1);
+                for (a = 0; a < b.psymax; a++) c.pseudohalf[a] = k;
+                return !0
+            }
+            na.fill(b.l3_enc, 0, 576, 0);
+            return !1
+        };
         this.init_outer_loop = function(f, b) {
             b.part2_3_length = 0;
             b.big_values = 0;
@@ -1870,9 +2094,11 @@ function lamejs() {
             var m = K(sa.SFBMAX);
             if ((0 != (f.substep_shaping & 4) || b.block_type != c.SHORT_TYPE) && 0 == (f.substep_shaping & 128)) {
                 E.calc_noise(b, k, m, new sb, null);
-                for (var n = 0; 576 > n; n++) { var e = 0;
+                for (var n = 0; 576 > n; n++) {
+                    var e = 0;
                     0 != b.l3_enc[n] && (e = Math.abs(b.xr[n]));
-                    a[n] = e }
+                    a[n] = e
+                }
                 n = 0;
                 e = 8;
                 b.block_type == c.SHORT_TYPE && (e = 6);
@@ -1958,9 +2184,16 @@ function lamejs() {
                                 1 < S ? 1 : .95 * S
                     }
                     var Z = 0;
-                    for (ma = 0; ma < O.sfbmax; ma++) { var L = O.width[ma];
-                        Z += L; if (!(F[ma] < S)) { if (0 != (I.substep_shaping & 2) && (I.pseudohalf[ma] = 0 == I.pseudohalf[ma] ? 1 : 0, 0 == I.pseudohalf[ma] && 2 == I.noise_shaping_amp)) break;
-                            O.scalefac[ma]++; for (L = -L; 0 > L; L++) C[Z + L] *= Q, C[Z + L] > O.xrpow_max && (O.xrpow_max = C[Z + L]); if (2 == I.noise_shaping_amp) break } }
+                    for (ma = 0; ma < O.sfbmax; ma++) {
+                        var L = O.width[ma];
+                        Z += L;
+                        if (!(F[ma] < S)) {
+                            if (0 != (I.substep_shaping & 2) && (I.pseudohalf[ma] = 0 == I.pseudohalf[ma] ? 1 : 0, 0 == I.pseudohalf[ma] && 2 == I.noise_shaping_amp)) break;
+                            O.scalefac[ma]++;
+                            for (L = -L; 0 > L; L++) C[Z + L] *= Q, C[Z + L] > O.xrpow_max && (O.xrpow_max = C[Z + L]);
+                            if (2 == I.noise_shaping_amp) break
+                        }
+                    }
                     if (Q = k(A)) A = !1;
                     else if (Q = 2 == z.mode_gr ? ha.scale_bitcount(A) : ha.scale_bitcount_lsf(z, A)) {
                         if (1 < z.noise_shaping)
@@ -1997,10 +2230,13 @@ function lamejs() {
                                         S = Q.scalefac_band.l[O.sfb_lmax];
                                         for (H = O.sfb_lmax + I; H < O.sfbmax; H += 3)
                                             if (ma = O.width[H], Z = C[H], Z -= 4 >> O.scalefac_scale, 0 <= Z) C[H] = Z, S += 3 * ma;
-                                            else { C[H] = 0;
+                                            else {
+                                                C[H] = 0;
                                                 Z = E.IPOW20(210 + (Z << O.scalefac_scale + 1));
-                                                S += ma * (I + 1); for (L = -ma; 0 > L; L++) F[S + L] *= Z, F[S + L] > O.xrpow_max && (O.xrpow_max = F[S + L]);
-                                                S += ma * (3 - I - 1) }
+                                                S += ma * (I + 1);
+                                                for (L = -ma; 0 > L; L++) F[S + L] *= Z, F[S + L] > O.xrpow_max && (O.xrpow_max = F[S + L]);
+                                                S += ma * (3 - I - 1)
+                                            }
                                         Z = E.IPOW20(202);
                                         S += O.width[H] * (I + 1);
                                         for (L = -O.width[H]; 0 > L; L++) F[S + L] *= Z, F[S + L] > O.xrpow_max && (O.xrpow_max = F[S + L])
@@ -2021,8 +2257,11 @@ function lamejs() {
                     for (;
                         (l.part2_3_length = ha.count_bits(e, a, l, v)) > A && l.global_gain <= y;) l.global_gain++;
                     if (l.global_gain > y) break;
-                    if (0 == q.over_count) { for (;
-                            (l.part2_3_length = ha.count_bits(e, a, l, v)) > p && l.global_gain <= y;) l.global_gain++; if (l.global_gain > y) break }
+                    if (0 == q.over_count) {
+                        for (;
+                            (l.part2_3_length = ha.count_bits(e, a, l, v)) > p && l.global_gain <= y;) l.global_gain++;
+                        if (l.global_gain > y) break
+                    }
                     E.calc_noise(l, n, g, h, v);
                     h.bits = l.part2_3_length;
                     z = b.block_type != c.SHORT_TYPE ? f.quant_comp : f.quant_comp_short;
@@ -2090,7 +2329,8 @@ function lamejs() {
                 c.use_best_huffman && ha.best_huffman_divide(c, f);
             w.ResvAdjust(c, f)
         };
-        this.VBR_encode_granule = function(c, b, k, a, m, n, e) { var f = c.internal_flags,
+        this.VBR_encode_granule = function(c, b, k, a, m, n, e) {
+            var f = c.internal_flags,
                 d = new rb,
                 g = K(576),
                 q = e,
@@ -2098,14 +2338,22 @@ function lamejs() {
                 p = 0,
                 r = f.sfb21_extra;
             na.fill(d.l3_enc, 0);
-            do { f.sfb21_extra = v > q - 42 ? !1 : r; var t = outer_loop(c, b, k, a, m, v);
-                0 >= t ? (p = 1, e = b.part2_3_length, d.assign(b), T.arraycopy(a, 0, g, 0, 576), e -= 32, t = e - n, v = (e + n) / 2) : (n = v + 32, t = e - n, v = (e + n) / 2, 0 != p && (p = 2, b.assign(d), T.arraycopy(g, 0, a, 0, 576))) } while (12 < t);
+            do {
+                f.sfb21_extra = v > q - 42 ? !1 : r;
+                var t = outer_loop(c, b, k, a, m, v);
+                0 >= t ? (p = 1, e = b.part2_3_length, d.assign(b), T.arraycopy(a, 0, g, 0, 576), e -= 32, t = e - n, v = (e + n) / 2) : (n = v + 32, t = e - n, v = (e + n) / 2, 0 != p && (p = 2, b.assign(d), T.arraycopy(g, 0, a, 0, 576)))
+            } while (12 < t);
             f.sfb21_extra = r;
-            2 == p && T.arraycopy(d.l3_enc, 0, b.l3_enc, 0, 576) };
-        this.get_framebits = function(c, b) { var f = c.internal_flags;
+            2 == p && T.arraycopy(d.l3_enc, 0, b.l3_enc, 0, 576)
+        };
+        this.get_framebits = function(c, b) {
+            var f = c.internal_flags;
             f.bitrate_index = f.VBR_min_bitrate;
             n.getframebits(c);
-            f.bitrate_index = 1; var a = n.getframebits(c); for (var m = 1; m <= f.VBR_max_bitrate; m++) f.bitrate_index = m, a = new xa(a), b[m] = w.ResvFrameBegin(c, a), a = a.bits };
+            f.bitrate_index = 1;
+            var a = n.getframebits(c);
+            for (var m = 1; m <= f.VBR_max_bitrate; m++) f.bitrate_index = m, a = new xa(a), b[m] = w.ResvFrameBegin(c, a), a = a.bits
+        };
         this.VBR_old_prepare = function(f, b, k, a, m, n, e, l, d) {
             var g = f.internal_flags,
                 q = 1,
@@ -2117,14 +2365,19 @@ function lamejs() {
                 var t = E.on_pe(f, b, l[r], p, r, 0);
                 g.mode_ext ==
                     c.MPG_MD_MS_LR && (ms_convert(g.l3_side, r), E.reduce_side(l[r], k[r], p, t));
-                for (t = 0; t < g.channels_out; ++t) { var u = g.l3_side.tt[r][t]; if (u.block_type != c.SHORT_TYPE) { var h = 1.28 / (1 + Math.exp(3.5 - b[r][t] / 300)) - .05;
-                        h = g.PSY.mask_adjust - h } else h = 2.56 / (1 + Math.exp(3.5 - b[r][t] / 300)) - .14, h = g.PSY.mask_adjust_short - h;
+                for (t = 0; t < g.channels_out; ++t) {
+                    var u = g.l3_side.tt[r][t];
+                    if (u.block_type != c.SHORT_TYPE) {
+                        var h = 1.28 / (1 + Math.exp(3.5 - b[r][t] / 300)) - .05;
+                        h = g.PSY.mask_adjust - h
+                    } else h = 2.56 / (1 + Math.exp(3.5 - b[r][t] / 300)) - .14, h = g.PSY.mask_adjust_short - h;
                     g.masking_lower = Math.pow(10, .1 * h);
                     init_outer_loop(g, u);
                     d[r][t] = E.calc_xmin(f, a[r][t], u, m[r][t]);
                     0 != d[r][t] && (q = 0);
                     e[r][t] = 126;
-                    v += l[r][t] }
+                    v += l[r][t]
+                }
             }
             for (r = 0; r < g.mode_gr; r++)
                 for (t = 0; t < g.channels_out; t++) v > n[g.VBR_max_bitrate] &&
@@ -2146,10 +2399,13 @@ function lamejs() {
                 l = 1,
                 d = 0,
                 g = 0;
-            if (f.free_format) { e.bitrate_index = 0;
-                d = new xa(d); var q = w.ResvFrameBegin(f, d);
+            if (f.free_format) {
+                e.bitrate_index = 0;
+                d = new xa(d);
+                var q = w.ResvFrameBegin(f, d);
                 d = d.bits;
-                m[0] = q } else e.bitrate_index = e.VBR_max_bitrate, d = new xa(d), w.ResvFrameBegin(f, d), d = d.bits, get_framebits(f, m), q = m[e.VBR_max_bitrate];
+                m[0] = q
+            } else e.bitrate_index = e.VBR_max_bitrate, d = new xa(d), w.ResvFrameBegin(f, d), d = d.bits, get_framebits(f, m), q = m[e.VBR_max_bitrate];
             for (m = 0; m < e.mode_gr; m++) {
                 E.on_pe(f, b, n[m], d, m, 0);
                 e.mode_ext == c.MPG_MD_MS_LR && ms_convert(e.l3_side, m);
@@ -2184,14 +2440,19 @@ function lamejs() {
             1 < g && (g = 1);
             for (f = 0; f < e.mode_gr; f++) {
                 var q = 0;
-                for (m = 0; m < e.channels_out; m++) { a[f][m] = int(g * d); if (700 < b[f][m]) { var v = int((b[f][m] - 700) / 1.4),
+                for (m = 0; m < e.channels_out; m++) {
+                    a[f][m] = int(g * d);
+                    if (700 < b[f][m]) {
+                        var v = int((b[f][m] - 700) / 1.4),
                             p = l.tt[f][m];
                         a[f][m] = int(g * d);
                         p.block_type == c.SHORT_TYPE && v < d / 2 && (v = d / 2);
                         v > 3 * d / 2 ? v = 3 * d / 2 : 0 > v && (v = 0);
-                        a[f][m] += v }
+                        a[f][m] += v
+                    }
                     a[f][m] > da.MAX_BITS_PER_CHANNEL && (a[f][m] = da.MAX_BITS_PER_CHANNEL);
-                    q += a[f][m] }
+                    q += a[f][m]
+                }
                 if (q > da.MAX_BITS_PER_GRANULE)
                     for (m = 0; m < e.channels_out; ++m) a[f][m] *= da.MAX_BITS_PER_GRANULE,
                         a[f][m] /= q
@@ -2716,10 +2977,12 @@ function lamejs() {
             w = this.psy = null,
             E = null,
             B = null;
-        this.setModules = function(c, b, k, a) { n = c;
+        this.setModules = function(c, b, k, a) {
+            n = c;
             w = this.psy = b;
             E = a;
-            B = k };
+            B = k
+        };
         var ha = new Fc;
         this.lame_encode_mp3_frame = function(f, b, v, a, m, z) {
             var e = Ob([2, 2]);
@@ -2750,20 +3013,31 @@ function lamejs() {
                 b =
                     f.internal_flags;
                 var t, J;
-                if (0 == b.lame_encode_frame_init) { v = K(2014); var h = K(2014);
-                    b.lame_encode_frame_init = 1; for (J = t = 0; t < 286 + 576 * (1 + b.mode_gr); ++t) t < 576 * b.mode_gr ? (v[t] = 0, 2 == b.channels_out && (h[t] = 0)) : (v[t] = d[0][J], 2 == b.channels_out && (h[t] = d[1][J]), ++J); for (J = 0; J < b.mode_gr; J++)
+                if (0 == b.lame_encode_frame_init) {
+                    v = K(2014);
+                    var h = K(2014);
+                    b.lame_encode_frame_init = 1;
+                    for (J = t = 0; t < 286 + 576 * (1 + b.mode_gr); ++t) t < 576 * b.mode_gr ? (v[t] = 0, 2 == b.channels_out && (h[t] = 0)) : (v[t] = d[0][J], 2 == b.channels_out && (h[t] = d[1][J]), ++J);
+                    for (J = 0; J < b.mode_gr; J++)
                         for (t = 0; t < b.channels_out; t++) b.l3_side.tt[J][t].block_type = c.SHORT_TYPE;
-                    ha.mdct_sub48(b, v, h) }
+                    ha.mdct_sub48(b, v, h)
+                }
             }
             g.padding = 0;
             0 > (g.slot_lag -= g.frac_SpF) && (g.slot_lag += f.out_samplerate, g.padding = 1);
             if (0 != g.psymodel)
                 for (h = [null, null], t = 0, J = X(2), v =
-                    0; v < g.mode_gr; v++) { for (b = 0; b < g.channels_out; b++) h[b] = d[b], t = 576 + 576 * v - c.FFTOFFSET;
-                    b = f.VBR == G.vbr_mtrh || f.VBR == G.vbr_mt ? w.L3psycho_anal_vbr(f, h, t, v, e, l, p[v], r[v], q[v], J) : w.L3psycho_anal_ns(f, h, t, v, e, l, p[v], r[v], q[v], J); if (0 != b) return -4;
-                    f.mode == la.JOINT_STEREO && (D[v] = q[v][2] + q[v][3], 0 < D[v] && (D[v] = q[v][3] / D[v])); for (b = 0; b < g.channels_out; b++) { var x = g.l3_side.tt[v][b];
+                    0; v < g.mode_gr; v++) {
+                    for (b = 0; b < g.channels_out; b++) h[b] = d[b], t = 576 + 576 * v - c.FFTOFFSET;
+                    b = f.VBR == G.vbr_mtrh || f.VBR == G.vbr_mt ? w.L3psycho_anal_vbr(f, h, t, v, e, l, p[v], r[v], q[v], J) : w.L3psycho_anal_ns(f, h, t, v, e, l, p[v], r[v], q[v], J);
+                    if (0 != b) return -4;
+                    f.mode == la.JOINT_STEREO && (D[v] = q[v][2] + q[v][3], 0 < D[v] && (D[v] = q[v][3] / D[v]));
+                    for (b = 0; b < g.channels_out; b++) {
+                        var x = g.l3_side.tt[v][b];
                         x.block_type = J[b];
-                        x.mixed_block_flag = 0 } } else
+                        x.mixed_block_flag = 0
+                    }
+                } else
                     for (v = 0; v < g.mode_gr; v++)
                         for (b = 0; b < g.channels_out; b++) g.l3_side.tt[v][b].block_type = c.NORM_TYPE,
                             g.l3_side.tt[v][b].mixed_block_flag = 0, r[v][b] = p[v][b] = 700;
@@ -2772,9 +3046,11 @@ function lamejs() {
             ha.mdct_sub48(g, d[0], d[1]);
             g.mode_ext = c.MPG_MD_LR_LR;
             if (f.force_ms) g.mode_ext = c.MPG_MD_MS_LR;
-            else if (f.mode == la.JOINT_STEREO) { for (v = h = q = 0; v < g.mode_gr; v++)
+            else if (f.mode == la.JOINT_STEREO) {
+                for (v = h = q = 0; v < g.mode_gr; v++)
                     for (b = 0; b < g.channels_out; b++) q += r[v][b], h += p[v][b];
-                q <= 1 * h && (q = g.l3_side.tt[0], b = g.l3_side.tt[g.mode_gr - 1], q[0].block_type == q[1].block_type && b[0].block_type == b[1].block_type && (g.mode_ext = c.MPG_MD_MS_LR)) }
+                q <= 1 * h && (q = g.l3_side.tt[0], b = g.l3_side.tt[g.mode_gr - 1], q[0].block_type == q[1].block_type && b[0].block_type == b[1].block_type && (g.mode_ext = c.MPG_MD_MS_LR))
+            }
             g.mode_ext == k && (e = l, p = r);
             if (f.analysis &&
                 null != g.pinfo)
@@ -2814,17 +3090,22 @@ function lamejs() {
         }
     }
 
-    function Gc() { this.size = this.pos = this.want = this.seen = this.sum = 0;
+    function Gc() {
+        this.size = this.pos = this.want = this.seen = this.sum = 0;
         this.bag = null;
-        this.TotalFrameSize = this.nBytesWritten = this.nVbrNumFrames = 0 }
+        this.TotalFrameSize = this.nBytesWritten = this.nVbrNumFrames = 0
+    }
 
-    function Hc() { this.tt = [
+    function Hc() {
+        this.tt = [
             [null, null],
             [null, null]
         ];
         this.resvDrain_post = this.resvDrain_pre = this.private_bits = this.main_data_begin = 0;
-        this.scfsi = [X(4), X(4)]; for (var c = 0; 2 > c; c++)
-            for (var k = 0; 2 > k; k++) this.tt[c][k] = new rb }
+        this.scfsi = [X(4), X(4)];
+        for (var c = 0; 2 > c; c++)
+            for (var k = 0; 2 > k; k++) this.tt[c][k] = new rb
+    }
 
     function Ic() {
         this.last_en_subshort = ca([4, 9]);
@@ -2836,14 +3117,22 @@ function lamejs() {
         this.attackthre_s = this.attackthre = 0
     }
 
-    function Xb() { this.l = K(c.SBMAX_l);
-        this.s = ca([c.SBMAX_s, 3]); var u = this;
-        this.assign = function(k) { T.arraycopy(k.l, 0, u.l, 0, c.SBMAX_l); for (var n = 0; n < c.SBMAX_s; n++)
-                for (var w = 0; 3 > w; w++) u.s[n][w] = k.s[n][w] } }
+    function Xb() {
+        this.l = K(c.SBMAX_l);
+        this.s = ca([c.SBMAX_s, 3]);
+        var u = this;
+        this.assign = function(k) {
+            T.arraycopy(k.l, 0, u.l, 0, c.SBMAX_l);
+            for (var n = 0; n < c.SBMAX_s; n++)
+                for (var w = 0; 3 > w; w++) u.s[n][w] = k.s[n][w]
+        }
+    }
 
     function da() {
-        function u() { this.ptr = this.write_timing = 0;
-            this.buf = new Int8Array(40) }
+        function u() {
+            this.ptr = this.write_timing = 0;
+            this.buf = new Int8Array(40)
+        }
         this.fill_buffer_resample_init = this.iteration_init_init = this.lame_encode_frame_init = this.Class_ID = 0;
         this.mfbuf = ca([2, da.MFSIZE]);
         this.full_outer_loop = this.use_best_huffman = this.subblock_gain = this.noise_shaping_stop = this.psymodel = this.substep_shaping = this.noise_shaping_amp = this.noise_shaping = this.highpass2 = this.highpass1 = this.lowpass2 = this.lowpass1 = this.mode_ext = this.samplerate_index = this.bitrate_index = this.VBR_max_bitrate = this.VBR_min_bitrate = this.mf_size = this.mf_samples_to_encode = this.resample_ratio = this.channels_out = this.channels_in = this.mode_gr = 0;
@@ -2935,7 +3224,11 @@ function lamejs() {
                 a = l << 1;
                 var g = k;
                 var q = g + u;
-                do { var B = c[g + 0] - c[g + e]; var p = c[g + 0] + c[g + e]; var r = c[g + l] - c[g + d]; var t = c[g + l] + c[g + d];
+                do {
+                    var B = c[g + 0] - c[g + e];
+                    var p = c[g + 0] + c[g + e];
+                    var r = c[g + l] - c[g + d];
+                    var t = c[g + l] + c[g + d];
                     c[g + l] = p - t;
                     c[g + 0] = p + t;
                     c[g + d] = B - r;
@@ -2949,7 +3242,8 @@ function lamejs() {
                     c[q + d] = B - r;
                     c[q + e] = B + r;
                     q += a;
-                    g += a } while (g < n);
+                    g += a
+                } while (g < n);
                 var E = w[b + 0];
                 var h = w[b + 1];
                 for (m = 1; m < u; m++) {
@@ -3005,9 +3299,15 @@ function lamejs() {
                     m = 65535 & 192 * (k + 1),
                     B =
                     c.BLKSIZE_s / 8 - 1;
-                do { var e = E[B << 2] & 255; var l = n[e] * b[f][v + e + m]; var d = n[127 - e] * b[f][v + e + m + 128]; var g = l - d;
-                    l += d; var q = n[e + 64] * b[f][v + e + m + 64];
-                    d = n[63 - e] * b[f][v + e + m + 192]; var D = q - d;
+                do {
+                    var e = E[B << 2] & 255;
+                    var l = n[e] * b[f][v + e + m];
+                    var d = n[127 - e] * b[f][v + e + m + 128];
+                    var g = l - d;
+                    l += d;
+                    var q = n[e + 64] * b[f][v + e + m + 64];
+                    d = n[63 - e] * b[f][v + e + m + 192];
+                    var D = q - d;
                     q += d;
                     a -= 4;
                     w[k][a + 0] = l + q;
@@ -3025,7 +3325,8 @@ function lamejs() {
                     w[k][a + c.BLKSIZE_s / 2 + 0] = l + q;
                     w[k][a + c.BLKSIZE_s / 2 + 2] = l - q;
                     w[k][a + c.BLKSIZE_s / 2 + 1] = g + D;
-                    w[k][a + c.BLKSIZE_s / 2 + 3] = g - D } while (0 <= --B);
+                    w[k][a + c.BLKSIZE_s / 2 + 3] = g - D
+                } while (0 <= --B);
                 u(w[k], a, c.BLKSIZE_s /
                     2)
             }
@@ -3033,9 +3334,15 @@ function lamejs() {
         this.fft_long = function(n, w, f, b, v) {
             n = c.BLKSIZE / 8 - 1;
             var a = c.BLKSIZE / 2;
-            do { var m = E[n] & 255; var B = k[m] * b[f][v + m]; var e = k[m + 512] * b[f][v + m + 512]; var l = B - e;
-                B += e; var d = k[m + 256] * b[f][v + m + 256];
-                e = k[m + 768] * b[f][v + m + 768]; var g = d - e;
+            do {
+                var m = E[n] & 255;
+                var B = k[m] * b[f][v + m];
+                var e = k[m + 512] * b[f][v + m + 512];
+                var l = B - e;
+                B += e;
+                var d = k[m + 256] * b[f][v + m + 256];
+                e = k[m + 768] * b[f][v + m + 768];
+                var g = d - e;
                 d += e;
                 a -= 4;
                 w[a + 0] = B + d;
@@ -3053,7 +3360,8 @@ function lamejs() {
                 w[a + c.BLKSIZE / 2 + 0] = B + d;
                 w[a + c.BLKSIZE / 2 + 2] = B - d;
                 w[a + c.BLKSIZE / 2 + 1] = l + g;
-                w[a + c.BLKSIZE / 2 + 3] = l - g } while (0 <= --n);
+                w[a + c.BLKSIZE / 2 + 3] = l - g
+            } while (0 <= --n);
             u(w,
                 a, c.BLKSIZE / 2)
         };
@@ -3067,8 +3375,10 @@ function lamejs() {
             if (c > a)
                 if (c < a * r) var g = c / a;
                 else return a + c;
-            else { if (a >= c * r) return a + c;
-                g = a / c }
+            else {
+                if (a >= c * r) return a + c;
+                g = a / c
+            }
             a += c;
             if (6 >= b + 3) {
                 if (g >= p) return a;
@@ -3081,10 +3391,21 @@ function lamejs() {
             return a < t * c ? a > c ? (d = 1, 13 >= b && (d = y[b]), c = aa.FAST_LOG10_X(a / c, 10 / 15), a * ((h[b] - d) * c + d)) : 13 < b ? a : a * y[b] : a * h[b]
         }
 
-        function n(a, c, d) { 0 > a && (a = 0);
-            0 > c && (c = 0); if (0 >= a) return c; if (0 >= c) return a; var b = c > a ? c / a : a / c; if (-2 <= d && 2 >= d) { if (b >= p) return a + c;
-                d = 0 | aa.FAST_LOG10_X(b, 16); return (a + c) * A[d] } if (b < r) return a + c;
-            a < c && (a = c); return a }
+        function n(a, c, d) {
+            0 > a && (a = 0);
+            0 > c && (c = 0);
+            if (0 >= a) return c;
+            if (0 >= c) return a;
+            var b = c > a ? c / a : a / c;
+            if (-2 <= d && 2 >= d) {
+                if (b >= p) return a + c;
+                d = 0 | aa.FAST_LOG10_X(b, 16);
+                return (a + c) * A[d]
+            }
+            if (b < r) return a + c;
+            a < c && (a = c);
+            return a
+        }
 
         function w(a, d, b, h, f) {
             var e, g, l = 0,
@@ -3132,10 +3453,18 @@ function lamejs() {
 
         function B(a, c, d) { return 1 <= d ? a : 0 >= d ? c : 0 < c ? Math.pow(a / c, d) * c : 0 }
 
-        function W(a, d) { for (var b = 309.07, h = 0; h < c.SBMAX_s - 1; h++)
-                for (var f = 0; 3 > f; f++) { var e = a.thm.s[h][f]; if (0 < e) { e *= d; var g = a.en.s[h][f];
-                        g > e && (b = g > 1E10 * e ? b + 23.02585092994046 * N[h] : b + N[h] * aa.FAST_LOG10(g / e)) } }
-            return b }
+        function W(a, d) {
+            for (var b = 309.07, h = 0; h < c.SBMAX_s - 1; h++)
+                for (var f = 0; 3 > f; f++) {
+                    var e = a.thm.s[h][f];
+                    if (0 < e) {
+                        e *= d;
+                        var g = a.en.s[h][f];
+                        g > e && (b = g > 1E10 * e ? b + 23.02585092994046 * N[h] : b + N[h] * aa.FAST_LOG10(g / e))
+                    }
+                }
+            return b
+        }
 
         function f(a, d) {
             for (var b = 281.0575, h = 0; h < c.SBMAX_l - 1; h++) {
@@ -3150,25 +3479,35 @@ function lamejs() {
             return b
         }
 
-        function b(a, c, b, d, h) { var f, e; for (f = e = 0; f < a.npart_l; ++f) { var g = 0,
+        function b(a, c, b, d, h) {
+            var f, e;
+            for (f = e = 0; f < a.npart_l; ++f) {
+                var g = 0,
                     l = 0,
-                    k; for (k = 0; k < a.numlines_l[f]; ++k, ++e) { var m = c[e];
+                    k;
+                for (k = 0; k < a.numlines_l[f]; ++k, ++e) {
+                    var m = c[e];
                     g += m;
-                    l < m && (l = m) }
+                    l < m && (l = m)
+                }
                 b[f] = g;
                 d[f] = l;
-                h[f] = g * a.rnumlines_l[f] } }
+                h[f] = g * a.rnumlines_l[f]
+            }
+        }
 
         function v(a, c, b, d) {
             var h = J.length - 1,
                 f = 0,
                 e = b[f] + b[f + 1];
-            if (0 < e) { var g = c[f];
+            if (0 < e) {
+                var g = c[f];
                 g < c[f + 1] && (g = c[f + 1]);
                 e = 20 * (2 * g - e) / (e * (a.numlines_l[f] + a.numlines_l[f + 1] - 1));
                 e |= 0;
                 e > h && (e = h);
-                d[f] = e } else d[f] = 0;
+                d[f] = e
+            } else d[f] = 0;
             for (f = 1; f < a.npart_l - 1; f++) e = b[f - 1] + b[f] + b[f + 1], 0 < e ? (g = c[f - 1], g < c[f] && (g = c[f]), g < c[f + 1] && (g = c[f + 1]), e = 20 * (3 *
                 g - e) / (e * (a.numlines_l[f - 1] + a.numlines_l[f] + a.numlines_l[f + 1] - 1)), e |= 0, e > h && (e = h), d[f] = e) : d[f] = 0;
             e = b[f - 1] + b[f];
@@ -3197,8 +3536,11 @@ function lamejs() {
 
         function m(a, c) { a = 0 <= a ? 27 * -a : a * c; return -72 >= a ? 0 : Math.exp(.2302585093 * a) }
 
-        function z(a) { 0 > a && (a = 0);
-            a *= .001; return 13 * Math.atan(.76 * a) + 3.5 * Math.atan(a * a / 56.25) }
+        function z(a) {
+            0 > a && (a = 0);
+            a *= .001;
+            return 13 * Math.atan(.76 * a) + 3.5 * Math.atan(a * a / 56.25)
+        }
 
         function e(a, b, d, f, h, e, g, l, k, m, y, p) {
             var q = K(c.CBANDS + 1),
@@ -3229,13 +3571,18 @@ function lamejs() {
                 l = 0;
             if (e)
                 for (var k = 0; k < b; k++)
-                    for (e = 0; e < b; e++) { var y = d[k] - d[e];
-                        y = 0 <= y ? 3 * y : 1.5 * y; if (.5 <= y && 2.5 >= y) { var p = y - .5;
-                            p = 8 * (p * p - 2 * p) } else p = 0;
+                    for (e = 0; e < b; e++) {
+                        var y = d[k] - d[e];
+                        y = 0 <= y ? 3 * y : 1.5 * y;
+                        if (.5 <= y && 2.5 >= y) {
+                            var p = y - .5;
+                            p = 8 * (p * p - 2 * p)
+                        } else p = 0;
                         y += .474;
                         y = 15.811389 + 7.5 * y - 17.5 * Math.sqrt(1 + y * y); - 60 >= y ? p = 0 : (y = Math.exp(.2302585093 * (p + y)), p = y / .6609193);
                         y = p * f[e];
-                        g[k][e] = y * h[k] } else
+                        g[k][e] = y * h[k]
+                    } else
                         for (e = 0; e < b; e++) {
                             p = 15 + Math.min(21 / d[e], 12);
                             var q;
@@ -3254,18 +3601,24 @@ function lamejs() {
                             q = 1001 / (r * (x - y));
                             for (k = 0; k < b; k++) y = q * m(d[k] - d[e], p) * f[e], g[k][e] = y * h[k]
                         }
-            for (k = 0; k < b; k++) { for (e = 0; e < b && !(0 < g[k][e]); e++);
-                a[k][0] = e; for (e = b - 1; 0 < e && !(0 < g[k][e]); e--);
+            for (k = 0; k < b; k++) {
+                for (e = 0; e < b && !(0 < g[k][e]); e++);
+                a[k][0] = e;
+                for (e = b - 1; 0 < e && !(0 < g[k][e]); e--);
                 a[k][1] = e;
-                l += a[k][1] - a[k][0] + 1 }
+                l += a[k][1] - a[k][0] + 1
+            }
             d = K(l);
             for (k = f = 0; k < b; k++)
                 for (e = a[k][0]; e <= a[k][1]; e++) d[f++] = g[k][e];
             return d
         }
 
-        function d(a) { a = z(a);
-            a = Math.min(a, 15.5) / 15.5; return Math.pow(10, 1.25 * (1 - Math.cos(Math.PI * a)) - 2.5) }
+        function d(a) {
+            a = z(a);
+            a = Math.min(a, 15.5) / 15.5;
+            return Math.pow(10, 1.25 * (1 - Math.cos(Math.PI * a)) - 2.5)
+        }
 
         function g(a, c) {
             -.3 >
@@ -3329,20 +3682,28 @@ function lamejs() {
                     Wb = ca([3, c.HBLKSIZE_s]);
                 for (F = 0; 3 > F; F++) Qa[F] = x.nsPsy.last_en_subshort[z][F + 6], qa[F] = Qa[F] / x.nsPsy.last_en_subshort[z][F + 4], ya[0] += Qa[F];
                 if (2 == z)
-                    for (F = 0; 576 > F; F++) { var Ya = V[0][F]; var Xa = V[1][F];
+                    for (F = 0; 576 > F; F++) {
+                        var Ya = V[0][F];
+                        var Xa = V[1][F];
                         V[0][F] = Ya + Xa;
-                        V[1][F] = Ya - Xa }
+                        V[1][F] = Ya - Xa
+                    }
                 var Ia = V[z & 1],
                     ec = 0;
                 for (F = 0; 9 >
-                    F; F++) { for (var xa = ec + 64, Ga = 1; ec < xa; ec++) Ga < Math.abs(Ia[ec]) && (Ga = Math.abs(Ia[ec]));
+                    F; F++) {
+                    for (var xa = ec + 64, Ga = 1; ec < xa; ec++) Ga < Math.abs(Ia[ec]) && (Ga = Math.abs(Ia[ec]));
                     x.nsPsy.last_en_subshort[z][F] = Qa[F + 3] = Ga;
                     ya[1 + F / 3] += Ga;
                     Ga = Ga > Qa[F + 3 - 2] ? Ga / Qa[F + 3 - 2] : Qa[F + 3 - 2] > 10 * Ga ? Qa[F + 3 - 2] / (10 * Ga) : 0;
-                    qa[F + 3] = Ga }
-                if (a.analysis) { var Qb = qa[0]; for (F = 1; 12 > F; F++) Qb < qa[F] && (Qb = qa[F]);
+                    qa[F + 3] = Ga
+                }
+                if (a.analysis) {
+                    var Qb = qa[0];
+                    for (F = 1; 12 > F; F++) Qb < qa[F] && (Qb = qa[F]);
                     x.pinfo.ers[e][z] = x.pinfo.ers_save[z];
-                    x.pinfo.ers_save[z] = Qb }
+                    x.pinfo.ers_save[z] = Qb
+                }
                 var Ma = 3 == z ? x.nsPsy.attackthre_s : x.nsPsy.attackthre;
                 for (F = 0; 12 > F; F++) 0 == ta[F / 3] && qa[F] > Ma && (ta[F / 3] = F % 3 + 1);
                 for (F = 1; 4 > F; F++) 1.7 > (ya[F - 1] > ya[F] ? ya[F - 1] / ya[F] : ya[F] /
@@ -3377,17 +3738,21 @@ function lamejs() {
                 }
                 Ha[0] = La[kb + 0][0];
                 Ha[0] *= Ha[0];
-                for (ja = c.BLKSIZE / 2 - 1; 0 <= ja; --ja) { var fc = La[kb + 0][c.BLKSIZE / 2 - ja],
+                for (ja = c.BLKSIZE / 2 - 1; 0 <= ja; --ja) {
+                    var fc = La[kb + 0][c.BLKSIZE / 2 - ja],
                         tb = La[kb + 0][c.BLKSIZE / 2 + ja];
-                    Ha[c.BLKSIZE / 2 - ja] = .5 * (fc * fc + tb * tb) }
+                    Ha[c.BLKSIZE / 2 - ja] = .5 * (fc * fc + tb * tb)
+                }
                 for (Ba = 2; 0 <= Ba; --Ba)
                     for (Gb[Ba][0] = Ra[Na + 0][Ba][0], Gb[Ba][0] *= Gb[Ba][0], ja = c.BLKSIZE_s /
                         2 - 1; 0 <= ja; --ja) fc = Ra[Na + 0][Ba][c.BLKSIZE_s / 2 - ja], tb = Ra[Na + 0][Ba][c.BLKSIZE_s / 2 + ja], Gb[Ba][c.BLKSIZE_s / 2 - ja] = .5 * (fc * fc + tb * tb);
                 var oa = 0;
                 for (ja = 11; ja < c.HBLKSIZE; ja++) oa += Ha[ja];
                 Va.tot_ener[Aa] = oa;
-                if (P.analysis) { for (ja = 0; ja < c.HBLKSIZE; ja++) Va.pinfo.energy[cb][Aa][ja] = Va.pinfo.energy_save[Aa][ja], Va.pinfo.energy_save[Aa][ja] = Ha[ja];
-                    Va.pinfo.pe[cb][Aa] = Va.pe[Aa] }
+                if (P.analysis) {
+                    for (ja = 0; ja < c.HBLKSIZE; ja++) Va.pinfo.energy[cb][Aa][ja] = Va.pinfo.energy_save[Aa][ja], Va.pinfo.energy_save[Aa][ja] = Ha[ja];
+                    Va.pinfo.pe[cb][Aa] = Va.pe[Aa]
+                }
                 2 == P.athaa_loudapprox && 2 > Aa && (Va.loudness_sq[cb][Aa] = Va.loudness_sq_save[Aa], Va.loudness_sq_save[Aa] = u(Ha, Va));
                 b(x, za, A, sa, Fa);
                 v(x, sa, Fa, ma);
@@ -3401,10 +3766,14 @@ function lamejs() {
                         ub = z,
                         zb = L,
                         Ja = a.internal_flags;
-                    for (ea = Ab = 0; ea < Ja.npart_s; ++ea) { for (var Rb = 0, rb = 0, db = Ja.numlines_s[ea], sb = 0; sb < db; ++sb, ++Ab) { var Cb = Bb[zb][Ab];
+                    for (ea = Ab = 0; ea < Ja.npart_s; ++ea) {
+                        for (var Rb = 0, rb = 0, db = Ja.numlines_s[ea], sb = 0; sb < db; ++sb, ++Ab) {
+                            var Cb = Bb[zb][Ab];
                             Rb += Cb;
-                            rb < Cb && (rb = Cb) }
-                        Sa[ea] = Rb }
+                            rb < Cb && (rb = Cb)
+                        }
+                        Sa[ea] = Rb
+                    }
                     for (Ab = ea = 0; ea < Ja.npart_s; ea++) {
                         var Db = Ja.s3ind_s[ea][0],
                             $a = Ja.s3_ss[Ab++] * Sa[Db];
@@ -3421,9 +3790,11 @@ function lamejs() {
                     for (Z = 0; Z < c.SBMAX_s; Z++) {
                         var Ta = x.thm[z].s[Z][L];
                         Ta *= .8;
-                        if (2 <= ta[L] || 1 == ta[L + 1]) { var wb = 0 != L ? L - 1 : 2;
+                        if (2 <= ta[L] || 1 == ta[L + 1]) {
+                            var wb = 0 != L ? L - 1 : 2;
                             Ga = B(x.thm[z].s[Z][wb], Ta, .6 * M);
-                            Ta = Math.min(Ta, Ga) }
+                            Ta = Math.min(Ta, Ga)
+                        }
                         if (1 == ta[L]) wb = 0 != L ? L - 1 : 2, Ga = B(x.thm[z].s[Z][wb], Ta, .3 * M), Ta = Math.min(Ta, Ga);
                         else if (0 != L && 3 == ta[L - 1] || 0 == L && 3 == x.nsPsy.lastAttacks[z]) wb = 2 != L ? L + 1 : 0, Ga = B(x.thm[z].s[Z][wb], Ta, .3 * M), Ta = Math.min(Ta, Ga);
                         var Yb = Qa[3 * L + 3] + Qa[3 * L + 4] + Qa[3 * L +
@@ -3433,29 +3804,42 @@ function lamejs() {
                     }
                 }
                 x.nsPsy.lastAttacks[z] = ta[2];
-                for (D = N = 0; D < x.npart_l; D++) { for (var eb = x.s3ind[D][0], Jb = A[eb] * J[ma[eb]], lb = x.s3_ll[N++] * Jb; ++eb <= x.s3ind[D][1];) Jb = A[eb] * J[ma[eb]], lb = k(lb, x.s3_ll[N++] * Jb, eb, eb - D, x, 0);
+                for (D = N = 0; D < x.npart_l; D++) {
+                    for (var eb = x.s3ind[D][0], Jb = A[eb] * J[ma[eb]], lb = x.s3_ll[N++] * Jb; ++eb <= x.s3ind[D][1];) Jb = A[eb] * J[ma[eb]], lb = k(lb, x.s3_ll[N++] * Jb, eb, eb - D, x, 0);
                     lb *= .158489319246111;
                     C[D] = x.blocktype_old[z & 1] == c.SHORT_TYPE ? lb : B(Math.min(lb, Math.min(2 * x.nb_1[z][D], 16 * x.nb_2[z][D])), lb, M);
                     x.nb_2[z][D] = x.nb_1[z][D];
-                    x.nb_1[z][D] = lb }
+                    x.nb_1[z][D] = lb
+                }
                 for (; D <= c.CBANDS; ++D) A[D] = 0, C[D] = 0;
                 E(x, A, C, z)
             }
             if ((a.mode == la.STEREO ||
-                    a.mode == la.JOINT_STEREO) && 0 < a.interChRatio) { var xb = a.interChRatio,
-                    fa = a.internal_flags; if (1 < fa.channels_out) { for (var Ca = 0; Ca < c.SBMAX_l; Ca++) { var Sb = fa.thm[0].l[Ca],
+                    a.mode == la.JOINT_STEREO) && 0 < a.interChRatio) {
+                var xb = a.interChRatio,
+                    fa = a.internal_flags;
+                if (1 < fa.channels_out) {
+                    for (var Ca = 0; Ca < c.SBMAX_l; Ca++) {
+                        var Sb = fa.thm[0].l[Ca],
                             Eb = fa.thm[1].l[Ca];
                         fa.thm[0].l[Ca] += Eb * xb;
-                        fa.thm[1].l[Ca] += Sb * xb } for (Ca = 0; Ca < c.SBMAX_s; Ca++)
-                        for (var fb = 0; 3 > fb; fb++) Sb = fa.thm[0].s[Ca][fb], Eb = fa.thm[1].s[Ca][fb], fa.thm[0].s[Ca][fb] += Eb * xb, fa.thm[1].s[Ca][fb] += Sb * xb } }
+                        fa.thm[1].l[Ca] += Sb * xb
+                    }
+                    for (Ca = 0; Ca < c.SBMAX_s; Ca++)
+                        for (var fb = 0; 3 > fb; fb++) Sb = fa.thm[0].s[Ca][fb], Eb = fa.thm[1].s[Ca][fb], fa.thm[0].s[Ca][fb] += Eb * xb, fa.thm[1].s[Ca][fb] += Sb * xb
+                }
+            }
             if (a.mode == la.JOINT_STEREO) {
                 for (var Oa, ka = 0; ka < c.SBMAX_l; ka++)
                     if (!(x.thm[0].l[ka] > 1.58 * x.thm[1].l[ka] || x.thm[1].l[ka] > 1.58 *
-                            x.thm[0].l[ka])) { var Ua = x.mld_l[ka] * x.en[3].l[ka],
+                            x.thm[0].l[ka])) {
+                        var Ua = x.mld_l[ka] * x.en[3].l[ka],
                             gb = Math.max(x.thm[2].l[ka], Math.min(x.thm[3].l[ka], Ua));
-                        Ua = x.mld_l[ka] * x.en[2].l[ka]; var gc = Math.max(x.thm[3].l[ka], Math.min(x.thm[2].l[ka], Ua));
+                        Ua = x.mld_l[ka] * x.en[2].l[ka];
+                        var gc = Math.max(x.thm[3].l[ka], Math.min(x.thm[2].l[ka], Ua));
                         x.thm[2].l[ka] = gb;
-                        x.thm[3].l[ka] = gc }
+                        x.thm[3].l[ka] = gc
+                    }
                 for (ka = 0; ka < c.SBMAX_s; ka++)
                     for (var ua = 0; 3 > ua; ua++) x.thm[0].s[ka][ua] > 1.58 * x.thm[1].s[ka][ua] || x.thm[1].s[ka][ua] > 1.58 * x.thm[0].s[ka][ua] || (Ua = x.mld_s[ka] * x.en[3].s[ka][ua], gb = Math.max(x.thm[2].s[ka][ua], Math.min(x.thm[3].s[ka][ua], Ua)), Ua = x.mld_s[ka] * x.en[2].s[ka][ua], gc =
                         Math.max(x.thm[3].s[ka][ua], Math.min(x.thm[2].s[ka][ua], Ua)), x.thm[2].s[ka][ua] = gb, x.thm[3].s[ka][ua] = gc);
@@ -3471,9 +3855,11 @@ function lamejs() {
                         var Wa = Math.min(Math.max(x.thm[0].l[wa], ba), Math.max(x.thm[1].l[wa], ba));
                         var ab = Math.max(x.thm[2].l[wa], ba);
                         var mb = Math.max(x.thm[3].l[wa], ba);
-                        if (Wa * Kb < ab + mb) { var hb = Wa * hc / (ab + mb);
+                        if (Wa * Kb < ab + mb) {
+                            var hb = Wa * hc / (ab + mb);
                             ab *= hb;
-                            mb *= hb }
+                            mb *= hb
+                        }
                         x.thm[2].l[wa] = Math.min(ab, x.thm[2].l[wa]);
                         x.thm[3].l[wa] = Math.min(mb, x.thm[3].l[wa])
                     }
@@ -3489,8 +3875,13 @@ function lamejs() {
             for (z = 0; z < T; z++) {
                 var Ea = 0;
                 if (1 <
-                    z) { var Lb = y;
-                    Ea = -2; var Tb = c.NORM_TYPE; if (n[0] == c.SHORT_TYPE || n[1] == c.SHORT_TYPE) Tb = c.SHORT_TYPE; var Fb = l[e][z - 2] } else Lb = m, Ea = 0, Tb = n[z], Fb = g[e][z];
+                    z) {
+                    var Lb = y;
+                    Ea = -2;
+                    var Tb = c.NORM_TYPE;
+                    if (n[0] == c.SHORT_TYPE || n[1] == c.SHORT_TYPE) Tb = c.SHORT_TYPE;
+                    var Fb = l[e][z - 2]
+                } else Lb = m, Ea = 0, Tb = n[z], Fb = g[e][z];
                 Lb[Ea + z] = Tb == c.SHORT_TYPE ? W(Fb, x.masking_lower) : f(Fb, x.masking_lower);
                 a.analysis && (x.pinfo.pe[e][z] = Lb[Ea + z])
             }
@@ -3506,8 +3897,12 @@ function lamejs() {
                         [0, 0, 0, 0]
                     ], H = X(2), N = d.mode == la.JOINT_STEREO ? 4 : r.channels_out, Z = ca([2, 576]), G = d.internal_flags, V = G.channels_out, ma = d.mode == la.JOINT_STEREO ? 4 : V, R = 0; R < V; R++) {
                 firbuf = h[R];
-                for (var T = e + 576 - 350 - 21 + 192, M = 0; 576 > M; M++) { var Y; var ha = firbuf[T + M + 10]; for (var U = Y = 0; 9 > U; U += 2) ha += F[U] * (firbuf[T + M + U] + firbuf[T + M + 21 - U]), Y += F[U + 1] * (firbuf[T + M + U + 1] + firbuf[T + M + 21 - U - 1]);
-                    Z[R][M] = ha + Y }
+                for (var T = e + 576 - 350 - 21 + 192, M = 0; 576 > M; M++) {
+                    var Y;
+                    var ha = firbuf[T + M + 10];
+                    for (var U = Y = 0; 9 > U; U += 2) ha += F[U] * (firbuf[T + M + U] + firbuf[T + M + 21 - U]), Y += F[U + 1] * (firbuf[T + M + U + 1] + firbuf[T + M + 21 - U - 1]);
+                    Z[R][M] = ha + Y
+                }
                 l[g][R].en.assign(G.en[R]);
                 l[g][R].thm.assign(G.thm[R]);
                 2 < ma && (k[g][R].en.assign(G.en[R + 2]), k[g][R].thm.assign(G.thm[R + 2]))
@@ -3521,10 +3916,12 @@ function lamejs() {
                     Fa = 3 == R ? G.nsPsy.attackthre_s : G.nsPsy.attackthre,
                     na = 1;
                 if (2 == R)
-                    for (M = 0, U = 576; 0 < U; ++M, --U) { var ta = Z[0][M],
+                    for (M = 0, U = 576; 0 < U; ++M, --U) {
+                        var ta = Z[0][M],
                             za = Z[1][M];
                         Z[0][M] = ta + za;
-                        Z[1][M] = ta - za }
+                        Z[1][M] = ta - za
+                    }
                 for (M = 0; 3 > M; M++) ya[M] = G.nsPsy.last_en_subshort[R][M + 6], da[M] = ya[M] / G.nsPsy.last_en_subshort[R][M + 4], qa[0] += ya[M];
                 for (M = 0; 9 > M; M++) {
                     for (var Xa = sa + 64, Ya = 1; sa < Xa; sa++) Ya < Math.abs(ia[sa]) && (Ya = Math.abs(ia[sa]));
@@ -3533,13 +3930,18 @@ function lamejs() {
                     Ya = Ya > ya[M + 3 - 2] ? Ya / ya[M + 3 - 2] : ya[M + 3 - 2] > 10 * Ya ? ya[M + 3 - 2] / (10 * Ya) : 0;
                     da[M + 3] = Ya
                 }
-                for (M = 0; 3 > M; ++M) { var Ia = ya[3 * M + 3] + ya[3 * M + 4] + ya[3 * M + 5],
+                for (M = 0; 3 > M; ++M) {
+                    var Ia = ya[3 * M + 3] + ya[3 * M + 4] + ya[3 * M + 5],
                         Wb = 1;
                     6 * ya[3 * M + 5] < Ia && (Wb *= .5, 6 * ya[3 * M + 4] < Ia && (Wb *= .5));
-                    O[R][M] = Wb }
-                if (d.analysis) { var xa = da[0]; for (M = 1; 12 > M; M++) xa < da[M] && (xa = da[M]);
+                    O[R][M] = Wb
+                }
+                if (d.analysis) {
+                    var xa = da[0];
+                    for (M = 1; 12 > M; M++) xa < da[M] && (xa = da[M]);
                     G.pinfo.ers[g][R] = G.pinfo.ers_save[R];
-                    G.pinfo.ers_save[R] = xa }
+                    G.pinfo.ers_save[R] = xa
+                }
                 for (M = 0; 12 > M; M++) 0 == L[R][M / 3] && da[M] > Fa && (L[R][M / 3] = M % 3 + 1);
                 for (M = 1; 4 > M; M++) {
                     var Qb = qa[M - 1],
@@ -3568,21 +3970,27 @@ function lamejs() {
                     Aa = Gb.internal_flags;
                 if (2 > La) q.fft_long(Aa, Na[cb], La, h, e);
                 else if (2 == La)
-                    for (var va = c.BLKSIZE - 1; 0 <= va; --va) { var rb = Na[cb + 0][va],
+                    for (var va = c.BLKSIZE - 1; 0 <= va; --va) {
+                        var rb = Na[cb + 0][va],
                             Va = Na[cb + 1][va];
                         Na[cb + 0][va] = (rb + Va) * aa.SQRT2 * .5;
-                        Na[cb + 1][va] = (rb - Va) * aa.SQRT2 * .5 }
+                        Na[cb + 1][va] = (rb - Va) * aa.SQRT2 * .5
+                    }
                 Ra[0] = Na[cb + 0][0];
                 Ra[0] *= Ra[0];
-                for (va = c.BLKSIZE / 2 - 1; 0 <= va; --va) { var ja = Na[cb + 0][c.BLKSIZE / 2 - va],
+                for (va = c.BLKSIZE / 2 - 1; 0 <= va; --va) {
+                    var ja = Na[cb + 0][c.BLKSIZE / 2 - va],
                         Hb = Na[cb + 0][c.BLKSIZE / 2 + va];
-                    Ra[c.BLKSIZE / 2 - va] = .5 * (ja * ja + Hb * Hb) }
+                    Ra[c.BLKSIZE / 2 - va] = .5 * (ja * ja + Hb * Hb)
+                }
                 var Ib =
                     0;
                 for (va = 11; va < c.HBLKSIZE; va++) Ib += Ra[va];
                 Aa.tot_ener[La] = Ib;
-                if (Gb.analysis) { for (va = 0; va < c.HBLKSIZE; va++) Aa.pinfo.energy[kb][La][va] = Aa.pinfo.energy_save[La][va], Aa.pinfo.energy_save[La][va] = Ra[va];
-                    Aa.pinfo.pe[kb][La] = Aa.pe[La] }
+                if (Gb.analysis) {
+                    for (va = 0; va < c.HBLKSIZE; va++) Aa.pinfo.energy[kb][La][va] = Aa.pinfo.energy_save[La][va], Aa.pinfo.energy_save[La][va] = Ra[va];
+                    Aa.pinfo.pe[kb][La] = Aa.pe[La]
+                }
                 var Ba = P,
                     zb = I,
                     tb = d.internal_flags;
@@ -3610,14 +4018,21 @@ function lamejs() {
                         Db += 1;
                         var $a = ea.s3_ll[Rb] * Bb[db] * J[Ja[db]];
                         ++Rb;
-                        for (++db; db <= cc;) { Cb += Ja[db];
-                            Db += 1; var vb = ea.s3_ll[Rb] * Bb[db] * J[Ja[db]];
-                            $a = Xb = n($a, vb, db - oa);++Rb;++db }
+                        for (++db; db <= cc;) {
+                            Cb += Ja[db];
+                            Db += 1;
+                            var vb = ea.s3_ll[Rb] * Bb[db] * J[Ja[db]];
+                            $a = Xb = n($a, vb, db - oa);
+                            ++Rb;
+                            ++db
+                        }
                         Cb = (1 + 2 * Cb) / (2 * Db);
                         var Ta = .5 * J[Cb];
                         $a *= Ta;
-                        if (ea.blocktype_old[Za & 1] == c.SHORT_TYPE) { var wb = 2 * ea.nb_1[Za][oa];
-                            Sa[oa] = 0 < wb ? Math.min($a, wb) : Math.min($a, .3 * Bb[oa]) } else {
+                        if (ea.blocktype_old[Za & 1] == c.SHORT_TYPE) {
+                            var wb = 2 * ea.nb_1[Za][oa];
+                            Sa[oa] = 0 < wb ? Math.min($a, wb) : Math.min($a, .3 * Bb[oa])
+                        } else {
                             var Yb = 16 * ea.nb_2[Za][oa],
                                 eb = 2 * ea.nb_1[Za][oa];
                             0 >= Yb && (Yb = $a);
@@ -3644,9 +4059,12 @@ function lamejs() {
             for (P = 0; P < N; P++) Ha = P & 1, 0 != H[Ha] && E(r, S[P], D[P], P);
             for (var fa = 0; 3 > fa; fa++) {
                 for (P = 0; P < N; ++P)
-                    if (Ha = P & 1, 0 != H[Ha]) { var Ca = r,
-                            Sb = P; if (0 == fa)
-                            for (var Eb = 0; Eb < Ca.npart_s; Eb++) Ca.nb_s2[Sb][Eb] = Ca.nb_s1[Sb][Eb], Ca.nb_s1[Sb][Eb] = 0 } else {
+                    if (Ha = P & 1, 0 != H[Ha]) {
+                        var Ca = r,
+                            Sb = P;
+                        if (0 == fa)
+                            for (var Eb = 0; Eb < Ca.npart_s; Eb++) Ca.nb_s2[Sb][Eb] = Ca.nb_s1[Sb][Eb], Ca.nb_s1[Sb][Eb] = 0
+                    } else {
                         t = z;
                         var fb = P,
                             Oa = fa,
@@ -3664,9 +4082,11 @@ function lamejs() {
                             }
                         ka[Oa][0] = Ua[gb + 0][Oa][0];
                         ka[Oa][0] *= ka[Oa][0];
-                        for (ua = c.BLKSIZE_s / 2 - 1; 0 <= ua; --ua) { var Zb = Ua[gb + 0][Oa][c.BLKSIZE_s / 2 - ua],
+                        for (ua = c.BLKSIZE_s / 2 - 1; 0 <= ua; --ua) {
+                            var Zb = Ua[gb + 0][Oa][c.BLKSIZE_s / 2 - ua],
                                 wa = Ua[gb + 0][Oa][c.BLKSIZE_s / 2 + ua];
-                            ka[Oa][c.BLKSIZE_s / 2 - ua] = .5 * (Zb * Zb + wa * wa) }
+                            ka[Oa][c.BLKSIZE_s / 2 - ua] = .5 * (Zb * Zb + wa * wa)
+                        }
                         var ba = void 0,
                             Wa = void 0,
                             ab = void 0,
@@ -3701,11 +4121,14 @@ function lamejs() {
                             ac = J.length - 1,
                             pa = 0,
                             Pa = Ub[pa] + Ub[pa + 1];
-                        if (0 < Pa) { var bb = nb[pa];
+                        if (0 < Pa) {
+                            var bb = nb[pa];
                             bb < nb[pa + 1] && (bb = nb[pa + 1]);
-                            Pa = 20 * (2 * bb - Pa) / (Pa * (Mb.numlines_s[pa] + Mb.numlines_s[pa + 1] - 1)); var ob = 0 | Pa;
+                            Pa = 20 * (2 * bb - Pa) / (Pa * (Mb.numlines_s[pa] + Mb.numlines_s[pa + 1] - 1));
+                            var ob = 0 | Pa;
                             ob > ac && (ob = ac);
-                            $b[pa] = ob } else $b[pa] = 0;
+                            $b[pa] = ob
+                        } else $b[pa] = 0;
                         for (pa = 1; pa < Mb.npart_s - 1; pa++) Pa = Ub[pa - 1] + Ub[pa] + Ub[pa + 1], 0 < Pa ? (bb = nb[pa - 1], bb < nb[pa] && (bb = nb[pa]), bb < nb[pa + 1] && (bb = nb[pa + 1]), Pa = 20 * (3 * bb - Pa) / (Pa * (Mb.numlines_s[pa - 1] + Mb.numlines_s[pa] + Mb.numlines_s[pa +
                             1] - 1)), ob = 0 | Pa, ob > ac && (ob = ac), $b[pa] = ob) : $b[pa] = 0;
                         Pa = Ub[pa - 1] + Ub[pa];
@@ -3717,9 +4140,14 @@ function lamejs() {
                             var tc = 1;
                             var ic = Ea.s3_ss[Wa] * hb[yb] * J[Fb[yb]];
                             ++Wa;
-                            for (++yb; yb <= mc;) { lc += Fb[yb];
-                                tc += 1; var bc = Ea.s3_ss[Wa] * hb[yb] * J[Fb[yb]];
-                                ic = n(ic, bc, yb - ba);++Wa;++yb }
+                            for (++yb; yb <= mc;) {
+                                lc += Fb[yb];
+                                tc += 1;
+                                var bc = Ea.s3_ss[Wa] * hb[yb] * J[Fb[yb]];
+                                ic = n(ic, bc, yb - ba);
+                                ++Wa;
+                                ++yb
+                            }
                             lc = (1 + 2 * lc) / (2 * tc);
                             var uc = .5 * J[lc];
                             ic *= uc;
@@ -3742,19 +4170,30 @@ function lamejs() {
             for (P = 0; P < N; P++)
                 if (Ha = P & 1, 0 == H[Ha])
                     for (var Vb = 0; Vb <
-                        c.SBMAX_s; Vb++) { var vc = K(3); for (fa = 0; 3 > fa; fa++) { var jb = r.thm[P].s[Vb][fa];
-                            jb *= .8; if (2 <= L[P][fa] || 1 == L[P][fa + 1]) { var jc = 0 != fa ? fa - 1 : 2,
+                        c.SBMAX_s; Vb++) {
+                        var vc = K(3);
+                        for (fa = 0; 3 > fa; fa++) {
+                            var jb = r.thm[P].s[Vb][fa];
+                            jb *= .8;
+                            if (2 <= L[P][fa] || 1 == L[P][fa + 1]) {
+                                var jc = 0 != fa ? fa - 1 : 2,
                                     kc = B(r.thm[P].s[Vb][jc], jb, .36);
-                                jb = Math.min(jb, kc) } else if (1 == L[P][fa]) jc = 0 != fa ? fa - 1 : 2, kc = B(r.thm[P].s[Vb][jc], jb, .18), jb = Math.min(jb, kc);
+                                jb = Math.min(jb, kc)
+                            } else if (1 == L[P][fa]) jc = 0 != fa ? fa - 1 : 2, kc = B(r.thm[P].s[Vb][jc], jb, .18), jb = Math.min(jb, kc);
                             else if (0 != fa && 3 == L[P][fa - 1] || 0 == fa && 3 == r.nsPsy.lastAttacks[P]) jc = 2 != fa ? fa + 1 : 0, kc = B(r.thm[P].s[Vb][jc], jb, .18), jb = Math.min(jb, kc);
                             jb *= O[P][fa];
-                            vc[fa] = jb } for (fa = 0; 3 > fa; fa++) r.thm[P].s[Vb][fa] = vc[fa] }
-                for (P = 0; P < N; P++) r.nsPsy.lastAttacks[P] =
-                    L[P][2];
-            for (var Nb = d.internal_flags, pb = 0; pb < Nb.channels_out; pb++) { var oc = c.NORM_TYPE;
+                            vc[fa] = jb
+                        }
+                        for (fa = 0; 3 > fa; fa++) r.thm[P].s[Vb][fa] = vc[fa]
+                    }
+            for (P = 0; P < N; P++) r.nsPsy.lastAttacks[P] =
+                L[P][2];
+            for (var Nb = d.internal_flags, pb = 0; pb < Nb.channels_out; pb++) {
+                var oc = c.NORM_TYPE;
                 0 != H[pb] ? Nb.blocktype_old[pb] == c.SHORT_TYPE && (oc = c.STOP_TYPE) : (oc = c.SHORT_TYPE, Nb.blocktype_old[pb] == c.NORM_TYPE && (Nb.blocktype_old[pb] = c.START_TYPE), Nb.blocktype_old[pb] == c.STOP_TYPE && (Nb.blocktype_old[pb] = c.SHORT_TYPE));
                 p[pb] = Nb.blocktype_old[pb];
-                Nb.blocktype_old[pb] = oc }
+                Nb.blocktype_old[pb] = oc
+            }
             for (P = 0; P < N; P++) {
                 if (1 < P) { var pc = x; var qc = -2; var rc = c.NORM_TYPE; if (p[0] == c.SHORT_TYPE || p[1] == c.SHORT_TYPE) rc = c.SHORT_TYPE; var sc = k[g][P - 2] } else pc =
                     m, qc = 0, rc = p[P], sc = l[g][P];
@@ -3775,31 +4214,50 @@ function lamejs() {
                 u = K(c.CBANDS),
                 A = K(c.CBANDS),
                 w = a.out_samplerate;
-            switch (a.experimentalZ) { default:
+            switch (a.experimentalZ) {
+                default:
                     case 0:
-                    h = !0; break;
+                    h = !0;
+                break;
                 case 1:
-                        h = a.VBR == G.vbr_mtrh || a.VBR == G.vbr_mt ? !1 : !0; break;
+                        h = a.VBR == G.vbr_mtrh || a.VBR == G.vbr_mt ? !1 : !0;
+                    break;
                 case 2:
-                        h = !1; break;
+                        h = !1;
+                    break;
                 case 3:
-                        g = 8, k = -1.75, m = -.0125, x = -8.25, y = -2.25 }
+                        g = 8,
+                    k = -1.75,
+                    m = -.0125,
+                    x = -8.25,
+                    y = -2.25
+            }
             b.ms_ener_ratio_old = .25;
             b.blocktype_old[0] =
                 b.blocktype_old[1] = c.NORM_TYPE;
-            for (f = 0; 4 > f; ++f) { for (var v = 0; v < c.CBANDS; ++v) b.nb_1[f][v] = 1E20, b.nb_2[f][v] = 1E20, b.nb_s1[f][v] = b.nb_s2[f][v] = 1; for (var z = 0; z < c.SBMAX_l; z++) b.en[f].l[z] = 1E20, b.thm[f].l[z] = 1E20; for (v = 0; 3 > v; ++v) { for (z = 0; z < c.SBMAX_s; z++) b.en[f].s[z][v] = 1E20, b.thm[f].s[z][v] = 1E20;
-                    b.nsPsy.lastAttacks[f] = 0 } for (v = 0; 9 > v; v++) b.nsPsy.last_en_subshort[f][v] = 10 }
+            for (f = 0; 4 > f; ++f) {
+                for (var v = 0; v < c.CBANDS; ++v) b.nb_1[f][v] = 1E20, b.nb_2[f][v] = 1E20, b.nb_s1[f][v] = b.nb_s2[f][v] = 1;
+                for (var z = 0; z < c.SBMAX_l; z++) b.en[f].l[z] = 1E20, b.thm[f].l[z] = 1E20;
+                for (v = 0; 3 > v; ++v) {
+                    for (z = 0; z < c.SBMAX_s; z++) b.en[f].s[z][v] = 1E20, b.thm[f].s[z][v] = 1E20;
+                    b.nsPsy.lastAttacks[f] = 0
+                }
+                for (v = 0; 9 > v; v++) b.nsPsy.last_en_subshort[f][v] = 10
+            }
             b.loudness_sq_save[0] = b.loudness_sq_save[1] = 0;
             b.npart_l = e(b.numlines_l, b.bo_l, b.bm_l, n, u, b.mld_l, b.PSY.bo_l_weight, w, c.BLKSIZE, b.scalefac_band.l,
                 c.BLKSIZE / 1152, c.SBMAX_l);
             for (f = 0; f < b.npart_l; f++) z = k, n[f] >= g && (z = m * (n[f] - g) / (24 - g) + k * (24 - n[f]) / (24 - g)), A[f] = Math.pow(10, z / 10), b.rnumlines_l[f] = 0 < b.numlines_l[f] ? 1 / b.numlines_l[f] : 0;
             b.s3_ll = l(b.s3ind, b.npart_l, n, u, A, h);
-            for (f = v = 0; f < b.npart_l; f++) { m = Ma.MAX_VALUE; for (z = 0; z < b.numlines_l[f]; z++, v++) k = w * v / (1E3 * c.BLKSIZE), k = this.ATHformula(1E3 * k, a) - 20, k = Math.pow(10, .1 * k), k *= b.numlines_l[f], m > k && (m = k);
+            for (f = v = 0; f < b.npart_l; f++) {
+                m = Ma.MAX_VALUE;
+                for (z = 0; z < b.numlines_l[f]; z++, v++) k = w * v / (1E3 * c.BLKSIZE), k = this.ATHformula(1E3 * k, a) - 20, k = Math.pow(10, .1 * k), k *= b.numlines_l[f], m > k && (m = k);
                 b.ATH.cb_l[f] = m;
                 m = -20 + 20 * n[f] / 10;
                 6 < m && (m = 100); - 15 > m && (m = -15);
                 m -= 8;
-                b.minval_l[f] = Math.pow(10, m / 10) * b.numlines_l[f] }
+                b.minval_l[f] = Math.pow(10, m / 10) * b.numlines_l[f]
+            }
             b.npart_s =
                 e(b.numlines_s, b.bo_s, b.bm_s, n, u, b.mld_s, b.PSY.bo_s_weight, w, c.BLKSIZE_s, b.scalefac_band.s, c.BLKSIZE_s / 384, c.SBMAX_s);
             for (f = v = 0; f < b.npart_s; f++) {
@@ -3848,25 +4306,36 @@ function lamejs() {
                 c.CBANDS; ++f) b.mld_cb_s[f] = 1;
             return 0
         };
-        this.ATHformula = function(a, b) { switch (b.ATHtype) {
+        this.ATHformula = function(a, b) {
+            switch (b.ATHtype) {
                 case 0:
-                    a = g(a, 9); break;
+                    a = g(a, 9);
+                    break;
                 case 1:
-                    a = g(a, -1); break;
+                    a = g(a, -1);
+                    break;
                 case 2:
-                    a = g(a, 0); break;
+                    a = g(a, 0);
+                    break;
                 case 3:
-                    a = g(a, 1) + 6; break;
+                    a = g(a, 1) + 6;
+                    break;
                 case 4:
-                    a = g(a, b.ATHcurve); break;
+                    a = g(a, b.ATHcurve);
+                    break;
                 default:
-                    a = g(a, 0) } return a }
+                    a = g(a, 0)
+            }
+            return a
+        }
     }
 
     function W() {
-        function u() { this.mask_adjust_short = this.mask_adjust = 0;
+        function u() {
+            this.mask_adjust_short = this.mask_adjust = 0;
             this.bo_l_weight = K(c.SBMAX_l);
-            this.bo_s_weight = K(c.SBMAX_s) }
+            this.bo_s_weight = K(c.SBMAX_s)
+        }
 
         function k() { this.lowerlimit = 0 }
 
@@ -3900,8 +4369,12 @@ function lamejs() {
             }
         }
 
-        function B(a, b, d) { 16E3 > d && (b = 2);
-            d = w.bitrate_table[b][1]; for (var c = 2; 14 >= c; c++) 0 < w.bitrate_table[b][c] && Math.abs(w.bitrate_table[b][c] - a) < Math.abs(d - a) && (d = w.bitrate_table[b][c]); return d }
+        function B(a, b, d) {
+            16E3 > d && (b = 2);
+            d = w.bitrate_table[b][1];
+            for (var c = 2; 14 >= c; c++) 0 < w.bitrate_table[b][c] && Math.abs(w.bitrate_table[b][c] - a) < Math.abs(d - a) && (d = w.bitrate_table[b][c]);
+            return d
+        }
 
         function U(a, b, d) {
             16E3 > d && (b = 2);
@@ -3911,9 +4384,11 @@ function lamejs() {
             return -1
         }
 
-        function f(a, b) { var d = [new n(8, 2E3), new n(16, 3700), new n(24, 3900), new n(32, 5500), new n(40, 7E3), new n(48, 7500), new n(56, 1E4), new n(64, 11E3), new n(80, 13500), new n(96, 15100), new n(112, 15600), new n(128, 17E3), new n(160, 17500), new n(192, 18600), new n(224, 19400), new n(256, 19700), new n(320, 20500)];
+        function f(a, b) {
+            var d = [new n(8, 2E3), new n(16, 3700), new n(24, 3900), new n(32, 5500), new n(40, 7E3), new n(48, 7500), new n(56, 1E4), new n(64, 11E3), new n(80, 13500), new n(96, 15100), new n(112, 15600), new n(128, 17E3), new n(160, 17500), new n(192, 18600), new n(224, 19400), new n(256, 19700), new n(320, 20500)];
             b = e.nearestBitrateFullIndex(b);
-            a.lowerlimit = d[b].lowpass }
+            a.lowerlimit = d[b].lowpass
+        }
 
         function b(a) {
             var b = c.BLKSIZE + a.framesize - c.FFTOFFSET;
@@ -4006,11 +4481,15 @@ function lamejs() {
                             ca.fill_buffer_resample_init = 1
                         }
                         M = ca.inbuf_old[la];
-                        for (R = 0; R < U; R++) { N = R * ca.resample_ratio;
-                            ia = 0 | Math.floor(N - ca.itime[la]); if (na + ia - na / 2 >= aa) break;
+                        for (R = 0; R < U; R++) {
+                            N = R * ca.resample_ratio;
+                            ia = 0 | Math.floor(N - ca.itime[la]);
+                            if (na + ia - na / 2 >= aa) break;
                             za = N - ca.itime[la] - (ia + na % 2 * .5);
-                            za = 0 | Math.floor(2 * za * sa + sa + .5); for (N = Fa = 0; N <= na; ++N) Ia = 0 | N + ia - na / 2, Fa += (0 > Ia ? M[ra + Ia] : W[X + Ia]) * ca.blackfilt[za][N];
-                            V[T + R] = Fa }
+                            za = 0 | Math.floor(2 * za * sa + sa + .5);
+                            for (N = Fa = 0; N <= na; ++N) Ia = 0 | N + ia - na / 2, Fa += (0 > Ia ? M[ra + Ia] : W[X + Ia]) * ca.blackfilt[za][N];
+                            V[T + R] = Fa
+                        }
                         ha.num_used = Math.min(aa, na + ia - na / 2);
                         ca.itime[la] += ha.num_used -
                             R * ca.resample_ratio;
@@ -4029,17 +4508,21 @@ function lamejs() {
                 h.mf_size += t;
                 1 > h.mf_samples_to_encode && (h.mf_samples_to_encode = c.ENCDELAY + c.POSTDELAY);
                 h.mf_samples_to_encode += t;
-                if (h.mf_size >= g) { w = r - x;
+                if (h.mf_size >= g) {
+                    w = r - x;
                     0 == r && (w = 0);
                     t = f;
                     w = e.enc.lame_encode_mp3_frame(t, y[0], y[1], q, n, w);
                     t.frameNum++;
-                    t = w; if (0 > t) return t;
+                    t = w;
+                    if (0 > t) return t;
                     n += t;
                     x += t;
                     h.mf_size -= f.framesize;
-                    h.mf_samples_to_encode -= f.framesize; for (w = 0; w < h.channels_out; w++)
-                        for (t = 0; t < h.mf_size; t++) y[w][t] = y[w][t + f.framesize] }
+                    h.mf_samples_to_encode -= f.framesize;
+                    for (w = 0; w < h.channels_out; w++)
+                        for (t = 0; t < h.mf_size; t++) y[w][t] = y[w][t + f.framesize]
+                }
             }
             return x
         }
@@ -4075,7 +4558,8 @@ function lamejs() {
         var l, d, g, q, D, p = new Pb,
             r, t, J;
         this.enc = new c;
-        this.setModules = function(a, b, c, f, e, k, m, n, u) { l = a;
+        this.setModules = function(a, b, c, f, e, k, m, n, u) {
+            l = a;
             d = b;
             g = c;
             q = f;
@@ -4083,7 +4567,8 @@ function lamejs() {
             r = k;
             t = n;
             J = u;
-            this.enc.setModules(d, p, q, r) };
+            this.enc.setModules(d, p, q, r)
+        };
         this.lame_init = function() {
             var a = new zc;
             a.class_id = 4294479419;
@@ -4146,12 +4631,22 @@ function lamejs() {
             a.lame_allocated_gfp = 1;
             return a
         };
-        this.nearestBitrateFullIndex = function(a) { var b = [8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320]; var d = b[16]; var c = 16; var f = b[16]; var e = 16; for (var h = 0; 16 > h; h++)
-                if (Math.max(a, b[h + 1]) != a) { d = b[h + 1];
+        this.nearestBitrateFullIndex = function(a) {
+            var b = [8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320];
+            var d = b[16];
+            var c = 16;
+            var f = b[16];
+            var e = 16;
+            for (var h = 0; 16 > h; h++)
+                if (Math.max(a, b[h + 1]) != a) {
+                    d = b[h + 1];
                     c = h + 1;
                     f = b[h];
-                    e = h; break }
-            return d - a > a - f ? e : c };
+                    e = h;
+                    break
+                }
+            return d - a > a - f ? e : c
+        };
         this.lame_init_params = function(a) {
             var b = a.internal_flags;
             b.Class_ID = 0;
@@ -4184,9 +4679,12 @@ function lamejs() {
                         break;
                     case G.vbr_rh:
                         var h = [19500, 19E3, 18600, 18E3, 17500, 16E3, 15600, 14900, 12500, 1E4, 3950];
-                        if (0 <= a.VBR_q && 9 >= a.VBR_q) { e = h[a.VBR_q];
-                            h = h[a.VBR_q + 1]; var m = a.VBR_q_frac;
-                            e = linear_int(e, h, m) } else e = 19500;
+                        if (0 <= a.VBR_q && 9 >= a.VBR_q) {
+                            e = h[a.VBR_q];
+                            h = h[a.VBR_q + 1];
+                            var m = a.VBR_q_frac;
+                            e = linear_int(e, h, m)
+                        } else e = 19500;
                         break;
                     default:
                         h = [19500, 19E3, 18500, 18E3, 17500,
@@ -4218,11 +4716,14 @@ function lamejs() {
                 case G.vbr_mt:
                 case G.vbr_rh:
                 case G.vbr_mtrh:
-                    a.compression_ratio = [5.7, 6.5, 7.3, 8.2, 10, 11.9, 13, 14, 15, 16.5][a.VBR_q]; break;
+                    a.compression_ratio = [5.7, 6.5, 7.3, 8.2, 10, 11.9, 13, 14, 15, 16.5][a.VBR_q];
+                    break;
                 case G.vbr_abr:
-                    a.compression_ratio = 16 * a.out_samplerate * b.channels_out / (1E3 * a.VBR_mean_bitrate_kbps); break;
+                    a.compression_ratio = 16 * a.out_samplerate * b.channels_out / (1E3 * a.VBR_mean_bitrate_kbps);
+                    break;
                 default:
-                    a.compression_ratio = 16 * a.out_samplerate * b.channels_out / (1E3 * a.brate) }
+                    a.compression_ratio = 16 * a.out_samplerate * b.channels_out / (1E3 * a.brate)
+            }
             a.mode == la.NOT_SET && (a.mode = la.JOINT_STEREO);
             0 < a.highpassfreq ?
                 (b.highpass1 = 2 * a.highpassfreq, b.highpass2 = 0 <= a.highpasswidth ? 2 * (a.highpassfreq + a.highpasswidth) : 2 * a.highpassfreq, b.highpass1 /= a.out_samplerate, b.highpass2 /= a.out_samplerate) : (b.highpass1 = 0, b.highpass2 = 0);
@@ -4238,9 +4739,12 @@ function lamejs() {
                 e.lowpass2 = n / 31
             }
             0 < e.highpass2 && e.highpass2 < .75 / 31 * .9 && (e.highpass1 = 0, e.highpass2 = 0, T.err.println("Warning: highpass filter disabled.  highpass frequency too small\n"));
-            if (0 < e.highpass2) { n = -1; for (h = 0; 31 >= h; h++) m = h / 31, m <= e.highpass1 && (v = Math.max(v, h)), e.highpass1 < m && m < e.highpass2 && (n = Math.max(n, h));
+            if (0 < e.highpass2) {
+                n = -1;
+                for (h = 0; 31 >= h; h++) m = h / 31, m <= e.highpass1 && (v = Math.max(v, h)), e.highpass1 < m && m < e.highpass2 && (n = Math.max(n, h));
                 e.highpass1 = v / 31;
-                e.highpass2 = -1 == n ? (v + .75) / 31 : (n + .75) / 31 }
+                e.highpass2 = -1 == n ? (v + .75) / 31 : (n + .75) / 31
+            }
             for (h =
                 0; 32 > h; h++) m = h / 31, v = e.highpass2 > e.highpass1 ? V((e.highpass2 - m) / (e.highpass2 - e.highpass1 + 1E-20)) : 1, m = e.lowpass2 > e.lowpass1 ? V((m - e.lowpass1) / (e.lowpass2 - e.lowpass1 + 1E-20)) : 1, e.amp_filter[h] = v * m;
             b.samplerate_index = E(a.out_samplerate, a);
@@ -4392,7 +4896,8 @@ function lamejs() {
             576 >
                 q && (q += a.framesize);
             a.encoder_padding = q;
-            for (q = (m + q) / a.framesize; 0 < q && 0 <= h;) { var r = p - k.mf_size;
+            for (q = (m + q) / a.framesize; 0 < q && 0 <= h;) {
+                var r = p - k.mf_size;
                 m = a.frameNum;
                 r *= a.in_samplerate;
                 r /= a.out_samplerate;
@@ -4403,7 +4908,8 @@ function lamejs() {
                 h = this.lame_encode_buffer(a, l[0], l[1], r, e, f, h);
                 f += h;
                 n += h;
-                q -= m != a.frameNum ? 1 : 0 }
+                q -= m != a.frameNum ? 1 : 0
+            }
             k.mf_samples_to_encode = 0;
             if (0 > h) return h;
             h = g - n;
@@ -4424,10 +4930,17 @@ function lamejs() {
             }
             return n
         };
-        this.lame_encode_buffer = function(a, b, d, c, e, f, g) { var h = a.internal_flags,
-                k = [null, null]; if (4294479419 != h.Class_ID) return -3; if (0 == c) return 0; if (null == h.in_buffer_0 || h.in_buffer_nsamples < c) h.in_buffer_0 = K(c), h.in_buffer_1 = K(c), h.in_buffer_nsamples = c;
+        this.lame_encode_buffer = function(a, b, d, c, e, f, g) {
+            var h = a.internal_flags,
+                k = [null, null];
+            if (4294479419 != h.Class_ID) return -3;
+            if (0 == c) return 0;
+            if (null == h.in_buffer_0 || h.in_buffer_nsamples < c) h.in_buffer_0 = K(c), h.in_buffer_1 = K(c), h.in_buffer_nsamples = c;
             k[0] = h.in_buffer_0;
-            k[1] = h.in_buffer_1; for (var l = 0; l < c; l++) k[0][l] = b[l], 1 < h.channels_in && (k[1][l] = d[l]); return v(a, k[0], k[1], c, e, f, g) }
+            k[1] = h.in_buffer_1;
+            for (var l = 0; l < c; l++) k[0][l] = b[l], 1 < h.channels_in && (k[1][l] = d[l]);
+            return v(a, k[0], k[1], c, e, f, g)
+        }
     }
 
     function Kc() { this.setModules = function(c, k) {} }
@@ -4441,10 +4954,14 @@ function lamejs() {
     function Fa() { this.sampleRate = this.channels = this.dataLen = this.dataOffset = 0 }
 
     function cc(c) { return c.charCodeAt(0) << 24 | c.charCodeAt(1) << 16 | c.charCodeAt(2) << 8 | c.charCodeAt(3) }
-    var na = { fill: function(c, k, n, w) { if (2 == arguments.length)
+    var na = {
+            fill: function(c, k, n, w) {
+                if (2 == arguments.length)
                     for (var u = 0; u < c.length; u++) c[u] = arguments[1];
                 else
-                    for (u = k; u < n; u++) c[u] = w } },
+                    for (u = k; u < n; u++) c[u] = w
+            }
+        },
         T = { arraycopy: function(c, k, n, w, E) { for (E = k + E; k < E;) n[w++] = c[k++] } },
         aa = {
             SQRT2: 1.4142135623730951,
@@ -4638,9 +5155,12 @@ function lamejs() {
             }
             w += u;
             u = Fa.data;
-            for (var B = 0; u != n;) { n = c.getUint32(w, !1);
-                B = c.getUint32(w + 4, !0); if (u == n) break;
-                w += B + 8 }
+            for (var B = 0; u != n;) {
+                n = c.getUint32(w, !1);
+                B = c.getUint32(w + 4, !0);
+                if (u == n) break;
+                w += B + 8
+            }
             k.dataLen = B;
             k.dataOffset = w + 8;
             return k
@@ -4695,6 +5215,8 @@ function lamejs() {
         };
         this.flush = function() { var a = u.lame_encode_flush(q, r, 0, p); return new Int8Array(r.subarray(0, a)) }
     };
-    lamejs.WavHeader = Fa
+    lamejs.WavHeader = Fa;
+    return lamejs;
 }
-lamejs();
+
+export default lamejs();
