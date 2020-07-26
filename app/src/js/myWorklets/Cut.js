@@ -63,6 +63,13 @@ export default class CutManager {
         return this.cuts[index];
     }
 
+    addCutIndex(index, time) {
+        let sum = 0;
+        for (let i = 0; i < index; i++)
+            sum += this.cuts[i].length;
+        this.addCut(sum + time);
+    }
+
     addCut(time, push = true) {
         for (let i = 0; i < this.cuts.length; i++) {
             if (this.cuts[i].sourceEnd >= time) {

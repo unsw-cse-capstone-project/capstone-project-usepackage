@@ -4,7 +4,8 @@ import AudioTrackController from './audioTrackController'
 import Slider from '../BasicComponents/Slider.jsx'
 import InputGroup from 'react-bootstrap/InputGroup';
 import FormControl from 'react-bootstrap/FormControl';
-import CutBar from '../BasicComponents/CutBar.jsx';
+//import CutBar from '../BasicComponents/CutBar.jsx';
+import CutBar from '../BasicComponents/CutBar2.jsx';
 
 export default class AudioTrackContainer extends React.Component {
     constructor(props) {
@@ -12,7 +13,6 @@ export default class AudioTrackContainer extends React.Component {
         this.state = {
             toggleName: "Start",
             controller: null,
-            cutBar: null,
             time: "0.00",
             paused: true
         }
@@ -33,15 +33,13 @@ export default class AudioTrackContainer extends React.Component {
         this.copy = this.copy.bind(this);
         this.move = this.move.bind(this);
         this.crop = this.crop.bind(this);
-        this.lengthHandle = this.lengthHandle.bind(this);
-        this.posHandle = this.posHandle.bind(this);
         this.updateDestination = this.updateDestination.bind(this);
         this.time = 0;
         this.slice = 0;
         this.destination = 0;
         this.virtualCuts = [0];
-        this.lengthHandleFunc = null;
-        this.posHandleFunc = null;
+        this.lengthHandler = null;
+        this.posHandler = null;
         AudioTrackController.create(props.audioRecord).then(controller => {
             this.setState({
                 controller: controller
@@ -53,22 +51,26 @@ export default class AudioTrackContainer extends React.Component {
                 toggleName: name,
                 paused: paused
             })
-            state.controller.lengthHandle = this.lengthHandleFunc;
-            state.controller.posHandle = this.posHandleFunc;
+            if (this.lengthHandler)
+                state.controller.registerLength(this.lengthHandler);
+            if (this.posHandler)
+                state.controller.registerPos(this.posHandler);
         })
         //this.duration = this.state.controller.audioRecord.audioData.length / this.state.controller.audioRecord.audioData.sampleRate;
     }
 
-    lengthHandle(handler) {
-        this.lengthHandleFunc = handler;
+    registerLengthHandler(handler) {
         if (this.state.controller)
-            this.state.controller.lengthHandle = this.lengthHandleFunc;
+            this.state.controller.registerLength(handler);
+        else
+            this.lengthHandler = handler;
     }
 
-    posHandle(handler) {
-        this.posHandleFunc = handler;
+    registerPosHandler(handler) {
         if (this.state.controller)
-            this.state.controller.posHandle = this.posHandleFunc;
+            this.state.controller.registerPos(handler);
+        else
+            this.posHandler = handler;
     }
 
     record() {
@@ -132,13 +134,18 @@ export default class AudioTrackContainer extends React.Component {
     }
 
     // Note: need to add stuff for cutbar later
-    executeCut(){
-        const val = this.time;
-        //if (this.time >= this.duration) return false;
-        const timeSample = Math.floor(parseFloat(val)*this.state.controller.audioRecord.audioData.sampleRate);
+    executeCut(samples=null){
+        let time, timeSample;
+        const sampleRate = this.state.controller.audioRecord.audioData.sampleRate;
+        if (samples) {
+            timeSample = Math.floor(samples);
+            time = samples / sampleRate;
+        } else {
+            time = parseFloat(this.time);
+            timeSample = Math.floor(time * sampleRate);
+        }
+        
         this.state.controller.executeCut(timeSample);
- 
-        const time = parseFloat(val);
         console.log(time);
         for(let i = 0; i < this.virtualCuts.length; i++){
             if(this.virtualCuts[i] === time) break;
@@ -154,8 +161,7 @@ export default class AudioTrackContainer extends React.Component {
         console.log("Executing cut in audioTrackContainer");
         console.log(this.virtualCuts);
         this.setState({
-            virtualCuts: this.virtualCuts,
-            cutBar: <CutBar width={600} height={60} lengthHandle={this.lengthHandle} posHandle={this.posHandle} />
+            virtualCuts: this.virtualCuts
         })
     }
     
@@ -223,7 +229,6 @@ export default class AudioTrackContainer extends React.Component {
                             <li key = {index}>{cut}</li>
                         ))}
                     </ol>
-                    {this.state.cutBar}
                 </div>
                 <div>
                     <Displace 
@@ -231,6 +236,15 @@ export default class AudioTrackContainer extends React.Component {
                         handleDestination={this.updateDestination}
                         handleCopy={this.copy}
                         handleMove={this.move}
+                    />
+                </div>
+                <div className="col-12">
+                    <CutBar
+                        cutCB={this.executeCut}
+                        width={600}
+                        height={60}
+                        regLen={this.registerLengthHandler.bind(this)}
+                        regPos={this.registerPosHandler.bind(this)}
                     />
                 </div>
             </div>

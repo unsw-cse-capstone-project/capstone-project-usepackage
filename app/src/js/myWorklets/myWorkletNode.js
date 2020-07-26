@@ -14,6 +14,12 @@ export default class MyWorkletNode extends AudioWorkletNode {
         return this.time
     }
 
+    getLengths() {
+        this.port.postMessage({
+            title: "Lengths"
+        });
+    }
+
     executeCut(timeSample) {
         this.port.postMessage({
             title: "Cut",

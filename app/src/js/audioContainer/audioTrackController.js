@@ -16,7 +16,7 @@ export default class AudioTrackController {
         // Elements required for controlling audio source ( including the source )
         this.audioRecord = props.audioRecord
         this.source = props.source
-        this.graph = props.graph
+        this.node = props.node
         this.audioCtx = props.audioCtx
         this.audioElement = props.audioElement
 
@@ -32,17 +32,25 @@ export default class AudioTrackController {
         this.inprogress = false;
         this.lengthHandle = null;
         this.posHandle = null;
-        this.graph.node.on('stop', (detail) => {
+        this.node.on('stop', (detail) => {
             this.toggle(detail, true)
         });
-        this.graph.node.on('lengthUpdate', (detail) => {
-            if (this.lengthHandle)
-                this.lengthHandle(detail);
+        this.registerLength = this.registerLength.bind(this);
+        this.registerPos = this.registerPos.bind(this);
+    }
+
+    registerLength(handler) {
+        this.node.on('lengthUpdate', (detail) => {
+            handler(detail);
         });
-        this.graph.node.on('pos', (detail) => {
-            if (this.posHandle)
-                this.posHandle({ pos: detail.time });
-        })
+        this.node.getLengths();
+    }
+
+    registerPos(handler) {
+        this.node.on('pos', (detail) => {
+            handler(detail);
+            console.log(detail);
+        });
     }
 
     record() {
@@ -96,7 +104,7 @@ export default class AudioTrackController {
             this.inprogress = true;
             this._buttonNameCb(name, paused)
         }
-        this.graph.node.port.postMessage({
+        this.node.port.postMessage({
             title: "Update",
             data: {
                 paused: !this.inprogress
@@ -120,7 +128,7 @@ export default class AudioTrackController {
     }
 
     time() {
-        this.timeCb(this.graph.node.getTime())
+        this.timeCb(this.node.getTime())
     }
 
     seek(val) {
@@ -128,46 +136,46 @@ export default class AudioTrackController {
     }
 
     gain(val, channel, cut) {
-        this.graph.node.setGain(val, channel, cut);
+        this.node.setGain(val, channel, cut);
     }
 
     tempo(val, cut) {
-        this.graph.node.setTempo(val, cut);
+        this.node.setTempo(val, cut);
     }
 
     pitch(val, cut) {
-        this.graph.node.setPitch(val, cut);
+        this.node.setPitch(val, cut);
     }
 
     connectAll() {
         console.log("Graph connected")
-        this.source.connect(this.graph.node)
-        this.graph.node.connect(this.audioCtx.destination)
+        this.source.connect(this.node)
+        this.node.connect(this.audioCtx.destination)
     }
 
     executeCut(timeSample) {
-        this.graph.node.executeCut(timeSample);
+        this.node.executeCut(timeSample);
         console.log("Executing cut in audioTrackController");
     }
 
     undo() {
-        this.graph.node.undo();
+        this.node.undo();
     }
 
     redo() {
-        this.graph.node.redo();
+        this.node.redo();
     }
 
     crop(slice) {
-        this.graph.node.crop(slice);
+        this.node.crop(slice);
     }
 
     copy(slice, destination) {
-        this.graph.node.copy(slice, destination);
+        this.node.copy(slice, destination);
     }
 
     move(slice, destination) {
-        this.graph.node.move(slice, destination);
+        this.node.move(slice, destination);
     }
 
 }
@@ -186,7 +194,7 @@ AudioTrackController.create = (audioRecord) => {
                 audioElement: audio,
                 audioCtx: audioCtx,
                 source: source,
-                graph: graph
+                node: graph
             }))
         })
     })
@@ -201,7 +209,7 @@ AudioTrackController.graph = (audioCtx, buffer) => {
         return new Promise((resolve) => {
                 workNode.on('init', (detail) => {
                     console.log("MSG: ", detail)
-                    resolve({ node: workNode })
+                    resolve(workNode);
                 })
             })
             // return {gain: gainNode}

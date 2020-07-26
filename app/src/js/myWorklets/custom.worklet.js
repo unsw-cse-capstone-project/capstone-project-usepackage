@@ -150,7 +150,8 @@ class CustomProcessor extends AudioWorkletProcessor {
         this.port.postMessage({
             title: "Position",
             data: {
-                time: this._frame
+                time: this._frame,
+                cut: this._sourceData.cut
             }
         });
     }
@@ -217,7 +218,7 @@ class CustomProcessor extends AudioWorkletProcessor {
             this._sourceData.index++;
             this._sourceData.cut = this._cuts.get(this._sourceData.index);
         } while (this._sourceData.cut && this._sourceData.cut.cropped);
-        console.log(this._sourceData.cut);
+        this.x = true;
         if (!this._sourceData.cut)
             return;
         this.calculateEffectiveValues(this._sourceData.cut.tempo, this._sourceData.cut.pitch);
@@ -258,7 +259,7 @@ class CustomProcessor extends AudioWorkletProcessor {
         }
     }
 
-    process(inputs, outputs, params) {
+    process(inputs, outputs) {
         if (!this._initialized)
             return true;
         if (!this._playing || !this.loadIntoBuffer()) {
