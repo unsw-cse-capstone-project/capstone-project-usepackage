@@ -10,6 +10,17 @@ export default class MyWorkletNode extends AudioWorkletNode {
         this.port.onmessage = this._messageProcessor.bind(this);
     }
 
+    seek(slice, time) {
+        console.log("SLICE in node");
+        this.port.postMessage({
+            title: "Seek",
+            data: {
+                slice: slice,
+                time: time
+            }
+        })
+    }
+
     getTime() {
         return this.time
     }

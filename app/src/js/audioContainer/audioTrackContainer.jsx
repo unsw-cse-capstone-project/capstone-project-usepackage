@@ -33,6 +33,7 @@ export default class AudioTrackContainer extends React.Component {
         this.copy = this.copy.bind(this);
         this.move = this.move.bind(this);
         this.crop = this.crop.bind(this);
+        this.handleSeek = this.handleSeek.bind(this);
         this.updateDestination = this.updateDestination.bind(this);
         this.time = 0;
         this.slice = 0;
@@ -144,7 +145,7 @@ export default class AudioTrackContainer extends React.Component {
             time = parseFloat(this.time);
             timeSample = Math.floor(time * sampleRate);
         }
-        
+
         this.state.controller.executeCut(timeSample);
         console.log(time);
         for(let i = 0; i < this.virtualCuts.length; i++){
@@ -202,6 +203,32 @@ export default class AudioTrackContainer extends React.Component {
     updateDestination(e){
         this.destination = e.target.value;
     }
+
+    updateSeekS(e) {
+        this.seekS = e.target.value;
+    }
+
+    updateSeekT(e) {
+        this.seekT = e.target.value;
+    }
+
+    handleSeek(slice, time) {
+        console.log("Slice in container");
+        this.state.controller.seek(slice, time);
+        console.log(this.state.controller.seek);
+        console.log(this.state.controller);
+    }
+
+    handleSeekS() {
+        this.handleSeek(parseInt(this.seekS), 0);
+    }
+
+    handleSeekT() {
+        const time = parseFloat(this.seekT);
+        let i = 0;
+        for (; i + 1 < this.virtualCuts.length && this.virtualCuts[i + 1] < time; i++);
+        this.handleSeek(i, Math.round(this.state.controller.audioRecord.audioData.sampleRate * (time - this.virtualCuts[i])));
+    }
     
     render() {
         return (
@@ -236,6 +263,14 @@ export default class AudioTrackContainer extends React.Component {
                         handleDestination={this.updateDestination}
                         handleCopy={this.copy}
                         handleMove={this.move}
+                    />
+                </div>
+                <div className="col-12">
+                    <SelectSeek 
+                        handleSeekS={this.handleSeekS.bind(this)} 
+                        handleSeekT={this.handleSeekT.bind(this)}
+                        updateSeekS={this.updateSeekS.bind(this)}
+                        updateSeekT={this.updateSeekT.bind(this)}
                     />
                 </div>
                 <div className="col-12">
@@ -274,6 +309,35 @@ export const SelectTime = (props) => {
                     <FormControl onChange={props.updateSlice} aria-label="Slice" className="col-2"/>
                     <InputGroup.Append>
                         <Button onClick={props.handleSlice} variant="outline-secondary">Enter</Button>
+                    </InputGroup.Append>
+                </InputGroup>
+            </div>
+        </div>
+    );
+}
+
+export const SelectSeek = (props) => {
+    return (
+        <div className="row">
+            <div className="col-6">
+                <InputGroup>
+                    <InputGroup.Prepend>
+                        <InputGroup.Text>Seek Time</InputGroup.Text>
+                    </InputGroup.Prepend>
+                    <FormControl onChange={props.updateSeekT} aria-label="Seek Time" className="col-2"/>
+                    <InputGroup.Append>
+                        <Button onClick={props.handleSeekT} variant="outline-secondary">Enter</Button>
+                    </InputGroup.Append>
+                </InputGroup>
+            </div>
+            <div className="col-6">
+                <InputGroup>
+                    <InputGroup.Prepend>
+                        <InputGroup.Text>Seek Slice</InputGroup.Text>
+                    </InputGroup.Prepend>
+                    <FormControl onChange={props.updateSeekS} aria-label="Seek Slice" className="col-2"/>
+                    <InputGroup.Append>
+                        <Button onClick={props.handleSeekS} variant="outline-secondary">Enter</Button>
                     </InputGroup.Append>
                 </InputGroup>
             </div>

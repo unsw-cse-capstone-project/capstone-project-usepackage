@@ -61,6 +61,11 @@ class CustomProcessor extends AudioWorkletProcessor {
                 return;
             }
 
+            if ("Seek" === title) {
+                this.seek(data.slice, data.time);
+                return;
+            }
+
             if (!(title === "Lengths" || title === "Update" || title === "Undo" || title === "Redo")) {
                 this._cuts.dumpRedo();
             }
@@ -121,6 +126,42 @@ class CustomProcessor extends AudioWorkletProcessor {
             title: "Initialised",
             data: "Ready to take information"
         })
+    }
+
+    seek(slice, time) {
+        console.log({ slice: slice, time: time });
+        let cut = this._cuts.get(slice);
+        while (cut && cut.cropped) {
+            cut = this._cuts.get(++slice);
+            time = 0;
+        }
+        if (!cut)
+            return;
+        const lengths = this._cuts.getLengths();
+        let sum = 0;
+        for (let i = 0; i < slice; i++)
+            sum += lengths[i].cropped ? 0 : lengths[i].length;
+        sum += time;
+        sum /= FRAMESIZE;
+        sum = Math.floor(sum);
+
+        this._frame = sum;
+        this._stretch.clear();
+        this._transposer.clear();
+        this._buffers = [
+            new FifoSampleBuffer(),
+            new FifoSampleBuffer(),
+            new FifoSampleBuffer()
+        ];
+        this._sourceData.index = slice;
+        this._sourceData.cut = cut;
+        this.calculateEffectiveValues(this._sourceData.cut.tempo, this._sourceData.cut.pitch);
+        this._sourceData.frame = this._sourceData.cut.sourceStart + time;
+        this._sourceData.remain = Math.floor((this._sourceData.cut.sourceEnd - this._sourceData.frame) / this._sourceData.cut.tempo);
+        this._buffers[0].clear();
+        this._buffers[1].clear();
+        this.a = true;
+        this.processIntoBuffer(this._sourceData.chunk);
     }
 
     stop() {

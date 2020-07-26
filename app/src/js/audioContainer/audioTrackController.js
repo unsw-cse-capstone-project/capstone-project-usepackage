@@ -37,6 +37,12 @@ export default class AudioTrackController {
         });
         this.registerLength = this.registerLength.bind(this);
         this.registerPos = this.registerPos.bind(this);
+        this.seek = this.seek.bind(this);
+    }
+
+    seek(slice, time) {
+        console.log("slice in controller");
+        this.node.seek(slice, time);
     }
 
     registerLength(handler) {
@@ -129,10 +135,6 @@ export default class AudioTrackController {
 
     time() {
         this.timeCb(this.node.getTime())
-    }
-
-    seek(val) {
-
     }
 
     gain(val, channel, cut) {
