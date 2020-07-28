@@ -3,6 +3,7 @@ import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import InputGroup from 'react-bootstrap/InputGroup';
 import FormControl from 'react-bootstrap/FormControl';
+import Table from 'react-bootstrap/Table';
 
 const dbURL = "http://localhost:8080"
 
@@ -12,12 +13,16 @@ export default class Profile extends React.Component {
         super(props)
         this.state = {
             user: props.user,
+            totalSize: 0,
             projects: [],
             cprojects: []
         }
         this.createProject = this.createProject.bind(this)
         this.deleteProject = this.deleteProject.bind(this)
         this.setSession = this.setSession.bind(this)
+        this.tableInterface = this.tableInterface.bind(this)
+        this.tableInterfaceCollab = this.tableInterfaceCollab.bind(this)
+        this.getTotalSize = this.getTotalSize.bind(this)
         this.loadUser();
         this.loadProjects();
     }
@@ -47,6 +52,8 @@ export default class Profile extends React.Component {
                 this.loadProjects();
             } else if (message === "fail") {
                 alert('A project with the same name already exists. Try a different name.arguments');
+            } else if (message === "limit reached") {
+                alert("You have reached the maximum number of projects each user can create: 5. Please delete some projects");
             } else {
                 console.log(message);
                 alert('yeah its not working dude');
@@ -84,10 +91,26 @@ export default class Profile extends React.Component {
         }).then(jsonData => {
             this.setState({
                 projects: jsonData[0].map((item, num) => {
-                    return <li key={num} aria-valuenow={JSON.stringify(item)} onClick={(e) => this.setSession(e)}>{item.name}</li>
+                    // return <li key={num} aria-valuenow={JSON.stringify(item)} onClick={(e) => this.setSession(e)}>{item.name}</li>
+                    return (
+                        <tr key={num} >
+                            <td>{num + 1}</td>
+                            <td aria-valuenow={JSON.stringify(item)} onClick={(e) => this.setSession(e)}>{item.name}</td>
+                            <td>{item.owner}</td>
+                            <td>{item.date}</td>
+                        </tr>
+                    )
                 }),
                 cprojects: jsonData[1].map((item, num) => {
-                    return <li key={num} aria-valuenow={JSON.stringify(item)} onClick={(e) => this.setSession(e)}>{item.name}</li>
+                    // return <li key={num} aria-valuenow={JSON.stringify(item)} onClick={(e) => this.setSession(e)}>{item.name}</li>
+                    return (
+                        <tr key={num}>
+                            <td>{num + 1}</td>
+                            <td aria-valuenow={JSON.stringify(item)} onClick={(e) => this.setSession(e)}>{item.name}</td>
+                            <td>{item.owner}</td>
+                            <td>{item.date}</td>
+                        </tr>
+                    )
                 })
             })
         })
@@ -110,6 +133,65 @@ export default class Profile extends React.Component {
         }).catch(err => console.log(err));
     }
 
+    tableInterface() {
+        return (
+            <Table striped bordered hover size="sm">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Project name</th>
+                        <th>Owner</th>
+                        <th>Last Modified</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {this.state.projects}
+                </tbody>
+            </Table>
+        )
+    }
+
+    tableInterfaceCollab() {
+        return (
+            <Table striped bordered hover size="sm">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Project name</th>
+                        <th>Owner</th>
+                        <th>Last Modified</th>
+                    </tr>
+                </thead>
+                <tbody>
+                        {this.state.cprojects}
+                </tbody>
+            </Table>
+        )
+    }
+
+    componentWillMount() {
+        this.getTotalSize()
+    }
+
+    getTotalSize() {
+        const requestOptions = {
+            method: 'GET',
+            headers: { 
+                'authorization': localStorage.usertoken
+            }
+        };
+        fetch('/projects/totalspace', requestOptions)
+        .then(data => 
+            data.body.getReader())
+        .then(reader => reader.read())
+        .then(data => {
+            const message = new TextDecoder("utf-8").decode(data.value)
+            this.setState({
+                totalSize: (parseInt(message) / 1048576).toFixed(3)
+            })
+        }).catch(err => console.log(err));
+    }
+
     render() {
         return ( 
             <div className="row">
@@ -122,19 +204,16 @@ export default class Profile extends React.Component {
                 </div>
                 <div className="col-5 projectList">
                     <h2>{this.state.user}'s Projects</h2>
-                    <ul className="projectList">
-                        {this.state.projects.length === 0 ? "No projects" : this.state.projects}                    
-                    </ul>
+                    {this.state.projects.length === 0 ? "No projects" : this.tableInterface()}
+                    <p>Total of {this.state.totalSize}MB out of 200MB used</p>
                 </div>
                 <div className="col-5 projectList">
                     <h2>Collaborations</h2>
-                    <ul className="projectList">
-                        {this.state.cprojects.length === 0 ? "No projects" : this.state.cprojects} 
-                    </ul>
+                    {this.state.cprojects.length === 0 ? "No projects" : this.tableInterfaceCollab()}
                 </div>
             </div>
         );
-        }
+    }
 
 }
 

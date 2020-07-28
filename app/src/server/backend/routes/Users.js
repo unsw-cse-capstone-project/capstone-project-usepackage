@@ -16,7 +16,7 @@ const checkToken = (req, res, next) => {
         jwt.verify(token, process.env.SECRET_KEY, (err, authorisedData) => {
             if(err) {
                 res.sendStatus(403);
-                throw new Error("ERROR: could not connect to the protected route")
+                throw new Error("ERROR: invalid token!")
             }
             else {
                 req.token = authorisedData;

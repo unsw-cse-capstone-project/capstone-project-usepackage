@@ -35,7 +35,11 @@ export default class MainContainer extends React.Component {
         this.saveFiles = this.saveFiles.bind(this);
         this.uploadFiles = this.uploadFiles.bind(this);
         this.loadFiles = this.loadFiles.bind(this);
+        this.deleteCb = this.deleteCb.bind(this)
         if (localStorage.usertoken && localStorage.poname) {
+            window.onbeforeunload = () => {
+                return "Please make sure that you saved your project before leaving!"
+            }
             this.loadFiles();
         }
     }
@@ -72,12 +76,12 @@ export default class MainContainer extends React.Component {
                     return file.blob();
                 }).then(blob => {
                     return new Promise(resolve => {
-                        addUpload(null, blob, resolve);
+                        addUpload(URL.createObjectURL(blob), blob, resolve);
                     });
                 }).then(audioRecord => {
                     // Process inside the audioStack
                     // MUST COME BEFORE THE STATE CHANGE!
-                    this.audioStack.add(audioRecord) 
+                    this.audioStack.add(audioRecord, (msg) => this.deleteCb(msg) ) 
                     this.setState({
                         audioRecords: [...this.state.audioRecords, audioRecord]
                     })               
@@ -105,26 +109,67 @@ export default class MainContainer extends React.Component {
     }
 
     saveFiles() {
+
+        // 1. check if we have enough storage space using something like fetch('projects/enoughspace/') (returns true or false)
+        // proj1 (current proj) 10MB, proj 2 150MB, proj 3 40MB
+        // currently, newproj1 30MB
+        // fetch(enoughspace) --> proj2 + proj3 + newproj1--> 200MB
+        // 2. if there is enough storage, do something like fetch('project/deleteallfilesinproject') (no files in current project)
+        // 3. reupload all the files to the db using MainContainer.Save(data)
         const blobs = this.audioStack.record();
-        blobs.forEach( (blob, i) => {
-            if ( blob.size > 100 && localStorage.usertoken && localStorage.poname) {
-                // const URI = URL.createObjectURL(blobs[0])
-                let data = new FormData();
-                let file = new File([blob], i + ".mp3", {type: "audio/mpeg"});
-                data.append('file', file);
-                console.log("Attempting to save blob")
-                MainContainer.Save(data)
-                .then(data => 
-                    data.body.getReader())
-                .then(reader => reader.read())
-                .then(data => {
-                    const message = new TextDecoder("utf-8").decode(data.value)
-                    alert(message)
-                }).catch(err => console.log(err));
+
+        let sum = 0;
+        let files = []
+        blobs.forEach((blob, i) => {
+            if ( localStorage.usertoken && localStorage.poname) {
+                const file = new File([blob], i + ".mp3", {type: "audio/mpeg"});
+                files.push(file)
+                sum += file.size;
             } else {
-                alert("NOT LOGGED IN")
+                console.log("NOT LOGGED IN");
             }
         });
+
+        const requestOptions = {
+            method: 'GET',
+            headers: { 
+                'Authorization': localStorage.usertoken,
+                'ProjMetadata': localStorage.poname
+            }
+        };
+
+        fetch('/projects/enoughspace', requestOptions)
+        .then(data => 
+            data.body.getReader())
+        .then(reader => reader.read())
+        .then(data => {
+            const message = new TextDecoder("utf-8").decode(data.value)
+            if(parseInt(message) + sum <= 209715200) {
+                // delete all files in proj here
+                fetch('/projects/deleteall', requestOptions).then( () => {
+                    // reupload all files to db here
+                    files.forEach( (file, i) => {
+                        // const URI = URL.createObjectURL(blobs[0])
+                        let data = new FormData();
+                        // let file = new File([blob], i + ".mp3", {type: "audio/mpeg"});
+                        data.append('file', file);
+                        console.log("Attempting to save blob")
+                        MainContainer.Save(data)
+                        .then(data => 
+                            data.body.getReader())
+                        .then(reader => reader.read())
+                        .then(data => {
+                            const message = new TextDecoder("utf-8").decode(data.value)
+                            alert(message)
+                        }).catch(err => console.log(err));
+                    });
+                });
+            } else {
+                console.log("Not enough space!");
+            }
+        }).catch(err => console.log(err));
+
+        
         
         // localStorage.usertoken
         // let a = document.createElement('a');
@@ -136,6 +181,20 @@ export default class MainContainer extends React.Component {
         // a.click()
     }
 
+    deleteCb(message) {
+        console.log("CALLING FROM CONTAINER MESSAGE: ", message)
+        this.audioStack.delete(message)
+        this.state.audioRecords.forEach((ar, idx) => {
+            if(ar.fileURL === message) {
+                let tempArr = this.state.audioRecords
+                tempArr.splice(idx, 1)
+                this.setState({
+                    audioRecords: tempArr
+                })
+            }
+        })
+    }
+
     uploadFiles() {
         this.fileURLs.forEach(fileURL => {
             console.log("URL: ", fileURL)
@@ -143,7 +202,7 @@ export default class MainContainer extends React.Component {
             .then(audioRecord => {
                 // Process inside the audioStack
                 // MUST COME BEFORE THE STATE CHANGE!
-                this.audioStack.add(audioRecord) 
+                this.audioStack.add(audioRecord, (msg) => this.deleteCb(msg))
                 this.setState({
                     audioRecords: [...this.state.audioRecords, audioRecord]
                 })               
@@ -207,3 +266,5 @@ MainContainer.Save = (obj) => {
     
     return Promise.resolve(fetch('/projects/save', requestOptions))
 };
+
+

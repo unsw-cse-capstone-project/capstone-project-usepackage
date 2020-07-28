@@ -10,9 +10,11 @@ const mongoDriver = mongoose.mongo;
 const Grid = require('gridfs-stream');
 const db = require('../../server-dev')
 const User = require('../models/User');
+const mongo = require('mongodb');
 
 //PREFLIGHT REQUEST
 const cors = require('cors');
+// const { resolve } = require('core-js/fn/promise');
 projects.use(cors({
     'allowedHeaders': ['authorization', 'Content-Type', 'ProjMetadata'],
 }));
@@ -73,7 +75,7 @@ const checkToken = (req, res, next) => {
         jwt.verify(token, process.env.SECRET_KEY, (err, authorisedData) => {
             if (err) {
                 res.sendStatus(403);
-                throw new Error("ERROR: could not connect to the protected route")
+                throw new Error("ERROR: invalid token!")
             } else {
                 req.token = authorisedData;
                 next();
@@ -117,7 +119,8 @@ projects.get('/', checkToken, (req, res) => {
             let toSend = result.map(item => {
                 return {
                     name: item.name,
-                    owner: userObj.username
+                    owner: userObj.username,
+                    date: item.date
                 }
             })
             return toSend
@@ -134,7 +137,8 @@ projects.get('/', checkToken, (req, res) => {
                     let toSend2 = result2.map(item => {
                         return {
                             name: item.name,
-                            owner: result3.username
+                            owner: result3.username,
+                            date: item.date
                         }
                     })
                     const finalResult = [toSend, toSend2];
@@ -237,22 +241,43 @@ projects.post('/create', checkToken, (req, res, next) => {
         username: req.token.username
     };
     User.findOne(userQuery).then(userObj => {
-        const projectData = {
-            name: req.body.projectName,
+        // first find the number of projects the user owns
+        const projectNumData = {
             owner: userObj._id
-        };
-        Project.findOne(projectData).then(proj => {
-            console.log("Project found?", proj)
-            if (!proj) {
-                Project.create(projectData)
-                    .then(newProj => {
-                        res.send("success");
-                    })
-                    .catch(err => {
-                        res.send(err);
-                    })
-            } else {
-                res.send("fail");
+        }
+        let numProj = 0;
+        Project.find(projectNumData)
+        .then( que => {
+            console.log(que)
+            numProj = que.length
+            console.log("LENGTH:", numProj)
+            // each user will be limited to a maximum of 5 projects
+            if(numProj >= 5) {
+                res.send("limit reached");
+                return false;
+            }
+            return true;
+        })
+        .then( result => {
+            if(result !== false) {
+                const projectData = {
+                    name: req.body.projectName,
+                    owner: userObj._id
+                };
+                Project.findOne(projectData).then(proj => {
+                    console.log("Project found?", proj)
+                    if (!proj) {
+                        Project.create(projectData)
+                            .then(newProj => {
+                                res.send("success");
+                            })
+                            .catch(err => {
+                                res.send(err);
+                            })
+                    } else {
+                        res.send("fail");
+                    }
+                });
             }
         });
     });
@@ -298,13 +323,136 @@ projects.post('/save', [checkToken, testMiddleWare], (req, res, next) => {
                 //     collaborators: projObj.collaborators,
                 //     files: [...projObj.files, audid],
                 // }
-                Project.updateOne({ _id: projObj._id }, { $push: { files: audid } }).then((stat) => {
+                const today = new Date();
+                Project.updateOne({ _id: projObj._id }, { $push: { files: audid }, $set: { date: today } }).then((stat) => {
                     console.log("UPDATED", stat);
                     res.send("success");
                 });
             });
         });
     });
+});
+
+projects.get('/totalspace', checkToken, (req, res, next) => {
+
+    function f1(query) {
+        return new Promise( (resolve, reject) => {
+            gfs.files.find(query).toArray( (err, files) => {
+                console.log("QUERY: ", query);
+                console.log("FILES: ", files[0]);
+                resolve(files[0].length);
+            })
+        });
+    }
+
+    function f2(query) {
+        return new Promise( (resolve, reject) => {
+            let queue = [];
+            let totalSize = 0;
+            Project.find(query).then(arr => {
+                // console.log("arr null?", arr);
+                for(let i = 0; i < arr.length; i++) {
+                    // console.log("arr loop 1: ", arr[i].files);
+                    for(let j = 0; j < arr[i].files.length; j++) {
+                        queue.push(f1({ _id: arr[i].files[j] })
+                        );
+                    }
+                }
+            }).then(() => {
+                console.log(queue);
+                return queue.reduce((prev, curr) => {
+                    return prev.then(x => {
+                        totalSize += x;
+                        return curr
+                    });
+                }, Promise.resolve(totalSize))
+            }).then((curr) => {
+                resolve(totalSize + curr)
+            });
+        });
+    }
+    User.findOne({ username: req.token.username }).then(userObj => {
+        f2({ owner: userObj._id }).then(totalSize => {
+            console.log(totalSize);
+            res.send(totalSize.toString(10))
+        });
+    });
+});
+
+projects.get('/enoughspace', checkToken, (req, res, next) => {
+
+    function f1(query) {
+        return new Promise( (resolve, reject) => {
+            gfs.files.find(query).toArray( (err, files) => {
+                resolve(files[0].length);
+            })
+        });
+    }
+
+    function f2(query) {
+        return new Promise( (resolve, reject) => {
+            let queue = [];
+            let totalSize = 0;
+            Project.find(query).then(arr => {
+                for(let i = 0; i < arr.length; i++) {
+                    for(let j = 0; j < arr[i].files.length; j++) {
+                        queue.push(f1({ _id: arr[i].files[j] })
+                        );
+                    }
+                }
+            }).then(() => {
+                console.log(queue);
+                return queue.reduce((prev, curr) => {
+                    return prev.then(x => {
+                        totalSize += x;
+                        return curr
+                    });
+                }, Promise.resolve(totalSize))
+            }).then((curr) => {
+                resolve(totalSize + curr)
+            });
+        });
+    }
+    const metaData = JSON.parse(req.headers.projmetadata);
+    User.findOne({ username: metaData.owner }).then(userObj => {
+        const projQuery = {
+            owner: userObj._id
+        }
+        const projection = {
+            projection:  { name: metaData.name }
+        }
+        f2(projQuery, projection).then(totalSize => {
+            console.log(totalSize);
+            res.send(totalSize.toString(10))
+        });
+    });
+});
+
+projects.get('/deleteall', checkToken, (req, res, next) => {
+    const metaData = JSON.parse(req.headers.projmetadata);
+    let filesToRemove = [];
+    User.findOne({ username: metaData.owner }).then(userObj => {
+        const projQuery = {
+            name: metaData.name,
+            owner: userObj._id
+        }
+        Project.findOne(projQuery).then(projObj => {
+            projObj.files.forEach( fileObj => {
+                filesToRemove.push(gfs.remove({ _id: fileObj._id }))
+            });
+            return projObj._id
+        }).then((id) => {
+            filesToRemove.reduce((prev, curr) => {
+                console.log("REMOVING FILE");
+                return prev.then(curr);
+            }, Promise.resolve())
+            return id
+        }).then((id) => {
+            Project.updateOne({ _id: id }, { $set: {files: []}}).then( () => {
+                res.send("Removed files");
+            });
+        });
+    }).catch( err => res.send(err));
 });
 
 // deal with profile later.
