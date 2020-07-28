@@ -15,6 +15,10 @@ export default class CutManager {
         this.redoStack = new ActionStack();
     }
 
+    getStack() {
+        return this.stack.stack()
+    }
+
     getLengths() {
         return this.cuts.map(cut => ({
             length: Math.floor((cut.sourceEnd - cut.sourceStart) / cut.tempo),

@@ -77,8 +77,13 @@ export default class AudioTrackContainer extends React.Component {
     }
 
     record() {
-        if ( this.state.controller )
-            return this.state.controller.record()
+        if ( this.state.controller ) {
+            return ({
+                rec: this.state.controller.record(),
+                stack: this.state.controller.getStack()
+            })
+            // return this.state.controller.record()
+        }
     }
 
     delete() {

@@ -16,7 +16,6 @@ export default class AudioStack {
     }
 
     add(audioRecord, deleteCb) {
-        console.log("DeleteCB: ", deleteCb)
         this.tracks.push( < AudioTrackContainer key = { audioRecord.fileURL }
             audioRecord = { audioRecord } deleteCb = { deleteCb }
             onMounted = { f => { this.records[this.records.length] = f } }
@@ -37,8 +36,14 @@ export default class AudioStack {
 
     record() {
         let blobs = []
+        console.log("Checking RECORDS: ", this.records[0])
         this.tracks.forEach((_, i) => {
-            blobs.push(this.records[i]())
+            const recObj = this.records[i]()
+            console.log("RECOBJ: ", recObj)
+            blobs.push({
+                file: recObj.rec,
+                stack: recObj.stack
+            })
         })
         return blobs
     }

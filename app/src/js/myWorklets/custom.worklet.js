@@ -117,6 +117,13 @@ class CustomProcessor extends AudioWorkletProcessor {
                 this._cuts.redo();
             }
 
+            if("getStack" === title) {
+                this.port.postMessage({
+                    title: "returnStack",
+                    data: this._cuts.getStack()
+                })
+            }
+
             this.port.postMessage({
                 title: "Lengths",
                 data: this._cuts.getLengths()

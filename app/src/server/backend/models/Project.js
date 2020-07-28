@@ -27,13 +27,13 @@ const ProjectSchema = new Schema({
     //     block_number: {type: String, max: 100}, // to do: change to a list
     // }]
 
-    files: {
-        type: [mongoose.Types.ObjectId]
-    }
-    // files: [{
-    //     file_id: { type: mongoose.Types.ObjectId },
-    //     stack: { type: [String]}
-    // }]
+    // files: {
+    //     type: [mongoose.Types.ObjectId]
+    // }
+    files: [{
+        file_id: { type: mongoose.Types.ObjectId },
+        stack: { type: String }
+    }]
 });
 
 module.exports = Project = mongoose.model('projects', ProjectSchema);

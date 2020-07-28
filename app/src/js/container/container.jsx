@@ -89,6 +89,19 @@ export default class MainContainer extends React.Component {
                     console.log("Audio stack tracks: ", this.audioStack.tracks);
                     // Empty the fileURLs since they have already been processed
                     this.fileURLs = [];
+                }).then(() => {
+                    fetch('projects/getstack', {
+                        method: 'GET',
+                        headers: {
+                            'authorization': localStorage.usertoken,
+                            'ProjMetadata': localStorage.poname,
+                            'nth': i
+                        }
+                    }).then(data => data.body.getReader())
+                    .then(reader => reader.read())
+                    .then(data => {
+                        const message = new TextDecoder("utf-8").decode(data.value)
+                        console.log("STACK!!! ", message)})
                 }).catch(err => {
                     console.log(err);
                 });
@@ -122,7 +135,7 @@ export default class MainContainer extends React.Component {
         let files = []
         blobs.forEach((blob, i) => {
             if ( localStorage.usertoken && localStorage.poname) {
-                const file = new File([blob], i + ".mp3", {type: "audio/mpeg"});
+                const file = new File([blob.file], i + ".mp3", {type: "audio/mpeg"});
                 files.push(file)
                 sum += file.size;
             } else {
@@ -149,12 +162,11 @@ export default class MainContainer extends React.Component {
                 fetch('/projects/deleteall', requestOptions).then( () => {
                     // reupload all files to db here
                     files.forEach( (file, i) => {
-                        // const URI = URL.createObjectURL(blobs[0])
                         let data = new FormData();
-                        // let file = new File([blob], i + ".mp3", {type: "audio/mpeg"});
                         data.append('file', file);
+                        // data.append('edits', 'abc134');
                         console.log("Attempting to save blob")
-                        MainContainer.Save(data)
+                        MainContainer.Save(data, blobs[i].stack)
                         .then(data => 
                             data.body.getReader())
                         .then(reader => reader.read())
@@ -253,12 +265,13 @@ MainContainer.UploadHandler = (fileURL) => {
     );
 }
 
-MainContainer.Save = (obj) => {
+MainContainer.Save = (obj, stack) => {
     const requestOptions = {
         method: 'POST',
         headers: { 
             'Authorization': localStorage.usertoken,
-            'ProjMetadata': localStorage.poname
+            'ProjMetadata': localStorage.poname,
+            'Stack' : JSON.stringify(stack)
         },
         // body: JSON.stringify(obj)
         body: obj
