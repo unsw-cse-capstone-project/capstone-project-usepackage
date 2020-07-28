@@ -124,11 +124,12 @@ export default class AudioTrackContainer extends React.Component {
     }
 
     updateSlice(e) {
-        if(e.target.value <= this.virtualCuts.length) {
-            this.slice = e.target.value;
-        } else {
-            this.slice = this.virtualCuts.length;
-        }
+        this.slice = e.target.value;
+        // if(e.target.value <= this.virtualCuts.length) {
+        //     this.slice = e.target.value;
+        // } else {
+        //     this.slice = this.virtualCuts.length;
+        // }
     }
 
     updateTime(e) {
@@ -149,22 +150,22 @@ export default class AudioTrackContainer extends React.Component {
 
         this.state.controller.executeCut(timeSample);
         console.log(time);
-        for(let i = 0; i < this.virtualCuts.length; i++){
-            if(this.virtualCuts[i] === time) break;
-            if(this.virtualCuts[i] > time) {
-                this.virtualCuts.splice(i, 0, time);
-                break;
-            }
-            if(i === this.virtualCuts.length - 1){
-                this.virtualCuts.push(time);
-                break;
-            }
-        }
-        console.log("Executing cut in audioTrackContainer");
-        console.log(this.virtualCuts);
-        this.setState({
-            virtualCuts: this.virtualCuts
-        })
+        // for(let i = 0; i < this.virtualCuts.length; i++){
+        //     if(this.virtualCuts[i] === time) break;
+        //     if(this.virtualCuts[i] > time) {
+        //         this.virtualCuts.splice(i, 0, time);
+        //         break;
+        //     }
+        //     if(i === this.virtualCuts.length - 1){
+        //         this.virtualCuts.push(time);
+        //         break;
+        //     }
+        // }
+        // console.log("Executing cut in audioTrackContainer");
+        // console.log(this.virtualCuts);
+        // this.setState({
+        //     virtualCuts: this.virtualCuts
+        // })
     }
     
     pickSlice() {

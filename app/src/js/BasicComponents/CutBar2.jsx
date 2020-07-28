@@ -27,8 +27,26 @@ export default class CutBar extends React.Component {
         const canvas = this.ref.current;
         canvas.addEventListener('click', (e) => {
             console.log(e);
-            if (this.cutCB)
-                this.cutCB(e.offsetX / this.state.width * this.state.length);
+            console.log("cutbar length:", this.state.length);
+            if (this.cutCB){
+                const time = e.offsetX / this.state.width * this.state.length
+                this.cutCB(time);
+                // for(let i = 0, run = 0; i < this.state.cuts.length; i++){
+                //     run+= this.state.cuts[i].length;
+                //     if(run === time) break;
+                //     if(run > time) {
+                //         this.state.cuts.splice(i+1, 0, [{length: this.state.cuts[i].length - (time - run), cropped: this.state.cuts[i].cropped}]);
+                //         this.state.cuts[i].length = time - run;
+                //         break;
+                //     }
+                //     // if(i === this.state.cuts.length - 1){
+                        
+                //     //     this.state.cuts.push(time);
+                //     //     break;
+                //     // }
+                // }
+                // this.setState({cuts: this.state.cuts});
+            }
         });
         this.canvasCtx = canvas.getContext("2d");
         this.draw();

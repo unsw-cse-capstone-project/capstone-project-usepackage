@@ -71,8 +71,10 @@ export default class CutManager {
     }
 
     addCut(time, push = true) {
-        for (let i = 0; i < this.cuts.length; i++) {
-            if (this.cuts[i].sourceEnd >= time) {
+        for (let i = 0, cumtime = 0; i < this.cuts.length; i++) {
+            cumtime += (this.cuts[i].sourceEnd - this.cuts[i].sourceStart) / this.cuts[i].tempo;
+            console.log("cumtime ( ͡° ͜ʖ ͡°)", cumtime);
+            if (cumtime >= time) {
                 if (push)
                     this.stack.push({
                         type: "cut",
@@ -81,14 +83,14 @@ export default class CutManager {
                     });
                 const firstCut = {
                     sourceStart: this.cuts[i].sourceStart,
-                    sourceEnd: time,
+                    sourceEnd: this.cuts[i].sourceEnd  - (cumtime - time)*this.cuts[i].tempo,
                     tempo: this.cuts[i].tempo,
                     pitch: this.cuts[i].pitch,
                     gain: this.cuts[i].gain.slice(),
                     cropped: this.cuts[i].cropped
                 }
                 const secondCut = {
-                    sourceStart: time,
+                    sourceStart: this.cuts[i].sourceEnd - (cumtime - time)*this.cuts[i].tempo,
                     sourceEnd: this.cuts[i].sourceEnd,
                     tempo: this.cuts[i].tempo,
                     pitch: this.cuts[i].pitch,
