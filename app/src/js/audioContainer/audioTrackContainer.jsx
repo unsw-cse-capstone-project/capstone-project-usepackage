@@ -6,6 +6,7 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import FormControl from 'react-bootstrap/FormControl';
 //import CutBar from '../BasicComponents/CutBar.jsx';
 import CutBar from '../BasicComponents/CutBar2.jsx';
+import Hotkeys from '../BasicComponents/Hotkeys.jsx';
 
 export default class AudioTrackContainer extends React.Component {
     constructor(props) {
@@ -242,6 +243,7 @@ export default class AudioTrackContainer extends React.Component {
                 <div className="col-6"><Slider name="VolumeR" controlId="gainControllerR" changeCallBack={e => this.gain(e, 1)} /></div>
                 <div className="col-6"><Slider name="Tempo" controlId="tempoController" changeCallBack={this.tempo} /></div>
                 <div className="col-6"><Slider name="Pitch" controlId="pitchController" changeCallBack={this.pitch} /></div>
+                <div><Hotkeys undoHandler={this.undo} redohandler={this.redo}/></div>
                 <div className="col-6">
                     <SelectTime 
                         handleTime={this.executeCut} 
