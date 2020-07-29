@@ -22,7 +22,9 @@ export default class Profile extends React.Component {
                 blue: false,
                 yellow: false,
                 purple: false
-            }
+            },
+            search: "",
+            comparator: null
         }
         this.createProject = this.createProject.bind(this)
         this.deleteProject = this.deleteProject.bind(this)
@@ -32,6 +34,14 @@ export default class Profile extends React.Component {
         this.getTotalSize = this.getTotalSize.bind(this)
         this.printTags = this.printTags.bind(this)
         this.changeTag = this.changeTag.bind(this)
+        this.filterTags = this.filterTags.bind(this)
+        this.updateTagg = this.updateTagg.bind(this)
+        this.updateSearch = this.updateSearch.bind(this)
+        this.comparatorSortNameAscending = this.comparatorSortNameAscending.bind(this)
+        this.comparatorSortNameDescending = this.comparatorSortNameDescending.bind(this)
+        this.comparatorSortDateAscending = this.comparatorSortDateAscending.bind(this)
+        this.comparatorSortDateDescending = this.comparatorSortDateDescending.bind(this)
+        this.setComparator = this.setComparator.bind(this)
         this.loadUser();
         this.loadProjects();
     }
@@ -70,8 +80,22 @@ export default class Profile extends React.Component {
         }).catch(err => console.log(err));
     }
 
-    deleteProject() {
-        console.log("DELETING PROJECT")
+    deleteProject(e) {
+        if (confirm("Are you sure you want to delete this project?")) {
+            const requestOptions = {
+                method: 'GET',
+                headers: { 
+                    'Authorization': localStorage.usertoken,
+                    'ProjMetadata': e.target.getAttribute('aria-valuenow')
+                }
+            };
+            fetch('/projects/deleteall', requestOptions).then( () => {
+                fetch('projects/deleteproject', requestOptions).then( () => {
+                    this.loadProjects();
+                    this.getTotalSize();
+                });
+            });
+        } else return;
     }
 
     setSession(e) {
@@ -155,18 +179,44 @@ export default class Profile extends React.Component {
         );
     }
 
+    comparatorSortNameAscending(a, b) {
+        return a.name.localeCompare(b.name)
+    }
+
+    comparatorSortNameDescending(a, b) {
+        return b.name.localeCompare(a.name)
+    }
+
+    comparatorSortDateAscending(a, b) {
+        const adate = new Date(a.date)
+        const bdate = new Date(b.date)
+        return a.date.localeCompare(b.date)
+    }
+
+    comparatorSortDateDescending(a, b) {
+        const adate = new Date(a.date)
+        const bdate = new Date(b.date)
+        return b.date.localeCompare(a.date)
+    }
+
     loadProjects() {
         const requestOptions = {
             method: 'GET',
             headers: { 
-                'authorization': localStorage.usertoken
+                'authorization': localStorage.usertoken,
+                'Tag': JSON.stringify(this.state.tags),
+                'Search': this.state.search
             }
         };
         fetch('/projects/', requestOptions).then(jsonRes => {
             return jsonRes.json();
         }).then(jsonData => {
+            if (this.state.comparator !== null) jsonData[0].sort(this.state.comparator);
+            
             this.setState({
                 projects: jsonData[0].map((item, num) => {
+                    const date = new Date(item.date);
+                    const dateString = date.getDate() + "/" + date.getMonth() + "/" + date.getFullYear() + " " + date.getHours() + ":" + date.getMinutes();
                     // return <li key={num} aria-valuenow={JSON.stringify(item)} onClick={(e) => this.setSession(e)}>{item.name}</li>
                     return (
                         <tr key={num} >
@@ -174,11 +224,14 @@ export default class Profile extends React.Component {
                             <td aria-valuenow={JSON.stringify(item)} onClick={(e) => this.setSession(e)}>{item.name}</td>
                             <td>{item.owner}</td>
                             {this.printTags(item)}
-                            <td>{item.date}</td>
+                            <td>{dateString}</td>
+                            <td><Button aria-valuenow={JSON.stringify(item)} onClick={(e) => this.deleteProject(e)} variant="danger">Delete</Button></td>
                         </tr>
                     )
                 }),
                 cprojects: jsonData[1].map((item, num) => {
+                    const date = new Date(item.date);
+                    const dateString = date.getDate() + "/" + date.getMonth() + "/" + date.getFullYear() + " " + date.getHours() + ":" + date.getMinutes();
                     // return <li key={num} aria-valuenow={JSON.stringify(item)} onClick={(e) => this.setSession(e)}>{item.name}</li>
                     return (
                         <tr key={num}>
@@ -186,7 +239,7 @@ export default class Profile extends React.Component {
                             <td aria-valuenow={JSON.stringify(item)} onClick={(e) => this.setSession(e)}>{item.name}</td>
                             <td>{item.owner}</td>
                             {this.printTags(item.tags)}
-                            <td>{item.date}</td>
+                            <td>{dateString}</td>
                         </tr>
                     )
                 })
@@ -217,10 +270,11 @@ export default class Profile extends React.Component {
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>Project name</th>
+                        <th>Project name <span style={{color: "green"}} onClick={() => this.setComparator(1)}>▲</span>&nbsp;<span style={{color: "red"}} onClick={() => this.setComparator(2)}>▼</span></th>
                         <th>Owner</th>
                         <th>Tags</th>
-                        <th>Last Modified</th>
+                        <th>Last Modified <span style={{color: "green"}} onClick={() => this.setComparator(3)}>▲</span>&nbsp;<span style={{color: "red"}} onClick={() => this.setComparator(4)}>▼</span></th>
+                        <th>Delete</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -272,6 +326,85 @@ export default class Profile extends React.Component {
         }).catch(err => console.log(err));
     }
 
+    updateTagg(colour, state) {
+        this.setState({
+            tags: {
+                ...this.state.tags,
+                [colour]: state
+            }
+        }, () => {
+            this.loadProjects();
+        });
+    }
+
+    filterTags() {
+        const tags = this.state.tags
+        const red    = tags.red    === true ? 
+                         <span style={{color:    "red", fontSize: "20px"}} onClick={()=>this.updateTagg("red", false)}>★</span> : 
+                         <span style={{color:    "red", fontSize: "20px"}} onClick={()=>this.updateTagg("red",  true)}>☆</span>
+        const green  = tags.green  === true ? 
+                         <span style={{color:  "green", fontSize: "20px"}} onClick={()=>this.updateTagg("green", false)}>★</span> : 
+                         <span style={{color:  "green", fontSize: "20px"}} onClick={()=>this.updateTagg("green",  true)}>☆</span>
+        const blue   = tags.blue   === true ? 
+                         <span style={{color:   "blue", fontSize: "20px"}} onClick={()=>this.updateTagg("blue", false)}>★</span> : 
+                         <span style={{color:   "blue", fontSize: "20px"}} onClick={()=>this.updateTagg("blue",  true)}>☆</span>
+        const yellow = tags.yellow === true ? 
+                         <span style={{color: "orange", fontSize: "20px"}} onClick={()=>this.updateTagg("yellow", false)}>★</span> : 
+                         <span style={{color: "orange", fontSize: "20px"}} onClick={()=>this.updateTagg("yellow",  true)}>☆</span>
+        const purple = tags.purple === true ? 
+                         <span style={{color: "purple", fontSize: "20px"}} onClick={()=>this.updateTagg("purple", false)}>★</span> : 
+                         <span style={{color: "purple", fontSize: "20px"}} onClick={()=>this.updateTagg("purple",  true)}>☆</span>
+        return (
+            <td>
+                {red}&nbsp;
+                {green}&nbsp;
+                {blue}&nbsp;
+                {yellow}&nbsp;
+                {purple}&nbsp;
+            </td>
+        );
+    }
+
+    updateSearch() {
+        const search = document.getElementById("searchbar").value
+        this.setState({
+            search: search
+        }, () => {
+            this.loadProjects();
+        });
+    }
+
+    setComparator(i) {
+        switch(i) {
+            case 1:
+                this.setState({
+                    comparator: this.comparatorSortNameAscending
+                })
+                break;
+            case 2:
+                this.setState({
+                    comparator: this.comparatorSortNameDescending
+                })
+                break;
+            case 3:
+                this.setState({
+                    comparator: this.comparatorSortDateAscending
+                })
+                break;
+            case 4:
+                this.setState({
+                    comparator: this.comparatorSortDateDescending
+                })
+                break;
+            default:
+                this.setState({
+                    comparator: null
+                })
+                break;
+        }
+        this.loadProjects();
+    }
+
     render() {
         return ( 
             <div className="row">
@@ -279,19 +412,19 @@ export default class Profile extends React.Component {
                 <div className="col-4">
                     <CreateProjectModal handler={this.createProject} name={"Create Project"} variant={"success"}/>
                 </div>
-                <div className="col-4">
-                    <DeleteProjectModal handler={this.deleteProject} name={"Delete Project"} variant={"danger"}/>
+                <div className="col-2">
+                    <FormControl type="text" placeholder="Search" id="searchbar"/>
+                    <h4>Tag Filter: {this.filterTags()}</h4>
                 </div>
-                <div className="col-12">
-                    <h4>Tag Filter: </h4>
-                    
+                <div className="col-1">
+                    <Button variant="outline-success" onClick={() => this.updateSearch()}>Search</Button>
                 </div>
-                <div className="col-5 projectList">
+                <div className="col-6 projectList">
                     <h2>{this.state.user}'s Projects</h2>
                     {this.state.projects.length === 0 ? "No projects" : this.tableInterface()}
                     <p>Total of {this.state.totalSize}MB out of 200MB used</p>
                 </div>
-                <div className="col-5 projectList">
+                <div className="col-6 projectList">
                     <h2>Collaborations</h2>
                     {this.state.cprojects.length === 0 ? "No projects" : this.tableInterfaceCollab()}
                 </div>

@@ -108,12 +108,25 @@ const testMiddleWare = multer({ storage: storage }).single('file');
  */
 projects.get('/', checkToken, (req, res) => {
     // verify validity of token here
+    let tags = JSON.parse(req.headers.tag);
+    let search = req.headers.search;
+    for(let key in tags) {
+        if(tags[key] === false) {
+            delete tags[key];
+        } else {
+            tags["tags."+key] = tags[key];
+            delete tags[key];
+        }
+    }
+    console.log(tags);
     const userQuery = {
         username: req.token.username
     };
     User.findOne(userQuery).then(userObj => {
         const query = {
-            owner: userObj._id
+            ...tags,
+            owner: userObj._id,
+            name: {$regex: search}
         };
         const found = Project.find(query).then(result => {
             let toSend = result.map(item => {
@@ -132,6 +145,7 @@ projects.get('/', checkToken, (req, res) => {
             };
             Project.find(collabQuery).then(result2 => {
                 const ownerQuery = {
+                    ...tags,
                     _id: result2.owner
                 }
                 User.findOne(ownerQuery).then(result3 => {
@@ -426,6 +440,23 @@ projects.get('/enoughspace', checkToken, (req, res, next) => {
             res.send(totalSize.toString(10))
         });
     });
+});
+
+projects.get('/deleteproject', checkToken, (req, res, next) => {
+    const metaData = JSON.parse(req.headers.projmetadata);
+    User.findOne({ username: metaData.owner }).then(userObj => {
+        const projQuery = {
+            name: metaData.name,
+            owner: userObj._id
+        }
+        Project.deleteOne(projQuery, (err, obj) => {
+            if (err) {
+                res.send(err);
+                return;
+            }
+            res.send("success");
+        });
+    }).catch(err => res.send(err));
 });
 
 projects.get('/deleteall', checkToken, (req, res, next) => {
