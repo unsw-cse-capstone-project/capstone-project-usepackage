@@ -41,7 +41,7 @@ export default class AudioTrackController {
         this.node.on('stack', (detail) => {
             this.stack = detail
         });        
-        
+
         this.node.on('stop', (detail) => {
             this.toggle(detail, true)
         });

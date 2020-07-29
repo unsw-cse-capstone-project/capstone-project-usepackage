@@ -15,7 +15,14 @@ export default class Profile extends React.Component {
             user: props.user,
             totalSize: 0,
             projects: [],
-            cprojects: []
+            cprojects: [],
+            tags: {
+                red: false,
+                green: false,
+                blue: false,
+                yellow: false,
+                purple: false
+            }
         }
         this.createProject = this.createProject.bind(this)
         this.deleteProject = this.deleteProject.bind(this)
@@ -23,6 +30,8 @@ export default class Profile extends React.Component {
         this.tableInterface = this.tableInterface.bind(this)
         this.tableInterfaceCollab = this.tableInterfaceCollab.bind(this)
         this.getTotalSize = this.getTotalSize.bind(this)
+        this.printTags = this.printTags.bind(this)
+        this.changeTag = this.changeTag.bind(this)
         this.loadUser();
         this.loadProjects();
     }
@@ -32,7 +41,7 @@ export default class Profile extends React.Component {
             projName: document.getElementById("projName").value
         }
         const requestOptions = {
-            method: 'post',
+            method: 'POST',
             headers: {
                 'Authorization': localStorage.usertoken,
                 'Content-Type': 'application/json'
@@ -79,6 +88,73 @@ export default class Profile extends React.Component {
         a.click();
     }
 
+    changeTag(e, colour, booleo) {
+        const item = e.target.getAttribute('aria-valuenow')
+        // console.log(item + " COLOUR: " + colour, " BOOLEO: " + booleo )
+
+        // we have:
+        // the name of the project, 
+        // the owner of the project, 
+        // the color tag we wish to change, and
+        // the boolean we want to set the colour tag to
+
+        // we want to:
+        // change the tag using a fetch request
+        const tagReq = JSON.stringify({
+            colour: colour,
+            state: booleo
+        });
+        const requestOptions = {
+            method: 'GET',
+            headers: { 
+                'authorization': localStorage.usertoken,
+                'ProjMetadata': item,
+                'Tag': tagReq 
+            }
+        }
+        fetch('/projects/changetag', requestOptions)
+        .then(data => 
+            data.body.getReader())
+        .then(reader => reader.read())
+        .then(data => {
+            const message = new TextDecoder("utf-8").decode(data.value)
+            if(message === "success") {
+                this.loadProjects();
+            } else {
+                alert();
+            }
+        })
+        .catch(err => console.log(err));
+    }
+
+    printTags(item) {
+        const tags = item.tags
+        const red    = tags.red    === true ? 
+                         <span aria-valuenow={JSON.stringify(item)} style={{color:    "red", fontSize: "20px"}} onClick={(e) => this.changeTag(e,    "red", false)}>★</span> : 
+                         <span aria-valuenow={JSON.stringify(item)} style={{color:    "red", fontSize: "20px"}} onClick={(e) => this.changeTag(e,    "red",  true)}>☆</span>
+        const green  = tags.green  === true ? 
+                         <span aria-valuenow={JSON.stringify(item)} style={{color:  "green", fontSize: "20px"}} onClick={(e) => this.changeTag(e,  "green", false)}>★</span> : 
+                         <span aria-valuenow={JSON.stringify(item)} style={{color:  "green", fontSize: "20px"}} onClick={(e) => this.changeTag(e,  "green",  true)}>☆</span>
+        const blue   = tags.blue   === true ? 
+                         <span aria-valuenow={JSON.stringify(item)} style={{color:   "blue", fontSize: "20px"}} onClick={(e) => this.changeTag(e,   "blue", false)}>★</span> : 
+                         <span aria-valuenow={JSON.stringify(item)} style={{color:   "blue", fontSize: "20px"}} onClick={(e) => this.changeTag(e,   "blue",  true)}>☆</span>
+        const yellow = tags.yellow === true ? 
+                         <span aria-valuenow={JSON.stringify(item)} style={{color: "orange", fontSize: "20px"}} onClick={(e) => this.changeTag(e, "yellow", false)}>★</span> : 
+                         <span aria-valuenow={JSON.stringify(item)} style={{color: "orange", fontSize: "20px"}} onClick={(e) => this.changeTag(e, "yellow",  true)}>☆</span>
+        const purple = tags.purple === true ? 
+                         <span aria-valuenow={JSON.stringify(item)} style={{color: "purple", fontSize: "20px"}} onClick={(e) => this.changeTag(e, "purple", false)}>★</span> : 
+                         <span aria-valuenow={JSON.stringify(item)} style={{color: "purple", fontSize: "20px"}} onClick={(e) => this.changeTag(e, "purple",  true)}>☆</span>
+        return (
+            <td>
+                {red}&nbsp;
+                {green}&nbsp;
+                {blue}&nbsp;
+                {yellow}&nbsp;
+                {purple}&nbsp;
+            </td>
+        );
+    }
+
     loadProjects() {
         const requestOptions = {
             method: 'GET',
@@ -97,6 +173,7 @@ export default class Profile extends React.Component {
                             <td>{num + 1}</td>
                             <td aria-valuenow={JSON.stringify(item)} onClick={(e) => this.setSession(e)}>{item.name}</td>
                             <td>{item.owner}</td>
+                            {this.printTags(item)}
                             <td>{item.date}</td>
                         </tr>
                     )
@@ -108,6 +185,7 @@ export default class Profile extends React.Component {
                             <td>{num + 1}</td>
                             <td aria-valuenow={JSON.stringify(item)} onClick={(e) => this.setSession(e)}>{item.name}</td>
                             <td>{item.owner}</td>
+                            {this.printTags(item.tags)}
                             <td>{item.date}</td>
                         </tr>
                     )
@@ -141,6 +219,7 @@ export default class Profile extends React.Component {
                         <th>#</th>
                         <th>Project name</th>
                         <th>Owner</th>
+                        <th>Tags</th>
                         <th>Last Modified</th>
                     </tr>
                 </thead>
@@ -159,6 +238,7 @@ export default class Profile extends React.Component {
                         <th>#</th>
                         <th>Project name</th>
                         <th>Owner</th>
+                        <th>Tags</th>
                         <th>Last Modified</th>
                     </tr>
                 </thead>
@@ -201,6 +281,10 @@ export default class Profile extends React.Component {
                 </div>
                 <div className="col-4">
                     <DeleteProjectModal handler={this.deleteProject} name={"Delete Project"} variant={"danger"}/>
+                </div>
+                <div className="col-12">
+                    <h4>Tag Filter: </h4>
+                    
                 </div>
                 <div className="col-5 projectList">
                     <h2>{this.state.user}'s Projects</h2>

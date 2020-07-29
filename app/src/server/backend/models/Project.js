@@ -22,18 +22,33 @@ const ProjectSchema = new Schema({
         type: [mongoose.Types.ObjectId]
     },
 
-    // blk_data: [{
-    //     tx_addr: {type: String, max: 100}, // to do: change to a list
-    //     block_number: {type: String, max: 100}, // to do: change to a list
-    // }]
-
-    // files: {
-    //     type: [mongoose.Types.ObjectId]
-    // }
     files: [{
         file_id: { type: mongoose.Types.ObjectId },
         stack: { type: String }
-    }]
+    }],
+
+    tags: {
+        red: {
+            type: Boolean,
+            default: false
+        },
+        green: {
+            type: Boolean,
+            default: false
+        },
+        blue: {
+            type: Boolean,
+            default: false
+        },
+        yellow: {
+            type: Boolean,
+            default: false
+        },
+        purple: {
+            type: Boolean,
+            default: false
+        }
+    }
 });
 
 module.exports = Project = mongoose.model('projects', ProjectSchema);

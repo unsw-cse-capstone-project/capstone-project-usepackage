@@ -16,7 +16,7 @@ const mongo = require('mongodb');
 const cors = require('cors');
 // const { resolve } = require('core-js/fn/promise');
 projects.use(cors({
-    'allowedHeaders': ['authorization', 'Content-Type', 'ProjMetadata', 'Stack'],
+    'allowedHeaders': ['authorization', 'Content-Type', 'ProjMetadata', 'Stack', 'Tag'],
 }));
 
 projects.use(function(req, res, next) {
@@ -120,7 +120,8 @@ projects.get('/', checkToken, (req, res) => {
                 return {
                     name: item.name,
                     owner: userObj.username,
-                    date: item.date
+                    date: item.date,
+                    tags: item.tags
                 }
             })
             return toSend
@@ -138,7 +139,8 @@ projects.get('/', checkToken, (req, res) => {
                         return {
                             name: item.name,
                             owner: result3.username,
-                            date: item.date
+                            date: item.date,
+                            tags: item.tags
                         }
                     })
                     const finalResult = [toSend, toSend2];
@@ -453,5 +455,23 @@ projects.get('/deleteall', checkToken, (req, res, next) => {
     }).catch( err => res.send(err));
 });
 
+projects.get('/changetag', checkToken, (req, res, next) => {
+    const metaData = JSON.parse(req.headers.projmetadata);
+    console.log(req.headers)
+    const tag = JSON.parse(req.headers.tag);
+    const colo = tag.colour;
+    const state = tag.state;
+    User.findOne({ username: metaData.owner }).then(userObj => {
+        const projQuery = {
+            name: metaData.name,
+            owner: userObj._id
+        }
+        Project.findOne(projQuery).then(projObj => {
+            Project.updateOne({ _id: projObj._id }, { $set: { [`tags.${colo}`]: state }}).then( () => {
+                res.send("success");
+            });
+        });
+    }).catch(err => res.send(err));
+});
 // deal with profile later.
 module.exports = projects;
