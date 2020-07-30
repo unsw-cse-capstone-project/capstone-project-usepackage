@@ -53,6 +53,13 @@ export default class AudioTrackContainer extends React.Component {
     }
 
     componentDidMount() {
+        this.props.onMounted(this.record)
+        console.log("Component mounted");
+        console.log("REEEEEEEEEEE");
+        console.log("REEEEEEEEEEE");
+        console.log("REEEEEEEEEEE");
+        console.log("REEEEEEEEEEE");
+        console.log("REEEEEEEEEEE");
         AudioTrackController.create(this.audioRecord).then(controller => {
             this.setState({
                 controller: controller
@@ -118,7 +125,7 @@ export default class AudioTrackContainer extends React.Component {
                 this.state.controller.toggle("Pause", false);
                 this.startTime()
             }
-        }
+        } else console.log("No controller connected!");
     }
 
     gain(target, channel) {
@@ -167,7 +174,9 @@ export default class AudioTrackContainer extends React.Component {
             time = parseFloat(this.time);
             timeSample = Math.floor(time * sampleRate);
         }
-
+        console.log("samplesrate: ", sampleRate);
+        console.log("samples: ", samples);
+        console.log("timesamples: ", timeSample);
         this.state.controller.executeCut(timeSample);
         console.log(time);
         // for(let i = 0; i < this.virtualCuts.length; i++){
@@ -204,10 +213,6 @@ export default class AudioTrackContainer extends React.Component {
     
     redo(){
         if(this.state.controller) this.state.controller.redo();
-    }
-
-    componentDidMount() {
-        this.props.onMounted(this.record)
     }
     
     crop(){
@@ -311,7 +316,7 @@ export default class AudioTrackContainer extends React.Component {
                     />
                 </div>
                 <div className="col-12">
-                <FreqVisualiser width={300} height={100} analyser={this.state.analyser}/>
+                {/* <FreqVisualiser width={300} height={100} analyser={this.state.analyser}/> */}
                 </div>
             </div>
         );
