@@ -50,7 +50,6 @@ export default class AudioTrackContainer extends React.Component {
         this.lengthHandler = null;
         this.posHandler = null;
         //this.duration = this.state.controller.audioRecord.audioData.length / this.state.controller.audioRecord.audioData.sampleRate;
-        this.state.analyser = this.state.controller.analyser;
     }
 
     componentDidMount() {
@@ -60,6 +59,7 @@ export default class AudioTrackContainer extends React.Component {
             })
             return this.state
         }).then((state) => {
+            this.state.analyser = this.state.controller.analyser;
             state.controller.timeCb = (time) => this.setState({time: Number.parseFloat(128*time/44100).toFixed(3).toString()})
             state.controller.buttonNameCb = (name, paused) => this.setState({
                 toggleName: name,
