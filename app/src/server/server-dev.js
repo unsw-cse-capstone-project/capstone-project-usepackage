@@ -19,6 +19,7 @@ const app = express(),
     PROFILE_FILE = path.join(DIST_DIR, 'profile.html'),
     LOGIN_FILE = path.join(DIST_DIR, 'login.html'),
     REGISTER_FILE = path.join(DIST_DIR, 'register.html'),
+    COLLAB_FILE = path.join(DIST_DIR, 'collab.html'),
     compiler = webpack(config)
 
 app.use(webpackDevMiddleware(compiler, {
@@ -92,6 +93,10 @@ app.get('/login', (req, res, next) => {
 
 app.get('/profile', (req, res, next) => {
     res.sendFile(PROFILE_FILE)
+})
+
+app.get('/collabs/:ownername/:projectname/:randomlink', (req, res, next) => {
+    res.sendFile(COLLAB_FILE)
 })
 
 

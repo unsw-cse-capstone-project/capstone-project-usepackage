@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+// const { random } = require('core-js/fn/number');
 const Schema = mongoose.Schema;
 
 // Create Schema
@@ -79,7 +80,13 @@ const ProjectSchema = new Schema({
             type: String,
             default: ""
         },
+    },
+
+    sharelink: {
+        type: String,
+        default: ""
     }
+
 });
 
 module.exports = Project = mongoose.model('projects', ProjectSchema);

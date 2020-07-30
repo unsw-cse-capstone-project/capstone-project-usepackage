@@ -215,8 +215,6 @@ export default class Profile extends React.Component {
                 jsonData[0].sort(this.state.comparator);
                 jsonData[1].sort(this.state.comparator);
             }
-            
-            
             this.setState({
                 projects: jsonData[0].map((item, num) => {
                     const date = new Date(item.date);
@@ -242,7 +240,7 @@ export default class Profile extends React.Component {
                             <td>{num + 1}</td>
                             <td aria-valuenow={JSON.stringify(item)} onClick={(e) => this.setSession(e)}>{item.name}</td>
                             <td>{item.owner}</td>
-                            {this.printTags(item.tags)}
+                            {this.printTags(item)}
                             <td>{dateString}</td>
                         </tr>
                     )
@@ -358,14 +356,13 @@ export default class Profile extends React.Component {
         const purple = tags.purple === true ? 
                          <span style={{color: "purple", fontSize: "20px"}} onClick={()=>this.updateTagg("purple", false)}>★</span> : 
                          <span style={{color: "purple", fontSize: "20px"}} onClick={()=>this.updateTagg("purple",  true)}>☆</span>
-        return (
-            <td>
+        return (<>
                 {red}&nbsp;
                 {green}&nbsp;
                 {blue}&nbsp;
                 {yellow}&nbsp;
                 {purple}&nbsp;
-            </td>
+                </>
         );
     }
 
@@ -418,7 +415,7 @@ export default class Profile extends React.Component {
                 </div>
                 <div className="col-2">
                     <FormControl type="text" placeholder="Search" id="searchbar"/>
-                    <h4>Tag Filter: {this.filterTags()}</h4>
+                    <h4>Tag Filter: </h4>{this.filterTags()}
                 </div>
                 <div className="col-1">
                     <Button variant="outline-success" onClick={() => this.updateSearch()}>Search</Button>

@@ -5,7 +5,7 @@ import Alert from 'react-bootstrap/Alert'
 
 const dbURL = "http://localhost:8080"
 
-export default class RegisterContainer extends React.Component {
+export default class LoginContainer extends React.Component {
     constructor(props) {
         super(props);
         this.handleLogin = this.handleLogin.bind(this);

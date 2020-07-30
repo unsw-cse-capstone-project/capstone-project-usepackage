@@ -16,7 +16,7 @@ const mongo = require('mongodb');
 const cors = require('cors');
 // const { resolve } = require('core-js/fn/promise');
 projects.use(cors({
-    'allowedHeaders': ['authorization', 'Content-Type', 'ProjMetadata', 'FinalMetadata', 'Stack', 'Tag'],
+    'allowedHeaders': ['authorization', 'Content-Type', 'ProjMetadata', 'FinalMetadata', 'Stack', 'Tag', 'ProjectCollab'],
 }));
 
 projects.use(function(req, res, next) {
@@ -139,28 +139,34 @@ projects.get('/', checkToken, (req, res) => {
             })
             return toSend
         }).then(toSend => {
+            let toSend2 = [];
             const collabQuery = {
                 // query
                 collaborators: { $elemMatch: { $eq: userObj._id } }
             };
             Project.find(collabQuery).then(result2 => {
-                const ownerQuery = {
-                    ...tags,
-                    _id: result2.owner
-                }
-                User.findOne(ownerQuery).then(result3 => {
-                    let toSend2 = result2.map(item => {
-                        return {
-                            name: item.name,
-                            owner: result3.username,
-                            date: item.date,
-                            tags: item.tags
-                        }
+                
+                result2.forEach((result2i, i) => {
+                    const ownerQuery = {
+                        _id: result2i.owner
+                    }
+                    User.findOne(ownerQuery).then(result3 => {
+                        // console.log("RESULT 3", result3)
+                        toSend2 = toSend2.concat(result2.map(item => {
+                            return {
+                                name: item.name,
+                                owner: result3.username,
+                                date: item.date,
+                                tags: item.tags
+                            }
+                        }));
                     })
-                    const finalResult = [toSend, toSend2];
-                    res.json(finalResult);
                 })
-            })
+                return [toSend, toSend2];
+            }).then((finalResult) => {
+                console.log("REACHED", finalResult)
+                res.json(finalResult);
+            });;
         })
     })
 });
@@ -246,6 +252,14 @@ projects.get("/numfiles", checkToken, (req, res, next) => {
 });
 
 projects.post('/create', checkToken, (req, res, next) => {
+    const linkLength = Math.random()*15 + 10;
+
+    let linkStr = "";
+    for(let i = 0; i < linkLength; i++) {
+        const ranChar = String.fromCharCode(parseInt(Math.random()*25 + 65));
+        linkStr = linkStr.concat(ranChar);
+    }
+
     const userQuery = {
         username: req.token.username
     };
@@ -276,7 +290,12 @@ projects.post('/create', checkToken, (req, res, next) => {
                 Project.findOne(projectData).then(proj => {
                     console.log("Project found?", proj)
                     if (!proj) {
-                        Project.create(projectData)
+                        const newProjectData = {
+                            name: req.body.projectName,
+                            owner: userObj._id,
+                            sharelink: linkStr
+                        };
+                        Project.create(newProjectData)
                             .then(newProj => {
                                 res.send("success");
                             })
@@ -516,6 +535,60 @@ projects.get('/getmetadata', checkToken, (req, res, next) => {
             res.json(meta);
         });
     }).catch(err => res.send(err));
+});
+
+projects.get('/addcollaborator', checkToken, (req, res, next) => {
+    const collabData = JSON.parse(req.headers.projectcollab);
+    console.log(collabData);
+    if(collabData.owner === req.token.username) {
+        res.status(998).send("same user cannot collaborate with himself")
+    }
+    // res.status(999).send("yeah nah");
+    User.findOne({ username: collabData.owner }).then(userObj => {
+        console.log("FOUND USER")
+        const projQuery = {
+            name: collabData.name,
+            owner: userObj._id,
+            sharelink: collabData.ranstr
+        }
+        Project.findOne(projQuery).then(projObj => {
+            console.log("FOUND PROJECT?");
+            if(projObj === null) {
+                res.status(995).send("Oops something went wrong!");
+                return;
+            }
+            User.findOne({ username: req.token.username }).then(userObj2 => {
+                if(!projObj.collaborators.includes(userObj2._id)) {
+                    Project.updateOne({ _id: projObj._id }, { $push: { collaborators: userObj2._id } }).then((stat) => {
+                        console.log({
+                            name: projObj.name,
+                            owner: collabData.owner,
+                            date: projObj.date,
+                            tags: projObj.tags
+                        });
+                        res.json({
+                            name: projObj.name,
+                            owner: collabData.owner,
+                            date: projObj.date,
+                            tags: projObj.tags
+                        });
+                        return;
+                    }).catch(err => res.status(990).send("yeah nah"));
+                }
+                res.json({
+                    name: projObj.name,
+                    owner: collabData.owner,
+                    date: projObj.date,
+                    tags: projObj.tags
+                });
+                return;
+            }).catch(err => res.status(993).send("yeah nah"));
+            
+        }).catch(err => res.status(996).send(""));
+    }).catch(err => {
+        console.log(err);
+        res.status(992).send("yeah nah");
+    });
 });
 
 // deal with profile later.
