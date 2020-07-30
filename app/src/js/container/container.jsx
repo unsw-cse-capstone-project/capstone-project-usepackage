@@ -289,6 +289,7 @@ export default class MainContainer extends React.Component {
                     <Button onClick={this.uploadFiles} variant="outline-primary">Upload</Button>
                     <Button onClick={this.saveFiles} variant="outline-primary">Save</Button>
                     <MetadataModal variant={"info"} name={"Metadata"} metadata={this.state.metadata} handler={this.updateMetadata}/>
+                    <ShareLinkModal inf={localStorage.getItem('poname')} name={"Share"} variant={"warning"}/>
                 </Form>
                 <div className="col-12">
                     {this.audioStack.tracks}
@@ -391,6 +392,40 @@ export function MetadataModal(props) {
             </Button>
             <Button variant="success" onClick={props.handler}>
                 Save
+            </Button>
+            </Modal.Footer>
+        </Modal>
+    </>
+    );
+}
+
+export function ShareLinkModal(props) {
+    const [show, setShow] = React.useState(false);
+
+    const handleClose = () => setShow(false);
+    const handleShow = () => setShow(true);
+    const inf = JSON.parse(props.inf)
+    console.log("SHARE: ", inf)
+    if(!inf || !inf.str || !inf.owner || !inf.name) {
+        return <></>
+    }
+    const link = 'http://localhost:8080/collabs/' + inf.owner + '/' + inf.name + '/' + inf.str;
+    return (
+    <>
+        <Button variant={props.variant} onClick={handleShow}>{props.name}</Button>
+        <Modal show={show} onHide={handleClose}>
+            <Modal.Header closeButton>
+                <Modal.Title>Share Link</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <div>{link}</div>
+            </Modal.Body>
+            <Modal.Footer>
+            <Button variant="secondary" onClick={handleClose}>
+                Close
+            </Button>
+            <Button variant="primary" onClick={handleClose}>
+                Ok
             </Button>
             </Modal.Footer>
         </Modal>

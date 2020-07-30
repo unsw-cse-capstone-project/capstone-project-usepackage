@@ -15,6 +15,7 @@ const mongo = require('mongodb');
 //PREFLIGHT REQUEST
 const cors = require('cors');
 // const { resolve } = require('core-js/fn/promise');
+// const { resolve } = require('core-js/fn/promise');
 projects.use(cors({
     'allowedHeaders': ['authorization', 'Content-Type', 'ProjMetadata', 'FinalMetadata', 'Stack', 'Tag', 'ProjectCollab'],
 }));
@@ -134,36 +135,53 @@ projects.get('/', checkToken, (req, res) => {
                     name: item.name,
                     owner: userObj.username,
                     date: item.date,
-                    tags: item.tags
+                    tags: item.tags,
+                    str: item.sharelink
                 }
             })
             return toSend
         }).then(toSend => {
-            let toSend2 = [];
+            // let toSend2 = [];
             const collabQuery = {
                 // query
-                collaborators: { $elemMatch: { $eq: userObj._id } }
+                ...tags,
+                collaborators: { $elemMatch: { $eq: userObj._id } },
+                name: {$regex: search}
             };
             Project.find(collabQuery).then(result2 => {
-                
+                let queue = [];
+                function f(toSend, ownerQuery) {
+                    return new Promise( (resolve, reject) => {
+                        User.findOne(ownerQuery).then(result3 => {
+                        // console.log("RESULT 3", result3)
+                            toSend = toSend.concat(result2.map(item => {
+                                return {
+                                    name: item.name,
+                                    owner: result3.username,
+                                    date: item.date,
+                                    tags: item.tags
+                                }
+                            }));
+                            resolve(toSend);
+                        });
+                    });
+                }
                 result2.forEach((result2i, i) => {
                     const ownerQuery = {
                         _id: result2i.owner
                     }
-                    User.findOne(ownerQuery).then(result3 => {
-                        // console.log("RESULT 3", result3)
-                        toSend2 = toSend2.concat(result2.map(item => {
-                            return {
-                                name: item.name,
-                                owner: result3.username,
-                                date: item.date,
-                                tags: item.tags
-                            }
-                        }));
-                    })
+                    queue.push(f(toSend, ownerQuery));
                 })
-                return [toSend, toSend2];
-            }).then((finalResult) => {
+                return queue.reduce((prev, curr) => {
+                    return prev.then(siz => {
+                        siz = siz.concat(curr)
+                        return curr
+                    });
+                }, Promise.resolve(toSend));
+            }).then((intermediateResult) => {
+                const mine = intermediateResult.filter(entry => entry.owner === req.token.username);
+                const nein = intermediateResult.filter(entry => entry.owner !== req.token.username);
+                const finalResult = [mine, nein];
                 console.log("REACHED", finalResult)
                 res.json(finalResult);
             });;
@@ -232,7 +250,7 @@ projects.get("/numfiles", checkToken, (req, res, next) => {
     console.log("GETTIN NUM FILES");
     const metaData = JSON.parse(req.headers.projmetadata);
     const userQuery = {
-        username: req.token.username
+        username: metaData.owner
     };
     User.findOne(userQuery).then(userObj => {
         const projectData = {
@@ -241,6 +259,7 @@ projects.get("/numfiles", checkToken, (req, res, next) => {
         };
         console.log("project info: ", projectData);
         Project.findOne(projectData).then(proj => {
+            console.log("actual proj: ", proj);
             console.log(proj.files.length.toString());
             if (proj) {
                 res.send(proj.files.length.toString());

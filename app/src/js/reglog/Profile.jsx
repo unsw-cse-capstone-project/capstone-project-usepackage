@@ -24,7 +24,8 @@ export default class Profile extends React.Component {
                 purple: false
             },
             search: "",
-            comparator: null
+            comparatorO: null,
+            comparatorC: null
         }
         this.createProject = this.createProject.bind(this)
         this.deleteProject = this.deleteProject.bind(this)
@@ -42,6 +43,7 @@ export default class Profile extends React.Component {
         this.comparatorSortDateAscending = this.comparatorSortDateAscending.bind(this)
         this.comparatorSortDateDescending = this.comparatorSortDateDescending.bind(this)
         this.setComparator = this.setComparator.bind(this)
+        // this.shareLink = this.shareLink.bind(this)
         this.loadUser();
         this.loadProjects();
     }
@@ -211,9 +213,11 @@ export default class Profile extends React.Component {
         fetch('/projects/', requestOptions).then(jsonRes => {
             return jsonRes.json();
         }).then(jsonData => {
-            if (this.state.comparator !== null) {
-                jsonData[0].sort(this.state.comparator);
-                jsonData[1].sort(this.state.comparator);
+            if (this.state.comparatorO !== null) {
+                jsonData[0].sort(this.state.comparatorO);
+            }
+            if (this.state.comparatorC !== null) {
+                jsonData[0].sort(this.state.comparatorC);
             }
             this.setState({
                 projects: jsonData[0].map((item, num) => {
@@ -228,6 +232,7 @@ export default class Profile extends React.Component {
                             {this.printTags(item)}
                             <td>{dateString}</td>
                             <td><Button aria-valuenow={JSON.stringify(item)} onClick={(e) => this.deleteProject(e)} variant="danger">Delete</Button></td>
+                            <td><ShareLinkModal inf={JSON.stringify(item)} name={"Share"} variant={"info"}/></td>
                         </tr>
                     )
                 }),
@@ -272,11 +277,12 @@ export default class Profile extends React.Component {
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>Project name <span style={{color: "green"}} onClick={() => this.setComparator(1)}>▲</span>&nbsp;<span style={{color: "red"}} onClick={() => this.setComparator(2)}>▼</span></th>
+                        <th>Project name <span style={{color: "green"}} onClick={() => this.setComparator(1, 0)}>▲</span>&nbsp;<span style={{color: "red"}} onClick={() => this.setComparator(2, 0)}>▼</span></th>
                         <th>Owner</th>
                         <th>Tags</th>
-                        <th>Last Modified <span style={{color: "green"}} onClick={() => this.setComparator(3)}>▲</span>&nbsp;<span style={{color: "red"}} onClick={() => this.setComparator(4)}>▼</span></th>
+                        <th>Last Modified <span style={{color: "green"}} onClick={() => this.setComparator(3, 0)}>▲</span>&nbsp;<span style={{color: "red"}} onClick={() => this.setComparator(4, 0)}>▼</span></th>
                         <th>Delete</th>
+                        <th>Share</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -291,11 +297,11 @@ export default class Profile extends React.Component {
             <Table striped bordered hover size="sm">
                 <thead>
                     <tr>
-                        <th>#</th>
-                        <th>Project name</th>
+                    <th>#</th>
+                        <th>Project name <span style={{color: "green"}} onClick={() => this.setComparator(1, 1)}>▲</span>&nbsp;<span style={{color: "red"}} onClick={() => this.setComparator(2, 1)}>▼</span></th>
                         <th>Owner</th>
                         <th>Tags</th>
-                        <th>Last Modified</th>
+                        <th>Last Modified <span style={{color: "green"}} onClick={() => this.setComparator(3, 1)}>▲</span>&nbsp;<span style={{color: "red"}} onClick={() => this.setComparator(4, 1)}>▼</span></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -375,33 +381,63 @@ export default class Profile extends React.Component {
         });
     }
 
-    setComparator(i) {
-        switch(i) {
-            case 1:
-                this.setState({
-                    comparator: this.comparatorSortNameAscending
-                })
-                break;
-            case 2:
-                this.setState({
-                    comparator: this.comparatorSortNameDescending
-                })
-                break;
-            case 3:
-                this.setState({
-                    comparator: this.comparatorSortDateAscending
-                })
-                break;
-            case 4:
-                this.setState({
-                    comparator: this.comparatorSortDateDescending
-                })
-                break;
-            default:
-                this.setState({
-                    comparator: null
-                })
-                break;
+    setComparator(i, w) {
+        if(w === 0) {
+            switch(i) {
+                case 1:
+                    this.setState({
+                        comparatorO: this.comparatorSortNameAscending
+                    })
+                    break;
+                case 2:
+                    this.setState({
+                        comparatorO: this.comparatorSortNameDescending
+                    })
+                    break;
+                case 3:
+                    this.setState({
+                        comparatorO: this.comparatorSortDateAscending
+                    })
+                    break;
+                case 4:
+                    this.setState({
+                        comparatorO: this.comparatorSortDateDescending
+                    })
+                    break;
+                default:
+                    this.setState({
+                        comparatorO: null
+                    })
+                    break;
+            }
+        } else {
+            switch(i) {
+                case 1:
+                    this.setState({
+                        comparatorC: this.comparatorSortNameAscending
+                    })
+                    break;
+                case 2:
+                    this.setState({
+                        comparatorC: this.comparatorSortNameDescending
+                    })
+                    break;
+                case 3:
+                    this.setState({
+                        comparatorC: this.comparatorSortDateAscending
+                    })
+                    break;
+                case 4:
+                    this.setState({
+                        comparatorC: this.comparatorSortDateDescending
+                    })
+                    break;
+                default:
+                    this.setState({
+                        comparatorC: null
+                    })
+                    break;
+            }
         }
         this.loadProjects();
     }
@@ -464,6 +500,36 @@ export function CreateProjectModal(props) {
             </Button>
             <Button variant="primary" onClick={props.handler}>
                 Apply
+            </Button>
+            </Modal.Footer>
+        </Modal>
+    </>
+    );
+}
+
+export function ShareLinkModal(props) {
+    const [show, setShow] = React.useState(false);
+
+    const handleClose = () => setShow(false);
+    const handleShow = () => setShow(true);
+    const inf = JSON.parse(props.inf)
+    const link = 'http://localhost:8080/collabs/' + inf.owner + '/' + inf.name + '/' + inf.str;
+    return (
+    <>
+        <Button variant={props.variant} onClick={handleShow}>{props.name}</Button>
+        <Modal show={show} onHide={handleClose}>
+            <Modal.Header closeButton>
+                <Modal.Title>Share Link</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <div>{link}</div>
+            </Modal.Body>
+            <Modal.Footer>
+            <Button variant="secondary" onClick={handleClose}>
+                Close
+            </Button>
+            <Button variant="primary" onClick={handleClose}>
+                Ok
             </Button>
             </Modal.Footer>
         </Modal>
