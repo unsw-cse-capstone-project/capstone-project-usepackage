@@ -38,6 +38,7 @@ export default class AudioTrackController {
         this.registerLength = this.registerLength.bind(this);
         this.registerPos = this.registerPos.bind(this);
         this.seek = this.seek.bind(this);
+        this.analyser = null;
     }
 
     seek(slice, time) {
@@ -152,7 +153,9 @@ export default class AudioTrackController {
     connectAll() {
         console.log("Graph connected")
         this.source.connect(this.node)
-        this.node.connect(this.audioCtx.destination)
+        this.analyser = this.audioCtx.createAnalyser();
+        this.node.connect(this.analyser);
+        this.analyser.connect(this.audioCtx.destination); 
     }
 
     executeCut(timeSample) {

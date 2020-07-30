@@ -7,6 +7,7 @@ import FormControl from 'react-bootstrap/FormControl';
 //import CutBar from '../BasicComponents/CutBar.jsx';
 import CutBar from '../BasicComponents/CutBar2.jsx';
 import Hotkeys from '../BasicComponents/Hotkeys.jsx';
+import FreqVisualiser from '../BasicComponents/FreqVisualiser.jsx';
 
 export default class AudioTrackContainer extends React.Component {
     constructor(props) {
@@ -15,7 +16,9 @@ export default class AudioTrackContainer extends React.Component {
             toggleName: "Start",
             controller: null,
             time: "0.00",
-            paused: true
+            paused: true,
+            analyser: null,
+            visualiser: null
         }
         this.timeInterval = null;
         // Perform setup after promise is fulfilled
@@ -60,6 +63,7 @@ export default class AudioTrackContainer extends React.Component {
                 state.controller.registerPos(this.posHandler);
         })
         //this.duration = this.state.controller.audioRecord.audioData.length / this.state.controller.audioRecord.audioData.sampleRate;
+        this.state.analyser = this.state.controller.analyser;
     }
 
     registerLengthHandler(handler) {
@@ -285,6 +289,9 @@ export default class AudioTrackContainer extends React.Component {
                         regLen={this.registerLengthHandler.bind(this)}
                         regPos={this.registerPosHandler.bind(this)}
                     />
+                </div>
+                <div className="col-12">
+                <FreqVisualiser width={300} height={100} analyser={this.state.analyser}/>
                 </div>
             </div>
         );
