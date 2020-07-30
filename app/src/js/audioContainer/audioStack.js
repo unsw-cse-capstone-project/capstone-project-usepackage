@@ -17,30 +17,49 @@ export default class AudioStack {
         this.record = this.record.bind(this)
     }
 
-    add(audioRecord) {
-        this.tracks.push( < AudioTrackContainer key = { audioRecord.fileURL }
+    add(audioRecord, deleteCb) {
+        this.tracks.push(< AudioTrackContainer key = { audioRecord.fileURL }
             audioRecord = { audioRecord }
+            deleteCb = { deleteCb }
             onMounted = { f => { this.records[this.records.length] = f } }
-            registerCB = {f => {this.toggles[this.toggles.length] = f} }
-            /> );
-        }
-
-        record() {
-            let blobs = []
-            this.tracks.forEach((_, i) => {
-                blobs.push(this.records[i]())
-            })
-            return blobs
-        }
-
-        tracks() {
-            return this.tracks
-        }
-        
-        play() {
-            this.toggles.forEach((toggle) => {
-                toggle();
-            })
-        }
-
+            registerCB = { f => { this.toggles[this.toggles.length] = f } }
+        /> );
     }
+
+    delete(Containerkey) {
+        let index = -1;
+        this.tracks.forEach((track, idx) => {
+            if (track.key === Containerkey) {
+                index = idx;
+                this.tracks.splice(index, 1);
+                this.records.splice(index, 1);
+                return;
+            }
+        })
+    }
+
+    record() {
+        let blobs = []
+        console.log("Checking RECORDS: ", this.records[0])
+        this.tracks.forEach((_, i) => {
+            const recObj = this.records[i]()
+            console.log("RECOBJ: ", recObj)
+            blobs.push({
+                file: recObj.rec,
+                stack: recObj.stack
+            })
+        })
+        return blobs
+    }
+
+    tracks() {
+        return this.tracks
+    }
+
+    play() {
+        this.toggles.forEach((toggle) => {
+            toggle();
+        })
+    }
+
+}

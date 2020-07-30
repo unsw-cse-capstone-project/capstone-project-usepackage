@@ -1,7 +1,5 @@
-- Save button
-    - When clicked -> record the audiotracks in mp3 format
-    - Go into AudioTrack
-        - this.fileData contains the buffer (this.fileData.audioBuffer)
-            - Create offlineaudiocontext and record it
-            - Encode it using the mp3 encoder ( Can get to this point )
-                - How to store it into the database
+idea:
+    - generate a random string of length 10.
+    - store this as the share link in the Project schema.
+    - share link will take form 'http://localhost:8080/collabs/:ownername/:projectname/:randomlink'
+    - generalise share link to any localhost server

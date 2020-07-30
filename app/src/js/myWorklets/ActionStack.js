@@ -3,6 +3,10 @@ export default class ActionStack {
         this._stack = [];
     }
 
+    stack() {
+        return this._stack
+    }
+
     push(action) {
         this._stack.push(action);
     }

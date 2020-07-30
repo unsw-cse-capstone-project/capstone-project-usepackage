@@ -21,6 +21,12 @@ export default class MyWorkletNode extends AudioWorkletNode {
         })
     }
 
+    getStack() {
+        this.port.postMessage({
+            title: "getStack"
+        })
+    }
+
     getTime() {
         return this.time
     }
@@ -35,7 +41,7 @@ export default class MyWorkletNode extends AudioWorkletNode {
         this.port.postMessage({
             title: "Cut",
             data: timeSample
-        });
+});
         console.log("Executing cut in myWorkletNode");
     }
 
@@ -170,6 +176,15 @@ export default class MyWorkletNode extends AudioWorkletNode {
             this.dispatchEvent(init);
             return;
         }
+        if ("returnStack") {
+            console.log("STACK IS CURRENTLY: ", data)
+            let stack = new CustomEvent("stack", {
+                detail: data
+            })
+            this.dispatchEvent(stack);
+            return;
+        }
+
         if ("Position" === title) {
             this.time = data.time
             let pos = new CustomEvent("pos", {

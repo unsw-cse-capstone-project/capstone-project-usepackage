@@ -27,11 +27,21 @@ export default class AudioTrackController {
         this.toggle = this.toggle.bind(this);
         this.gain = this.gain.bind(this);
         this.time = this.time.bind(this);
+        this.registerLength = this.registerLength.bind(this);
+        this.registerPos = this.registerPos.bind(this);
+        this.seek = this.seek.bind(this);
         this.connectAll = this.connectAll.bind(this);
         this.connectAll();
         this.inprogress = false;
         this.lengthHandle = null;
         this.posHandle = null;
+
+        this.stack = null
+
+        this.node.on('stack', (detail) => {
+            this.stack = detail
+        });
+
         this.node.on('stop', (detail) => {
             this.toggle(detail, true)
         });
@@ -39,6 +49,11 @@ export default class AudioTrackController {
         this.registerPos = this.registerPos.bind(this);
         this.seek = this.seek.bind(this);
         this.analyser = null;
+    }
+
+    getStack() {
+        this.node.getStack()
+        return this.stack
     }
 
     seek(slice, time) {
@@ -155,7 +170,7 @@ export default class AudioTrackController {
         this.source.connect(this.node)
         this.analyser = this.audioCtx.createAnalyser();
         this.node.connect(this.analyser);
-        this.analyser.connect(this.audioCtx.destination); 
+        this.analyser.connect(this.audioCtx.destination);
     }
 
     executeCut(timeSample) {

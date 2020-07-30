@@ -13,6 +13,7 @@ export default class AudioTrackContainer extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
+            deleteCb: props.deleteCb,
             toggleName: "Start",
             controller: null,
             time: "0.00",
@@ -38,6 +39,7 @@ export default class AudioTrackContainer extends React.Component {
         this.copy = this.copy.bind(this);
         this.move = this.move.bind(this);
         this.crop = this.crop.bind(this);
+        this.delete = this.delete.bind(this);
         this.handleSeek = this.handleSeek.bind(this);
         this.updateDestination = this.updateDestination.bind(this);
         this.time = 0;
@@ -81,8 +83,17 @@ export default class AudioTrackContainer extends React.Component {
     }
 
     record() {
-        if ( this.state.controller )
-            return this.state.controller.record()
+        if ( this.state.controller ) {
+            return ({
+                rec: this.state.controller.record(),
+                stack: this.state.controller.getStack()
+            })
+            // return this.state.controller.record()
+        }
+    }
+
+    delete() {
+        console.log("Deleting object")
     }
 
     startTime() {
@@ -242,9 +253,14 @@ export default class AudioTrackContainer extends React.Component {
             <div className="trackContainer row">
                 <div className="col-12 trackTitle"><h2>Track</h2></div>
                 <div className="col-12 timeFont">{this.state.time}</div>
-                <div className="col-6"><Button onClick={this.toggle}>{this.state.toggleName}</Button></div>
-                <div><Button onClick={this.undo} variant="danger"> Undo </Button>
-                <Button onClick={this.redo} variant="success"> Redo </Button></div>
+                <div className="col-4"><Button onClick={this.toggle}>{this.state.toggleName}</Button></div>
+                <div className="col-4">
+                    <Button onClick={this.undo} variant="danger"> Undo </Button>
+                    <Button onClick={this.redo} variant="success"> Redo </Button>
+                </div>
+                <div className="col-4">
+                    <Button onClick={() => this.state.deleteCb(this.props.audioRecord.fileURL)} variant="danger"> Delete </Button>
+                </div>
                 <div className="col-6"><Slider name="VolumeL" controlId="gainControllerL" changeCallBack={e => this.gain(e, 0)} /></div>
                 <div className="col-6"><Slider name="VolumeR" controlId="gainControllerR" changeCallBack={e => this.gain(e, 1)} /></div>
                 <div className="col-6"><Slider name="Tempo" controlId="tempoController" changeCallBack={this.tempo} /></div>
