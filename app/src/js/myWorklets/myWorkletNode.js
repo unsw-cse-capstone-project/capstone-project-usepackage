@@ -176,7 +176,7 @@ export default class MyWorkletNode extends AudioWorkletNode {
             this.dispatchEvent(init);
             return;
         }
-        if ("returnStack") {
+        if ("returnStack" === title) {
             console.log("STACK IS CURRENTLY: ", data)
             let stack = new CustomEvent("stack", {
                 detail: data
