@@ -112,11 +112,11 @@ projects.get('/', checkToken, (req, res) => {
     // verify validity of token here
     let tags = JSON.parse(req.headers.tag);
     let search = req.headers.search;
-    for(let key in tags) {
-        if(tags[key] === false) {
+    for (let key in tags) {
+        if (tags[key] === false) {
             delete tags[key];
         } else {
-            tags["tags."+key] = tags[key];
+            tags["tags." + key] = tags[key];
             delete tags[key];
         }
     }
@@ -128,7 +128,7 @@ projects.get('/', checkToken, (req, res) => {
         const query = {
             ...tags,
             owner: userObj._id,
-            name: {$regex: search}
+            name: { $regex: search }
         };
         const found = Project.find(query).then(result => {
             let toSend = result.map(item => {
@@ -147,14 +147,15 @@ projects.get('/', checkToken, (req, res) => {
                 // query
                 ...tags,
                 collaborators: { $elemMatch: { $eq: userObj._id } },
-                name: {$regex: search}
+                name: { $regex: search }
             };
             Project.find(collabQuery).then(result2 => {
                 let queue = [];
+
                 function f(toSend, ownerQuery) {
-                    return new Promise( (resolve, reject) => {
+                    return new Promise((resolve, reject) => {
                         User.findOne(ownerQuery).then(result3 => {
-                        // console.log("RESULT 3", result3)
+                            // console.log("RESULT 3", result3)
                             toSend = toSend.concat(result2.map(item => {
                                 return {
                                     name: item.name,
@@ -194,7 +195,7 @@ projects.get("/audiofiles", checkToken, (req, res, next) => {
     console.log("LOAD REACHED");
     const metaData = JSON.parse(req.headers.projmetadata);
     const query = {
-        filename: {$regex: metaData.owner + "-" + metaData.name + "-" + req.headers.nth + ".mp3"} 
+        filename: { $regex: metaData.owner + "-" + metaData.name + "-" + req.headers.nth + ".mp3" }
     }
     gfs.files.find(query).toArray((err, files) => {
         if (!files || files.length === 0) {
@@ -215,7 +216,7 @@ projects.get('/getstack', checkToken, (req, res, next) => {
 
     const metaData = JSON.parse(req.headers.projmetadata);
     const query = {
-        filename: {$regex: metaData.owner + "-" + metaData.name + "-" + req.headers.nth + ".mp3"} 
+        filename: { $regex: metaData.owner + "-" + metaData.name + "-" + req.headers.nth + ".mp3" }
     }
     gfs.files.find(query).toArray((err, files) => {
         if (!files || files.length === 0) {
@@ -228,16 +229,16 @@ projects.get('/getstack', checkToken, (req, res, next) => {
             username: metaData.owner
         }
         User.findOne(userQuery).then(userObj => {
-            
+
             const projQuery = {
                 owner: userObj._id,
                 name: metaData.name
             }
             Project.findOne(projQuery).then(projObj => {
-                for(let i = 0; i < projObj.files.length; i++) {
+                for (let i = 0; i < projObj.files.length; i++) {
                     console.log(projObj.files[i].file_id.toString());
                     console.log(files[0]._id.toString());
-                    if(projObj.files[i].file_id.toString() === files[0]._id.toString()) {
+                    if (projObj.files[i].file_id.toString() === files[0]._id.toString()) {
                         console.log("EQUAL!");
                         res.send(projObj.files[i].stack);
                     }
@@ -272,11 +273,11 @@ projects.get("/numfiles", checkToken, (req, res, next) => {
 });
 
 projects.post('/create', checkToken, (req, res, next) => {
-    const linkLength = Math.random()*15 + 10;
+    const linkLength = Math.random() * 15 + 10;
 
     let linkStr = "";
-    for(let i = 0; i < linkLength; i++) {
-        const ranChar = String.fromCharCode(parseInt(Math.random()*25 + 65));
+    for (let i = 0; i < linkLength; i++) {
+        const ranChar = String.fromCharCode(parseInt(Math.random() * 25 + 65));
         linkStr = linkStr.concat(ranChar);
     }
 
@@ -290,44 +291,44 @@ projects.post('/create', checkToken, (req, res, next) => {
         }
         let numProj = 0;
         Project.find(projectNumData)
-        .then( que => {
-            console.log(que)
-            numProj = que.length
-            console.log("LENGTH:", numProj)
-            // each user will be limited to a maximum of 5 projects
-            if(numProj >= 5) {
-                res.send("limit reached");
-                return false;
-            }
-            return true;
-        })
-        .then( result => {
-            if(result !== false) {
-                const projectData = {
-                    name: req.body.projectName,
-                    owner: userObj._id
-                };
-                Project.findOne(projectData).then(proj => {
-                    console.log("Project found?", proj)
-                    if (!proj) {
-                        const newProjectData = {
-                            name: req.body.projectName,
-                            owner: userObj._id,
-                            sharelink: linkStr
-                        };
-                        Project.create(newProjectData)
-                            .then(newProj => {
-                                res.send("success");
-                            })
-                            .catch(err => {
-                                res.send(err);
-                            })
-                    } else {
-                        res.send("fail");
-                    }
-                });
-            }
-        });
+            .then(que => {
+                console.log(que)
+                numProj = que.length
+                console.log("LENGTH:", numProj)
+                    // each user will be limited to a maximum of 5 projects
+                if (numProj >= 5) {
+                    res.send("limit reached");
+                    return false;
+                }
+                return true;
+            })
+            .then(result => {
+                if (result !== false) {
+                    const projectData = {
+                        name: req.body.projectName,
+                        owner: userObj._id
+                    };
+                    Project.findOne(projectData).then(proj => {
+                        console.log("Project found?", proj)
+                        if (!proj) {
+                            const newProjectData = {
+                                name: req.body.projectName,
+                                owner: userObj._id,
+                                sharelink: linkStr
+                            };
+                            Project.create(newProjectData)
+                                .then(newProj => {
+                                    res.send("success");
+                                })
+                                .catch(err => {
+                                    res.send(err);
+                                })
+                        } else {
+                            res.send("fail");
+                        }
+                    });
+                }
+            });
     });
 });
 
@@ -366,18 +367,18 @@ projects.post('/save', [checkToken, testMiddleWare], (req, res, next) => {
                 console.log("FOUND FILE IN GRIDFS");
                 // const audid = audioObj._id;
                 const audioEntry = {
-                    file_id: audioObj._id,
-                    stack: req.headers.stack
-                }
-                // const newProjObj = {
-                //     _id: projObj._id,
-                //     name: projObj.name,
-                //     owner: projObj.owner,
-                //     collaborators: projObj.collaborators,
-                //     files: [...projObj.files, audid],
-                // }
+                        file_id: audioObj._id,
+                        stack: req.headers.stack
+                    }
+                    // const newProjObj = {
+                    //     _id: projObj._id,
+                    //     name: projObj.name,
+                    //     owner: projObj.owner,
+                    //     collaborators: projObj.collaborators,
+                    //     files: [...projObj.files, audid],
+                    // }
                 const today = new Date();
-                Project.updateOne({ _id: projObj._id }, { $push: { files: audioEntry}, $set: { date: today }, $set: { metadata: meta } }).then((stat) => {
+                Project.updateOne({ _id: projObj._id }, { $push: { files: audioEntry }, $set: { date: today }, $set: { metadata: meta } }).then((stat) => {
                     console.log("UPDATED", stat);
                     res.send("success");
                 });
@@ -389,8 +390,8 @@ projects.post('/save', [checkToken, testMiddleWare], (req, res, next) => {
 projects.get('/totalspace', checkToken, (req, res, next) => {
 
     function f1(query) {
-        return new Promise( (resolve, reject) => {
-            gfs.files.find(query).toArray( (err, files) => {
+        return new Promise((resolve, reject) => {
+            gfs.files.find(query).toArray((err, files) => {
                 console.log("QUERY: ", query);
                 console.log("FILES: ", files[0]);
                 resolve(files[0].length);
@@ -399,16 +400,15 @@ projects.get('/totalspace', checkToken, (req, res, next) => {
     }
 
     function f2(query) {
-        return new Promise( (resolve, reject) => {
+        return new Promise((resolve, reject) => {
             let queue = [];
             let totalSize = 0;
             Project.find(query).then(arr => {
                 // console.log("arr null?", arr);
-                for(let i = 0; i < arr.length; i++) {
+                for (let i = 0; i < arr.length; i++) {
                     // console.log("arr loop 1: ", arr[i].files);
-                    for(let j = 0; j < arr[i].files.length; j++) {
-                        queue.push(f1({ _id: arr[i].files[j].file_id })
-                        );
+                    for (let j = 0; j < arr[i].files.length; j++) {
+                        queue.push(f1({ _id: arr[i].files[j].file_id }));
                     }
                 }
             }).then(() => {
@@ -435,22 +435,21 @@ projects.get('/totalspace', checkToken, (req, res, next) => {
 projects.get('/enoughspace', checkToken, (req, res, next) => {
 
     function f1(query) {
-        return new Promise( (resolve, reject) => {
-            gfs.files.find(query).toArray( (err, files) => {
+        return new Promise((resolve, reject) => {
+            gfs.files.find(query).toArray((err, files) => {
                 resolve(files[0].length);
             })
         });
     }
 
     function f2(query) {
-        return new Promise( (resolve, reject) => {
+        return new Promise((resolve, reject) => {
             let queue = [];
             let totalSize = 0;
             Project.find(query).then(arr => {
-                for(let i = 0; i < arr.length; i++) {
-                    for(let j = 0; j < arr[i].files.length; j++) {
-                        queue.push(f1({ _id: arr[i].files[j].file_id })
-                        );
+                for (let i = 0; i < arr.length; i++) {
+                    for (let j = 0; j < arr[i].files.length; j++) {
+                        queue.push(f1({ _id: arr[i].files[j].file_id }));
                     }
                 }
             }).then(() => {
@@ -472,7 +471,7 @@ projects.get('/enoughspace', checkToken, (req, res, next) => {
             owner: userObj._id
         }
         const projection = {
-            projection:  { name: metaData.name }
+            projection: { name: metaData.name }
         }
         f2(projQuery, projection).then(totalSize => {
             console.log(totalSize);
@@ -507,7 +506,7 @@ projects.get('/deleteall', checkToken, (req, res, next) => {
             owner: userObj._id
         }
         Project.findOne(projQuery).then(projObj => {
-            projObj.files.forEach( fileObj => {
+            projObj.files.forEach(fileObj => {
                 filesToRemove.push(gfs.remove({ _id: fileObj._id }))
             });
             return projObj._id
@@ -518,11 +517,11 @@ projects.get('/deleteall', checkToken, (req, res, next) => {
             }, Promise.resolve())
             return id
         }).then((id) => {
-            Project.updateOne({ _id: id }, { $set: {files: []}}).then( () => {
+            Project.updateOne({ _id: id }, { $set: { files: [] } }).then(() => {
                 res.send("Removed files");
             });
         });
-    }).catch( err => res.send(err));
+    }).catch(err => res.send(err));
 });
 
 projects.get('/changetag', checkToken, (req, res, next) => {
@@ -536,7 +535,11 @@ projects.get('/changetag', checkToken, (req, res, next) => {
             owner: userObj._id
         }
         Project.findOne(projQuery).then(projObj => {
-            Project.updateOne({ _id: projObj._id }, { $set: { [`tags.${colo}`]: state }}).then( () => {
+            Project.updateOne({ _id: projObj._id }, {
+                $set: {
+                    [`tags.${colo}`]: state
+                }
+            }).then(() => {
                 res.send("success");
             });
         });
@@ -560,7 +563,7 @@ projects.get('/getmetadata', checkToken, (req, res, next) => {
 projects.get('/addcollaborator', checkToken, (req, res, next) => {
     const collabData = JSON.parse(req.headers.projectcollab);
     console.log(collabData);
-    if(collabData.owner === req.token.username) {
+    if (collabData.owner === req.token.username) {
         res.status(998).send("same user cannot collaborate with himself")
     }
     // res.status(999).send("yeah nah");
@@ -573,12 +576,12 @@ projects.get('/addcollaborator', checkToken, (req, res, next) => {
         }
         Project.findOne(projQuery).then(projObj => {
             console.log("FOUND PROJECT?");
-            if(projObj === null) {
+            if (projObj === null) {
                 res.status(995).send("Oops something went wrong!");
                 return;
             }
             User.findOne({ username: req.token.username }).then(userObj2 => {
-                if(!projObj.collaborators.includes(userObj2._id)) {
+                if (!projObj.collaborators.includes(userObj2._id)) {
                     Project.updateOne({ _id: projObj._id }, { $push: { collaborators: userObj2._id } }).then((stat) => {
                         console.log({
                             name: projObj.name,
@@ -603,7 +606,7 @@ projects.get('/addcollaborator', checkToken, (req, res, next) => {
                 });
                 return;
             }).catch(err => res.status(993).send("yeah nah"));
-            
+
         }).catch(err => res.status(996).send(""));
     }).catch(err => {
         console.log(err);
@@ -615,6 +618,7 @@ projects.get('/addcollaborator', checkToken, (req, res, next) => {
 projects.get('/attemptaccess', checkToken, (req, res, next) => {
     // note: projmetadata contains owner and name
     const metaData = JSON.parse(req.headers.projmetadata);
+    const projtoken = req.headers.projectinfo;
     User.findOne({ username: metaData.owner }).then(userObj => {
         const projQuery = {
             name: metaData.name,
@@ -622,8 +626,8 @@ projects.get('/attemptaccess', checkToken, (req, res, next) => {
         }
         Project.findOne(projQuery).then(projObj => {
             const sesstoken = projObj.sessiontoken
-            // first check whether sesstoken is an empty string.
-            if(sesstoken === "") {
+                // first check whether sesstoken is an empty string.
+            if (sesstoken === "" || sesstoken === projtoken) {
                 const payload = {
                     projid: projObj._id
                 };
@@ -634,25 +638,11 @@ projects.get('/attemptaccess', checkToken, (req, res, next) => {
                     res.send(token);
                     return;
                 });
-            }
-            // if sesstoken is not empty, we need to check if the token is valid
-            jwt.verify(sesstoken, process.env.SECRET_KEY, (err, authorisedData) => {
-                if (err) {
-                    // token timed out. allocate session.
-                    const payload = {
-                        projid: projObj._id
-                    };
-                    let token = jwt.sign(payload, process.env.SECRET_KEY, {
-                        expiresIn: 60
-                    });
-                    Project.updateOne(projQuery, { $set: { sessiontoken: token } }).then(() => {
-                        res.send(token);
-                        return;
-                    });
-                } else {
-                    // token is valid. we need to check whether the owner is equal to the editor
-                    // allocate if true
-                    if(req.token.username === metaData.owner) {
+            } else {
+                // if sesstoken is not empty, we need to check if the token is valid
+                jwt.verify(sesstoken, process.env.SECRET_KEY, (err, authorisedData) => {
+                    if (err) {
+                        // token timed out. allocate session.
                         const payload = {
                             projid: projObj._id
                         };
@@ -664,10 +654,25 @@ projects.get('/attemptaccess', checkToken, (req, res, next) => {
                             return;
                         });
                     } else {
-                        res.status(999).send("Cannot allocate session!");
+                        // token is valid. we need to check whether the owner is equal to the editor
+                        // allocate if true
+                        if (req.token.username === metaData.owner) {
+                            const payload = {
+                                projid: projObj._id
+                            };
+                            let token = jwt.sign(payload, process.env.SECRET_KEY, {
+                                expiresIn: 60
+                            });
+                            Project.updateOne(projQuery, { $set: { sessiontoken: token } }).then(() => {
+                                res.send(token);
+                                return;
+                            });
+                        } else {
+                            res.status(999).send("Cannot allocate session!");
+                        }
                     }
-                }
-            });
+                });
+            }
         });
     }).catch(err => res.send(err));
 });
@@ -682,7 +687,7 @@ projects.get('/updateaccess', checkToken, (req, res, next) => {
             owner: userObj._id
         }
         Project.findOne(projQuery).then(projObj => {
-            if(projtoken === projObj.sessiontoken) {
+            if (projtoken === projObj.sessiontoken) {
                 const payload = {
                     projid: projObj._id
                 };
@@ -697,7 +702,7 @@ projects.get('/updateaccess', checkToken, (req, res, next) => {
                 res.status(999).send("Token does not match!");
             }
         });
-    }).res(err => res.send(err));
+    }).catch(err => res.send(err));
 });
 
 // deal with profile later.
