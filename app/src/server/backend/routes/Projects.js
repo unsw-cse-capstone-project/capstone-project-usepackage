@@ -16,7 +16,7 @@ const mongo = require('mongodb');
 const cors = require('cors');
 // const { resolve } = require('core-js/fn/promise');
 projects.use(cors({
-    'allowedHeaders': ['authorization', 'Content-Type', 'ProjMetadata', 'Stack', 'Tag'],
+    'allowedHeaders': ['authorization', 'Content-Type', 'ProjMetadata', 'FinalMetadata', 'Stack', 'Tag'],
 }));
 
 projects.use(function(req, res, next) {
@@ -293,7 +293,7 @@ projects.post('/create', checkToken, (req, res, next) => {
 });
 
 projects.post('/save', [checkToken, testMiddleWare], (req, res, next) => {
-    console.log("REACHED POST AYY");
+    const meta = JSON.parse(req.headers.finalmetadata);
     /* 
         id of the owner of the project
         name of the project itself : 
@@ -338,7 +338,7 @@ projects.post('/save', [checkToken, testMiddleWare], (req, res, next) => {
                 //     files: [...projObj.files, audid],
                 // }
                 const today = new Date();
-                Project.updateOne({ _id: projObj._id }, { $push: { files: audioEntry}, $set: { date: today } }).then((stat) => {
+                Project.updateOne({ _id: projObj._id }, { $push: { files: audioEntry}, $set: { date: today }, $set: { metadata: meta } }).then((stat) => {
                     console.log("UPDATED", stat);
                     res.send("success");
                 });
@@ -488,7 +488,6 @@ projects.get('/deleteall', checkToken, (req, res, next) => {
 
 projects.get('/changetag', checkToken, (req, res, next) => {
     const metaData = JSON.parse(req.headers.projmetadata);
-    console.log(req.headers)
     const tag = JSON.parse(req.headers.tag);
     const colo = tag.colour;
     const state = tag.state;
@@ -504,5 +503,20 @@ projects.get('/changetag', checkToken, (req, res, next) => {
         });
     }).catch(err => res.send(err));
 });
+
+projects.get('/getmetadata', checkToken, (req, res, next) => {
+    const metaData = JSON.parse(req.headers.projmetadata);
+    User.findOne({ username: metaData.owner }).then(userObj => {
+        const projQuery = {
+            name: metaData.name,
+            owner: userObj._id
+        }
+        Project.findOne(projQuery).then(projObj => {
+            const meta = projObj.metadata;
+            res.json(meta);
+        });
+    }).catch(err => res.send(err));
+});
+
 // deal with profile later.
 module.exports = projects;

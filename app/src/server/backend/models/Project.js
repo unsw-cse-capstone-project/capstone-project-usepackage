@@ -48,6 +48,37 @@ const ProjectSchema = new Schema({
             type: Boolean,
             default: false
         }
+    },
+
+    metadata: {
+        title: {
+            type: String,
+            default: ""
+        },
+        artist: {
+            type: String,
+            default: ""
+        },
+        album: {
+            type: String,
+            default: ""
+        },
+        year: {
+            type: String,
+            default: ""
+        },
+        track: {
+            type: String,
+            default: ""
+        },
+        genre: {
+            type: String,
+            default: ""
+        },
+        comment: {
+            type: String,
+            default: ""
+        },
     }
 });
 

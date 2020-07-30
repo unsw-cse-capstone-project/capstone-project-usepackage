@@ -211,7 +211,11 @@ export default class Profile extends React.Component {
         fetch('/projects/', requestOptions).then(jsonRes => {
             return jsonRes.json();
         }).then(jsonData => {
-            if (this.state.comparator !== null) jsonData[0].sort(this.state.comparator);
+            if (this.state.comparator !== null) {
+                jsonData[0].sort(this.state.comparator);
+                jsonData[1].sort(this.state.comparator);
+            }
+            
             
             this.setState({
                 projects: jsonData[0].map((item, num) => {

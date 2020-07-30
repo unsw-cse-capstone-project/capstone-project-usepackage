@@ -2,6 +2,9 @@ import React from 'react';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import AudioStack from '../audioContainer/audioStack'
+import Modal from 'react-bootstrap/Modal'
+import InputGroup from 'react-bootstrap/InputGroup';
+import FormControl from 'react-bootstrap/FormControl';
 
 const dbURL = "http://localhost:8080"
 
@@ -28,14 +31,24 @@ export default class MainContainer extends React.Component {
         super(props);
         this.audioStack = new AudioStack();
         this.state = {
-            audioRecords: []
+            audioRecords: [],
+            metadata: {
+                title: "",
+                artist: "",
+                album: "",
+                year: "",
+                track: "",
+                genre: "",
+                comment: ""
+            }
         }
         this.fileURLs = []
         this.addFiles = this.addFiles.bind(this);
         this.saveFiles = this.saveFiles.bind(this);
         this.uploadFiles = this.uploadFiles.bind(this);
         this.loadFiles = this.loadFiles.bind(this);
-        this.deleteCb = this.deleteCb.bind(this)
+        this.deleteCb = this.deleteCb.bind(this);
+        this.updateMetadata = this.updateMetadata.bind(this);
         if (localStorage.usertoken && localStorage.poname) {
             window.onbeforeunload = () => {
                 return "Please make sure that you saved your project before leaving!"
@@ -107,6 +120,19 @@ export default class MainContainer extends React.Component {
                 });
             }
         }).catch(err => console.log(err));
+        fetch('projects/getmetadata', {
+            method: 'GET',
+            headers: {
+                'authorization': localStorage.usertoken,
+                'ProjMetadata': localStorage.poname
+            }
+        })
+        .then(res => res.json())
+        .then(json => {
+            this.setState({
+                metadata: json
+            });
+        });
     }
 
     addFiles(Newfiles) {        
@@ -166,7 +192,7 @@ export default class MainContainer extends React.Component {
                         data.append('file', file);
                         // data.append('edits', 'abc134');
                         console.log("Attempting to save blob")
-                        MainContainer.Save(data, blobs[i].stack)
+                        MainContainer.Save(data, blobs[i].stack, this.state.metadata)
                         .then(data => 
                             data.body.getReader())
                         .then(reader => reader.read())
@@ -226,6 +252,27 @@ export default class MainContainer extends React.Component {
         })
     }
 
+    updateMetadata() {
+        const title = document.getElementById("met-title").value;
+        const artist = document.getElementById("met-artist").value;
+        const album = document.getElementById("met-album").value;
+        const year = document.getElementById("met-year").value;
+        const track = document.getElementById("met-track").value;
+        const genre = document.getElementById("met-genre").value;
+        const comment = document.getElementById("met-comment").value;
+        this.setState({
+            metadata: {
+                title: title,
+                artist: artist,
+                album: album,
+                year: year,
+                track: track,
+                genre: genre,
+                comment: comment
+            }
+        });
+    }
+
     render() {
         return (
             <div className="row main">
@@ -241,6 +288,7 @@ export default class MainContainer extends React.Component {
                     </Form.Group>
                     <Button onClick={this.uploadFiles} variant="outline-primary">Upload</Button>
                     <Button onClick={this.saveFiles} variant="outline-primary">Save</Button>
+                    <MetadataModal variant={"info"} name={"Metadata"} metadata={this.state.metadata} handler={this.updateMetadata}/>
                 </Form>
                 <div className="col-12">
                     {this.audioStack.tracks}
@@ -265,13 +313,14 @@ MainContainer.UploadHandler = (fileURL) => {
     );
 }
 
-MainContainer.Save = (obj, stack) => {
+MainContainer.Save = (obj, stack, met) => {
     const requestOptions = {
         method: 'POST',
         headers: { 
             'Authorization': localStorage.usertoken,
             'ProjMetadata': localStorage.poname,
-            'Stack' : JSON.stringify(stack)
+            'Stack' : JSON.stringify(stack),
+            'FinalMetadata': JSON.stringify(met)
         },
         // body: JSON.stringify(obj)
         body: obj
@@ -280,4 +329,71 @@ MainContainer.Save = (obj, stack) => {
     return Promise.resolve(fetch('/projects/save', requestOptions))
 };
 
+export function MetadataModal(props) {
+    const [show, setShow] = React.useState(false);
 
+    const handleClose = () => setShow(false);
+    const handleShow = () => setShow(true); 
+    return (
+    <>
+        <Button variant={props.variant} onClick={handleShow}>{props.name}</Button>
+        <Modal show={show} onHide={handleClose}>
+            <Modal.Header closeButton>
+                <Modal.Title>Metadata</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <InputGroup>
+                    <InputGroup.Prepend>
+                        <InputGroup.Text id="inputGroup-sizing-default">Title</InputGroup.Text>
+                    </InputGroup.Prepend>
+                    <FormControl id="met-title" aria-label="Default" aria-describedby="inputGroup-sizing-default" defaultValue={props.metadata.title}/>
+                </InputGroup>
+                <InputGroup>
+                    <InputGroup.Prepend>
+                        <InputGroup.Text id="inputGroup-sizing-default">Artist</InputGroup.Text>
+                    </InputGroup.Prepend>
+                    <FormControl id="met-artist" aria-label="Default" aria-describedby="inputGroup-sizing-default" defaultValue={props.metadata.artist}/>
+                </InputGroup>
+                <InputGroup>
+                    <InputGroup.Prepend>
+                        <InputGroup.Text id="inputGroup-sizing-default">Album</InputGroup.Text>
+                    </InputGroup.Prepend>
+                    <FormControl id="met-album" aria-label="Default" aria-describedby="inputGroup-sizing-default" defaultValue={props.metadata.album}/>
+                </InputGroup>
+                <InputGroup>
+                    <InputGroup.Prepend>
+                        <InputGroup.Text id="inputGroup-sizing-default">Year</InputGroup.Text>
+                    </InputGroup.Prepend>
+                    <FormControl id="met-year" aria-label="Default" aria-describedby="inputGroup-sizing-default" defaultValue={props.metadata.year}/>
+                </InputGroup>
+                <InputGroup>
+                    <InputGroup.Prepend>
+                        <InputGroup.Text id="inputGroup-sizing-default">Track</InputGroup.Text>
+                    </InputGroup.Prepend>
+                    <FormControl id="met-track" aria-label="Default" aria-describedby="inputGroup-sizing-default" defaultValue={props.metadata.track}/>
+                </InputGroup>
+                <InputGroup>
+                    <InputGroup.Prepend>
+                        <InputGroup.Text id="inputGroup-sizing-default">Genre</InputGroup.Text>
+                    </InputGroup.Prepend>
+                    <FormControl id="met-genre" aria-label="Default" aria-describedby="inputGroup-sizing-default" defaultValue={props.metadata.genre}/>
+                </InputGroup>
+                <InputGroup>
+                    <InputGroup.Prepend>
+                        <InputGroup.Text id="inputGroup-sizing-default">Comment</InputGroup.Text>
+                    </InputGroup.Prepend>
+                    <FormControl id="met-comment" aria-label="Default" aria-describedby="inputGroup-sizing-default" defaultValue={props.metadata.genre}/>
+                </InputGroup> 
+            </Modal.Body>
+            <Modal.Footer>
+            <Button variant="secondary" onClick={handleClose}>
+                Cancel
+            </Button>
+            <Button variant="success" onClick={props.handler}>
+                Save
+            </Button>
+            </Modal.Footer>
+        </Modal>
+    </>
+    );
+}
