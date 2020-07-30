@@ -21,6 +21,7 @@ export default class AudioTrackContainer extends React.Component {
             analyser: null,
             visualiser: null
         }
+        this.audioRecord = props.audioRecord;
         this.timeInterval = null;
         // Perform setup after promise is fulfilled
         this.startTime = this.startTime.bind(this)
@@ -48,12 +49,17 @@ export default class AudioTrackContainer extends React.Component {
         this.virtualCuts = [0];
         this.lengthHandler = null;
         this.posHandler = null;
-        AudioTrackController.create(props.audioRecord).then(controller => {
+        //this.duration = this.state.controller.audioRecord.audioData.length / this.state.controller.audioRecord.audioData.sampleRate;
+    }
+
+    componentDidMount() {
+        AudioTrackController.create(this.audioRecord).then(controller => {
             this.setState({
                 controller: controller
             })
             return this.state
         }).then((state) => {
+            this.state.analyser = this.state.controller.analyser;
             state.controller.timeCb = (time) => this.setState({time: Number.parseFloat(128*time/44100).toFixed(3).toString()})
             state.controller.buttonNameCb = (name, paused) => this.setState({
                 toggleName: name,
@@ -64,8 +70,6 @@ export default class AudioTrackContainer extends React.Component {
             if (this.posHandler)
                 state.controller.registerPos(this.posHandler);
         })
-        //this.duration = this.state.controller.audioRecord.audioData.length / this.state.controller.audioRecord.audioData.sampleRate;
-        this.state.analyser = this.state.controller.analyser;
     }
 
     registerLengthHandler(handler) {
