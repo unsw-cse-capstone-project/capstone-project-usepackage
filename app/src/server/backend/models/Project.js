@@ -85,6 +85,11 @@ const ProjectSchema = new Schema({
     sharelink: {
         type: String,
         default: ""
+    },
+
+    sessiontoken: {
+        type: String,
+        default: ""
     }
 
 });

@@ -17,7 +17,7 @@ const cors = require('cors');
 // const { resolve } = require('core-js/fn/promise');
 // const { resolve } = require('core-js/fn/promise');
 projects.use(cors({
-    'allowedHeaders': ['authorization', 'Content-Type', 'ProjMetadata', 'FinalMetadata', 'Stack', 'Tag', 'ProjectCollab'],
+    'allowedHeaders': ['authorization', 'Content-Type', 'ProjMetadata', 'FinalMetadata', 'Stack', 'Tag', 'ProjectCollab', 'ProjectInfo'],
 }));
 
 projects.use(function(req, res, next) {
@@ -607,6 +607,76 @@ projects.get('/addcollaborator', checkToken, (req, res, next) => {
     }).catch(err => {
         console.log(err);
         res.status(992).send("yeah nah");
+    });
+});
+
+// when a user attempts to 
+projects.get('/attemptaccess', checkToken, (req, res, next) => {
+    // note: projmetadata contains owner and name
+    const metaData = JSON.parse(req.headers.projmetadata);
+    User.findOne({ username: metaData.owner }).then(userObj => {
+        const projQuery = {
+            name: metaData.name,
+            owner: userObj._id
+        }
+        Project.findOne(projQuery).then(projObj => {
+            const sesstoken = projObj.sessiontoken
+            // first check whether sesstoken is an empty string.
+            if(sesstoken === "") {
+                const payload = {
+                    projid: projObj._id
+                };
+                let token = jwt.sign(payload, process.env.SECRET_KEY, {
+                    expiresIn: 60
+                });
+                Project.updateOne(projQuery, { $set: { sessiontoken: token } }).then(() => {
+                    res.send(token);
+                    return;
+                });
+            }
+            // if sesstoken is not empty, we need to check if the token is valid
+            jwt.verify(sesstoken, process.env.SECRET_KEY, (err, authorisedData) => {
+                if (err) {
+                    // token timed out. allocate session.
+                    const payload = {
+                        projid: projObj._id
+                    };
+                    let token = jwt.sign(payload, process.env.SECRET_KEY, {
+                        expiresIn: 60
+                    });
+                    Project.updateOne(projQuery, { $set: { sessiontoken: token } }).then(() => {
+                        res.send(token);
+                        return;
+                    });
+                } else {
+                    // token is valid. we need to check whether the owner is equal to the editor
+                    // allocate if true
+                    if(req.token.username === metaData.owner) {
+                        const payload = {
+                            projid: projObj._id
+                        };
+                        let token = jwt.sign(payload, process.env.SECRET_KEY, {
+                            expiresIn: 60
+                        });
+                        Project.updateOne(projQuery, { $set: { sessiontoken: token } }).then(() => {
+                            res.send(token);
+                            return;
+                        });
+                    } else {
+                        res.status(999).send("Cannot allocate session!");
+                    }
+                }
+            });
+        });
+    }).catch(err => res.send(err));
+});
+
+projects.get('/updateaccess', checkToken, (req, res, next) => {
+    const metaData = JSON.parse(req.headers.projmetadata);
+    const projtoken = req.headers.projectinfo;
+    User.findOne({ username: metaData.owner }).then(userObj => {
+        // obtain user id
+        
     });
 });
 
