@@ -19,6 +19,7 @@ export default class AudioTrackController {
         this.node = props.node
         this.audioCtx = props.audioCtx
         this.audioElement = props.audioElement
+        this._analyser = props.analyser;
 
         // Callbacks
         this._timeCb = null;
@@ -48,10 +49,6 @@ export default class AudioTrackController {
         this.registerLength = this.registerLength.bind(this);
         this.registerPos = this.registerPos.bind(this);
         this.seek = this.seek.bind(this);
-        if (!this.analyser) {
-            this.analyser = null;
-            console.log("setting analyser to null");
-        }
     }
 
     getStack() {
@@ -141,8 +138,13 @@ export default class AudioTrackController {
     get timeCb() {
         return this._timeCb
     }
+
     set timeCb(timeCb) {
         this._timeCb = timeCb
+    }
+
+    get analyser() {
+        return this._analyser;
     }
 
     time() {
@@ -162,23 +164,14 @@ export default class AudioTrackController {
     }
 
     connectAll() {
-        console.log("Graph connected")
         this.source.connect(this.node)
-        this.analyser = this.audioCtx.createAnalyser();
-        this.node.connect(this.analyser);
-        this.analyser.connect(this.audioCtx.destination);
-        if (this.analyser == null) console.log("ANALYSER IS NULL IN CONTROLLER");
-        if (this.analyser != null) console.log("ANALYSER IS NOT NULL IN CONTROLLER");
-    }
-
-    getAnalyser() {
-        if (this.analyser == null) console.log("Analyser has become null in the controller");
-        return this.analyser;
+        this.node.connect(this._analyser);
+        this._analyser.connect(this.audioCtx.destination);
+        console.log("Graph connected"); // DEBUG
     }
 
     executeCut(timeSample) {
         this.node.executeCut(timeSample);
-        console.log("Executing cut in audioTrackController");
     }
 
     undo() {
@@ -210,13 +203,15 @@ AudioTrackController.create = (audioRecord) => {
         AudioTrackController.graph(audioCtx, audioRecord.audioData).then(graph => {
             console.log("Graph: ", graph)
                 // Create the source
-            const audio = new Audio(URL.createObjectURL(audioRecord.fileBlob))
-            const source = audioCtx.createMediaElementSource(audio)
+            const audio = new Audio(URL.createObjectURL(audioRecord.fileBlob));
+            const source = audioCtx.createMediaElementSource(audio);
+            const analyser = audioCtx.createAnalyser();
             resolve(new AudioTrackController({
                 audioRecord: audioRecord,
                 audioElement: audio,
                 audioCtx: audioCtx,
                 source: source,
+                analyser: analyser,
                 node: graph
             }))
         })

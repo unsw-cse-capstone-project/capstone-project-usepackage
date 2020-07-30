@@ -61,7 +61,6 @@ export default class AudioTrackContainer extends React.Component {
             })
             return this.state
         }).then((state) => {
-            this.state.analyser = this.state.controller.getAnalyser();
             state.controller.timeCb = (time) => this.setState({time: Number.parseFloat(128*time/44100).toFixed(3).toString()})
             state.controller.buttonNameCb = (name, paused) => this.setState({
                 toggleName: name,
@@ -71,9 +70,9 @@ export default class AudioTrackContainer extends React.Component {
                 state.controller.registerLength(this.lengthHandler);
             if (this.posHandler)
                 state.controller.registerPos(this.posHandler);
-            console.log(this.state.controller);
-            console.log(this.state.controller.getAnalyser());
-            this.state.visualiser = <FreqVisualiser width={300} height={100} analyser={this.state.analyser}/>;
+            this.setState({
+                visualiser: <FreqVisualiser width={300} height={100} analyser={state.controller.analyser}/>
+            });
         })
     }
 
