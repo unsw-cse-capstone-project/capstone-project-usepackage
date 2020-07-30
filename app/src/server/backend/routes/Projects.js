@@ -14,6 +14,7 @@ const mongo = require('mongodb');
 
 //PREFLIGHT REQUEST
 const cors = require('cors');
+// const { reverse } = require('core-js/fn/array');
 // const { resolve } = require('core-js/fn/promise');
 // const { resolve } = require('core-js/fn/promise');
 projects.use(cors({
@@ -676,8 +677,27 @@ projects.get('/updateaccess', checkToken, (req, res, next) => {
     const projtoken = req.headers.projectinfo;
     User.findOne({ username: metaData.owner }).then(userObj => {
         // obtain user id
-        
-    });
+        const projQuery = {
+            name: metaData.name,
+            owner: userObj._id
+        }
+        Project.findOne(projQuery).then(projObj => {
+            if(projtoken === projObj.sessiontoken) {
+                const payload = {
+                    projid: projObj._id
+                };
+                let token = jwt.sign(payload, process.env.SECRET_KEY, {
+                    expiresIn: 60
+                });
+                Project.updateOne(projQuery, { $set: { sessiontoken: token } }).then(() => {
+                    res.send(token);
+                    return;
+                });
+            } else {
+                res.status(999).send("Token does not match!");
+            }
+        });
+    }).res(err => res.send(err));
 });
 
 // deal with profile later.

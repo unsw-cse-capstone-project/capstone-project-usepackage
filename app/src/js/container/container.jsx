@@ -59,79 +59,92 @@ export default class MainContainer extends React.Component {
     }
 
     loadFiles() {
-        console.log("obtaining number of files info");
-        let len = 0;
-        fetch('/projects/numfiles', {
+        // CHECK HERE IF USER CAN ACCESS PROJECT using /projects/attemptaccess
+
+        const reque = {
             method: 'GET',
             headers: {
                 'authorization': localStorage.usertoken,
-                'ProjMetadata': localStorage.poname
+                'projmetadata': localStorage.poname
             }
-        })
-        .then(data => 
-            data.body.getReader())
+        }
+
+        fetch('/projects/attemptaccess', reque)
+        .then(data => data.body.getReader())
         .then(reader => reader.read())
         .then(data => {
-            const message = new TextDecoder("utf-8").decode(data.value)
-            if(message === "fail") console.log(message);
-            // console.log(message);
-            len = parseInt(message);
-            console.log("total number of files: ", len);
-            console.log('fetching');
-            for(let i = 0; i < len; i++) {
-                fetch('/projects/audiofiles', {
-                    method: 'GET',
-                    headers: {
-                        'authorization': localStorage.usertoken,
-                        'ProjMetadata': localStorage.poname,
-                        'nth': i
-                    }
-                }).then(file => {
-                    return file.blob();
-                }).then(blob => {
-                    return new Promise(resolve => {
-                        addUpload(URL.createObjectURL(blob), blob, resolve);
-                    });
-                }).then(audioRecord => {
-                    // Process inside the audioStack
-                    // MUST COME BEFORE THE STATE CHANGE!
-                    this.audioStack.add(audioRecord, (msg) => this.deleteCb(msg) ) 
-                    this.setState({
-                        audioRecords: [...this.state.audioRecords, audioRecord]
-                    })               
-                }).then(() => {
-                    console.log("Audio stack tracks: ", this.audioStack.tracks);
-                    // Empty the fileURLs since they have already been processed
-                    this.fileURLs = [];
-                }).then(() => {
-                    fetch('projects/getstack', {
+            const message = new TextDecoder("utf-8").decode(data.value);
+            console.log(message);
+            localStorage.setItem('projecttoken', message);
+            console.log("obtaining number of files info");
+            
+            let len = 0;
+            fetch('/projects/numfiles', reque)
+            .then(data => 
+                data.body.getReader())
+            .then(reader => reader.read())
+            .then(data => {
+                const message = new TextDecoder("utf-8").decode(data.value)
+                if(message === "fail") console.log(message);
+                // console.log(message);
+                len = parseInt(message);
+                console.log("total number of files: ", len);
+                console.log('fetching');
+                for(let i = 0; i < len; i++) {
+                    fetch('/projects/audiofiles', {
                         method: 'GET',
                         headers: {
                             'authorization': localStorage.usertoken,
                             'ProjMetadata': localStorage.poname,
                             'nth': i
                         }
-                    }).then(data => data.body.getReader())
-                    .then(reader => reader.read())
-                    .then(data => {
-                        const message = new TextDecoder("utf-8").decode(data.value)
-                        console.log("STACK!!! ", message)})
-                }).catch(err => {
-                    console.log(err);
+                    }).then(file => {
+                        return file.blob();
+                    }).then(blob => {
+                        return new Promise(resolve => {
+                            addUpload(URL.createObjectURL(blob), blob, resolve);
+                        });
+                    }).then(audioRecord => {
+                        // Process inside the audioStack
+                        // MUST COME BEFORE THE STATE CHANGE!
+                        this.audioStack.add(audioRecord, (msg) => this.deleteCb(msg) ) 
+                        this.setState({
+                            audioRecords: [...this.state.audioRecords, audioRecord]
+                        })               
+                    }).then(() => {
+                        console.log("Audio stack tracks: ", this.audioStack.tracks);
+                        // Empty the fileURLs since they have already been processed
+                        this.fileURLs = [];
+                    }).then(() => {
+                        fetch('projects/getstack', {
+                            method: 'GET',
+                            headers: {
+                                'authorization': localStorage.usertoken,
+                                'ProjMetadata': localStorage.poname,
+                                'nth': i
+                            }
+                        }).then(data => data.body.getReader())
+                        .then(reader => reader.read())
+                        .then(data => {
+                            const message = new TextDecoder("utf-8").decode(data.value)
+                            console.log("STACK!!! ", message)})
+                    }).catch(err => {
+                        console.log(err);
+                    });
+                }
+            }).catch(err => console.log(err));
+            fetch('projects/getmetadata', {
+                method: 'GET',
+                headers: {
+                    'authorization': localStorage.usertoken,
+                    'ProjMetadata': localStorage.poname
+                }
+            })
+            .then(res => res.json())
+            .then(json => {
+                this.setState({
+                    metadata: json
                 });
-            }
-        }).catch(err => console.log(err));
-        fetch('projects/getmetadata', {
-            method: 'GET',
-            headers: {
-                'authorization': localStorage.usertoken,
-                'ProjMetadata': localStorage.poname
-            }
-        })
-        .then(res => res.json())
-        .then(json => {
-            this.setState({
-                metadata: json
             });
         });
     }
