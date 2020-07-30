@@ -61,13 +61,25 @@ export default class MainContainer extends React.Component {
     loadFiles() {
         // CHECK HERE IF USER CAN ACCESS PROJECT using /projects/attemptaccess
 
-        const reque = {
+        let reque = {
             method: 'GET',
             headers: {
                 'authorization': localStorage.usertoken,
-                'projmetadata': localStorage.poname
+                'projmetadata': localStorage.poname,
+                'projectinfo' : ""
             }
         }
+        if(localStorage.getItem('projecttoken')) {
+            reque = {
+                method: 'GET',
+                headers: {
+                    'authorization': localStorage.usertoken,
+                    'projmetadata': localStorage.poname,
+                    'projectinfo' : localStorage.projecttoken
+                }
+            }
+        }
+        // fetch('/projects/updateaccess', ...) ==> 
 
         fetch('/projects/attemptaccess', reque)
         .then(data => data.body.getReader())
@@ -75,9 +87,32 @@ export default class MainContainer extends React.Component {
         .then(data => {
             const message = new TextDecoder("utf-8").decode(data.value);
             console.log(message);
+            if(message === "Cannot allocate session!" || message === "Forbidden") return new Error(message);
             localStorage.setItem('projecttoken', message);
             console.log("obtaining number of files info");
-            
+
+            let reques = {
+                method: 'GET',
+                headers: {
+                    'authorization': localStorage.usertoken,
+                    'projmetadata': localStorage.poname,
+                    'projectinfo': localStorage.projecttoken
+                }
+            }
+
+            setInterval(() => {
+                fetch('/projects/updateaccess', reques)
+                .then(data => 
+                    data.body.getReader())
+                .then(reader => reader.read())
+                .then(data => {
+                    const message = new TextDecoder("utf-8").decode(data.value);
+                    localStorage.setItem('projecttoken', message);
+                    reques.headers.projectinfo = message;
+                    console.log("token updated");
+                });
+            }, 30 * 1000);
+
             let len = 0;
             fetch('/projects/numfiles', reque)
             .then(data => 
