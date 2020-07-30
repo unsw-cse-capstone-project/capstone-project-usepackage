@@ -11,7 +11,7 @@ export default class ActionStack {
         this._stack.push(action);
     }
 
-    applyPop(cuts) {
+    pop() {
         return this._stack.pop();
     }
 

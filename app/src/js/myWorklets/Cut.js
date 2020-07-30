@@ -87,14 +87,14 @@ export default class CutManager {
                     });
                 const firstCut = {
                     sourceStart: this.cuts[i].sourceStart,
-                    sourceEnd: this.cuts[i].sourceEnd  - (cumtime - time)*this.cuts[i].tempo,
+                    sourceEnd: this.cuts[i].sourceEnd - (cumtime - time) * this.cuts[i].tempo,
                     tempo: this.cuts[i].tempo,
                     pitch: this.cuts[i].pitch,
                     gain: this.cuts[i].gain.slice(),
                     cropped: this.cuts[i].cropped
                 }
                 const secondCut = {
-                    sourceStart: this.cuts[i].sourceEnd - (cumtime - time)*this.cuts[i].tempo,
+                    sourceStart: this.cuts[i].sourceEnd - (cumtime - time) * this.cuts[i].tempo,
                     sourceEnd: this.cuts[i].sourceEnd,
                     tempo: this.cuts[i].tempo,
                     pitch: this.cuts[i].pitch,
@@ -162,7 +162,7 @@ export default class CutManager {
     }
 
     undo() {
-        let action = this.stack.applyPop();
+        let action = this.stack.pop();
         if (action === undefined) return false;
         if (action.type === 'cut') {
             const i = action.at;
@@ -210,7 +210,7 @@ export default class CutManager {
     }
 
     redo() {
-        let action = this.redoStack.applyPop();
+        let action = this.redoStack.pop();
         if (action === undefined) return false;
 
         if (action.type === 'cut') {

@@ -16,6 +16,11 @@ export default class CutBar extends React.Component {
             position: 0,
             length: 1
         }
+        this.interact = {
+            start: 0,
+            end: 0,
+            selected: false,
+        }
         this.cutCB = props.cutCB;
         this.ref = React.createRef();
         this.draw = this.draw.bind(this);
@@ -25,29 +30,53 @@ export default class CutBar extends React.Component {
 
     componentDidMount() {
         const canvas = this.ref.current;
-        canvas.addEventListener('click', (e) => {
-            console.log(e);
-            console.log("cutbar length:", this.state.length);
-            if (this.cutCB){
-                const time = e.offsetX / this.state.width * this.state.length
-                this.cutCB(time);
-                // for(let i = 0, run = 0; i < this.state.cuts.length; i++){
-                //     run+= this.state.cuts[i].length;
-                //     if(run === time) break;
-                //     if(run > time) {
-                //         this.state.cuts.splice(i+1, 0, [{length: this.state.cuts[i].length - (time - run), cropped: this.state.cuts[i].cropped}]);
-                //         this.state.cuts[i].length = time - run;
-                //         break;
-                //     }
-                //     // if(i === this.state.cuts.length - 1){
-                        
-                //     //     this.state.cuts.push(time);
-                //     //     break;
-                //     // }
-                // }
-                // this.setState({cuts: this.state.cuts});
+        canvas.addEventListener('mousedown', (e) => {
+            console.log("MOUSEDOWN"); // DEBUG
+            this.interact.start = e.offsetX;
+            this.interact.pressed = true;
+        });
+        canvas.addEventListener('mousemove', (e) => {
+            console.log("MOUSEMOVE"); // DEBUG
+            if (this.interact.pressed) {
+                this.interact.selected = true;
+                this.interact.end = e.offsetX;
+                this.draw();
             }
         });
+        canvas.addEventListener('mouseup', (e) => {
+            console.log("MOUSEUP"); // DEBUG
+            this.interact.pressed = false;
+            this.interact.selected = false;
+            if (this.interact.selected) {
+                console.log("SELECT", this.interact.start, this.interact.end); // DEBUG
+            } else {
+                console.log("SELECT SLICE", this.interact.start); // DEBUG
+                if (this.cutCB)
+                    this.cutCB(e.offsetX / this.state.width * this.state.length);
+            }
+            this.draw();
+        });
+        // canvas.addEventListener('click', (e) => {
+        //     if (this.cutCB){
+        //         const time = e.offsetX / this.state.width * this.state.length
+        //         this.cutCB(time);
+        //         // for(let i = 0, run = 0; i < this.state.cuts.length; i++){
+        //         //     run+= this.state.cuts[i].length;
+        //         //     if(run === time) break;
+        //         //     if(run > time) {
+        //         //         this.state.cuts.splice(i+1, 0, [{length: this.state.cuts[i].length - (time - run), cropped: this.state.cuts[i].cropped}]);
+        //         //         this.state.cuts[i].length = time - run;
+        //         //         break;
+        //         //     }
+        //         //     // if(i === this.state.cuts.length - 1){
+                        
+        //         //     //     this.state.cuts.push(time);
+        //         //     //     break;
+        //         //     // }
+        //         // }
+        //         // this.setState({cuts: this.state.cuts});
+        //     }
+        // });
         this.canvasCtx = canvas.getContext("2d");
         this.draw();
     }
@@ -62,7 +91,6 @@ export default class CutBar extends React.Component {
     }
 
     drawMove(position) {
-        console.log(position);
         this.setState({
             position: position.time
         });
@@ -105,8 +133,7 @@ export default class CutBar extends React.Component {
             running += cuts[i].length;
             let nextx = running / trackLength * this.state.width;
             const barHeight = this.state.height;
-            // Add variable that is dependent on cut
-            (i % 2 == 0) ? this.canvasCtx.fillStyle = 'red' : this.canvasCtx.fillStyle = 'blue';
+            this.canvasCtx.fillStyle = 'red';
             //this.canvasCtx.fillStyle = 'rgb(' + (100 + x / this.state.width * 155) + ',50,50)';
             this.canvasCtx.fillRect(x, 0, barWidth, barHeight);
             if (cuts[i].cropped)
@@ -116,6 +143,8 @@ export default class CutBar extends React.Component {
             this.canvasCtx.font = "15px Arial";
             this.canvasCtx.fillText(i, (x + nextx) / 2, this.state.height/2);
         }
+        if (this.interact.selected)
+            this.canvasCtx.fillRect(this.interact.start, 0, this.interact.end - this.interact.start, this.state.height);
         if (drawpos)
             this.canvasCtx.fillRect((pos + offset) / trackLength * this.state.width, 0, barWidth, this.state.height);
     }

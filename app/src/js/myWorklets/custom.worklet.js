@@ -2,6 +2,7 @@ import Stretch from './Stretch.js'
 import RateTransposer from './RateTransposer.js';
 import FifoSampleBuffer from './FifoSampleBuffer.js'
 import CutManager from './Cut.js'
+import MsgType from './messageTypes.js';
 
 const FRAMESIZE = 128;
 
@@ -12,10 +13,8 @@ class CustomProcessor extends AudioWorkletProcessor {
         this._bufferInfo = {
             sampleRate: 0,
             duration: 0,
-            numberOfChannels: 0,
             length: 0,
-            channelOne: [],
-            channelTwo: []
+            buffer: []
         };
         this._sourceData = {
             cut: null,
@@ -38,105 +37,108 @@ class CustomProcessor extends AudioWorkletProcessor {
             new FifoSampleBuffer()
         ];
         this.calculateEffectiveValues(1, 1);
-        this.port.onmessage = (e) => {
-            const msg = e.data;
-            let title = msg.title;
-            let data = msg.data;
-            if ("Begin" === title) {
+        this.port.onmessage = (e) => this._handleMessage(e.data);
+        this.port.postMessage({
+            type: MsgType.INIT
+        });
+    }
+
+    _handleMessage(msg) {
+        const data = msg.data;
+
+        switch (msg.type) {
+            case MsgType.START:
                 this._bufferInfo = data;
-                this._interleave = new Float32Array(data.channelOne.length * 2);
-                for (let i = 0; i < data.channelOne.length; i++) {
-                    this._interleave[2 * i] = data.channelOne[i];
-                    this._interleave[2 * i + 1] = data.channelTwo[i];
-                }
-                this._cuts = new CutManager(data.channelOne.length);
-                // this._cuts.addCut(data.sampleRate * 2);
-                // this._cuts.cuts[1].tempo = 2;
-                console.log(this._interleave);
+                this._interleave = data.buffer;
+                this._cuts = new CutManager(data.length);
+                console.log(this._interleave); // DEBUG
                 this._initialized = true;
                 this.port.postMessage({
-                    title: "Ready",
-                    data: "Processor is ready"
-                })
+                    type: MsgType.READY
+                });
                 return;
-            }
 
-            if ("Seek" === title) {
+            case MsgType.SEEK:
                 this.seek(data.slice, data.time);
                 return;
-            }
 
-            if (!(title === "Lengths" || title === "Update" || title === "Undo" || title === "Redo")) {
+            case MsgType.PLAY:
+                this._playing = data;
+                break;
+
+            case MsgType.CUT:
                 this._cuts.dumpRedo();
-            }
-
-            if ("Update" === title) {
-                this._playing = !data.paused;
-            }
-
-            if ("Cut" === title) {
                 this._cuts.addCut(data);
-            }
+                break;
 
-            if ("Tempo" === title) {
-                console.log("Slice: ", data.index);
-                console.log("Tempo:", data.value);
+            case MsgType.TEMPO:
+                console.log("Slice: ", data.index); // DEBUG
+                console.log("Tempo:", data.value); // DEBUG
+                this._cuts.dumpRedo();
                 this._cuts.setTempo(data.index, data.value);
-            }
+                break;
 
-            if ("Gain" === title) {
-                console.log("Slice: ", data.index);
-                console.log("Gain:", data.value);
-                console.log("Channel:", data.channel);
+            case MsgType.GAIN:
+                console.log("Slice: ", data.index); // DEBUG
+                console.log("Gain:", data.value); // DEBUG
+                console.log("Channel:", data.channel); // DEBUG
+                this._cuts.dumpRedo();
                 this._cuts.setGain(data.index, data.channel, data.value);
-            }
+                break;
 
-            if ("Pitch" === title) {
-                console.log("Slice: ", data.index);
-                console.log("Pitch:", data.value);
+            case MsgType.PITCH:
+                console.log("Slice: ", data.index); // DEBUG
+                console.log("Pitch:", data.value); // DEBUG
+                this._cuts.dumpRedo();
                 this._cuts.setPitch(data.index, data.value);
-            }
+                break;
 
-            if ("Crop" === title) {
+            case MsgType.CROP:
+                this._cuts.dumpRedo();
                 this._cuts.crop(data);
-            }
+                break;
 
-            if ("Copy" === title) {
-                this._cuts.copy(data.from, data.to);
-            }
+            case MsgType.COPY:
+                this._cuts.dumpRedo();
+                this._cuts.crop(data);
+                break;
 
-            if ("Move" === title) {
+            case MsgType.MOVE:
+                this._cuts.dumpRedo();
                 this._cuts.move(data.from, data.to);
-            }
+                break;
 
-            if ("Undo" === title) {
+            case MsgType.UNDO:
                 this._cuts.undo();
-            }
+                break;
 
-            if ("Redo" === title) {
+            case MsgType.REDO:
                 this._cuts.redo();
-            }
+                break;
 
-            if("getStack" === title) {
+            case MsgType.STACK:
                 this.port.postMessage({
-                    title: "returnStack",
+                    type: MsgType.STACK,
                     data: this._cuts.getStack()
-                })
-            }
+                });
+                return;
 
-            this.port.postMessage({
-                title: "Lengths",
-                data: this._cuts.getLengths()
-            });
+            case MsgType.LENGTH:
+                break;
+
+            default:
+                console.error("Unknown message type in node", msg.type);
+                return;
         }
+
         this.port.postMessage({
-            title: "Initialised",
-            data: "Ready to take information"
-        })
+            type: MsgType.LENGTH,
+            data: this._cuts.getLengths()
+        });
     }
 
     seek(slice, time) {
-        console.log({ slice: slice, time: time });
+        console.log("SEEK TO", { slice: slice, time: time }); // DEBUG
         let cut = this._cuts.get(slice);
         while (cut && cut.cropped) {
             cut = this._cuts.get(++slice);
@@ -184,19 +186,17 @@ class CustomProcessor extends AudioWorkletProcessor {
             new FifoSampleBuffer()
         ];
         this.port.postMessage({
-            title: "Stop",
-            data: {
-                time: 0
-            }
+            type: MsgType.STOP,
+            data: 0
         });
-        console.log("Stopped");
+        console.log("Stopped"); // DEBUG
     }
 
 
     update() {
         this._frame += 1;
         this.port.postMessage({
-            title: "Position",
+            type: MsgType.POS,
             data: {
                 time: this._frame,
                 cut: this._sourceData.cut
@@ -220,18 +220,14 @@ class CustomProcessor extends AudioWorkletProcessor {
             this._transposer.inputBuffer = this._buffers[1];
             this._transposer.outputBuffer = this._buffers[2];
             this._sourceData.chunk = this._stretch.inputChunkSize;
-            console.log("CONNECT 1");
         } else {
             this._transposer.inputBuffer = this._buffers[0];
             this._transposer.outputBuffer = this._buffers[1];
             this._stretch.inputBuffer = this._buffers[1];
             this._stretch.outputBuffer = this._buffers[2];
             this._sourceData.chunk = Math.ceil(this._stretch.inputChunkSize * pitch);
-            console.log("CONNECT 2");
         }
         this._sourceData.liveChunk = Math.ceil(FRAMESIZE * virtualTempo);
-        console.log(this._sourceData.chunk);
-        console.log(this._sourceData.liveChunk);
     }
 
     toClear() {
@@ -266,7 +262,6 @@ class CustomProcessor extends AudioWorkletProcessor {
             this._sourceData.index++;
             this._sourceData.cut = this._cuts.get(this._sourceData.index);
         } while (this._sourceData.cut && this._sourceData.cut.cropped);
-        this.x = true;
         if (!this._sourceData.cut)
             return;
         this.calculateEffectiveValues(this._sourceData.cut.tempo, this._sourceData.cut.pitch);
@@ -274,7 +269,6 @@ class CustomProcessor extends AudioWorkletProcessor {
         this._sourceData.remain = Math.floor((this._sourceData.cut.sourceEnd - this._sourceData.frame) / this._sourceData.cut.tempo);
         this._buffers[0].clear();
         this._buffers[1].clear();
-        this.a = true;
         this.processIntoBuffer(this._sourceData.chunk);
     }
 
@@ -287,11 +281,6 @@ class CustomProcessor extends AudioWorkletProcessor {
     }
 
     processBuffer() {
-        if (this.a) {
-            console.log(this._buffers[0].frameCount);
-            console.log(this._buffers[1].frameCount);
-            console.log(this._buffers[2].frameCount);
-        }
         if (this._transposer.rate > 1) {
             this._stretch.process();
             this._transposer.process();
@@ -299,19 +288,12 @@ class CustomProcessor extends AudioWorkletProcessor {
             this._transposer.process();
             this._stretch.process();
         }
-        if (this.a) {
-            this.a = false;
-            console.log(this._buffers[0].frameCount);
-            console.log(this._buffers[1].frameCount);
-            console.log(this._buffers[2].frameCount);
-        }
     }
 
-    process(inputs, outputs) {
+    process(_, outputs) {
         if (!this._initialized)
             return true;
         if (!this._playing || !this.loadIntoBuffer()) {
-            // Hotfix
             outputs[0].forEach(channel => {
                 channel.fill(0);
             });
@@ -319,7 +301,7 @@ class CustomProcessor extends AudioWorkletProcessor {
         }
 
         if (this._buffers[2].frameCount < FRAMESIZE && this._sourceData.cut)
-            console.log("BUFFER BEHIND", this._buffers[2].frameCount);
+            console.error("The output buffer hasn't been completely filled", this._buffers[2].frameCount);
         const output = new Float32Array(2 * FRAMESIZE);
         this._buffers[2].receiveSamples(output, FRAMESIZE);
         let gain;

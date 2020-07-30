@@ -1,3 +1,5 @@
+import MsgType from './messageTypes.js';
+
 export default class MyWorkletNode extends AudioWorkletNode {
     /*
         The options parameters is an object that we can freely manipulate to add stuff
@@ -11,9 +13,8 @@ export default class MyWorkletNode extends AudioWorkletNode {
     }
 
     seek(slice, time) {
-        console.log("SLICE in node");
         this.port.postMessage({
-            title: "Seek",
+            type: MsgType.SEEK,
             data: {
                 slice: slice,
                 time: time
@@ -23,7 +24,7 @@ export default class MyWorkletNode extends AudioWorkletNode {
 
     getStack() {
         this.port.postMessage({
-            title: "getStack"
+            type: MsgType.STACK
         })
     }
 
@@ -33,21 +34,21 @@ export default class MyWorkletNode extends AudioWorkletNode {
 
     getLengths() {
         this.port.postMessage({
-            title: "Lengths"
+            type: MsgType.LENGTH
         });
     }
 
     executeCut(timeSample) {
         this.port.postMessage({
-            title: "Cut",
+            type: MsgType.CUT,
             data: timeSample
-});
+        });
         console.log("Executing cut in myWorkletNode");
     }
 
     setTempo(val, cut) {
         this.port.postMessage({
-            title: "Tempo",
+            type: MsgType.TEMPO,
             data: {
                 index: cut,
                 value: val
@@ -57,7 +58,7 @@ export default class MyWorkletNode extends AudioWorkletNode {
 
     setGain(val, channel, cut) {
         this.port.postMessage({
-            title: "Gain",
+            type: MsgType.GAIN,
             data: {
                 index: cut,
                 channel: channel,
@@ -68,7 +69,7 @@ export default class MyWorkletNode extends AudioWorkletNode {
 
     setPitch(val, cut) {
         this.port.postMessage({
-            title: "Pitch",
+            type: MsgType.PITCH,
             data: {
                 index: cut,
                 value: val
@@ -78,14 +79,14 @@ export default class MyWorkletNode extends AudioWorkletNode {
 
     crop(slice) {
         this.port.postMessage({
-            title: "Crop",
+            type: MsgType.CROP,
             data: slice
         })
     }
 
     copy(slice, destination) {
         this.port.postMessage({
-            title: "Copy",
+            type: MsgType.COPY,
             data: {
                 from: slice,
                 to: destination
@@ -95,7 +96,7 @@ export default class MyWorkletNode extends AudioWorkletNode {
 
     move(slice, destination) {
         this.port.postMessage({
-            title: "Move",
+            type: MsgType.MOVE,
             data: {
                 from: slice,
                 to: destination
@@ -104,11 +105,22 @@ export default class MyWorkletNode extends AudioWorkletNode {
     }
 
     undo() {
-        this.port.postMessage({ title: "Undo" });
+        this.port.postMessage({
+            type: MsgType.UNDO
+        });
     }
 
     redo() {
-        this.port.postMessage({ title: "Redo" });
+        this.port.postMessage({
+            type: MsgType.REDO
+        });
+    }
+
+    toggle(playing) {
+        this.port.postMessage({
+            type: MsgType.PLAY,
+            data: playing
+        })
     }
 
     /* event listener handling */
@@ -141,13 +153,20 @@ export default class MyWorkletNode extends AudioWorkletNode {
         /* end event listener handling */
 
     _initializeProcessor(data) {
+        const channels = [
+            data.getChannelData(0),
+            data.numberOfChannels > 1 ? data.getChannelData(1) : data.getChannelData(0)
+        ];
+        const interleave = new Float32Array(data.length * 2);
+        for (let i = 0; i < data.length; i++) {
+            interleave[2 * i] = channels[0][i];
+            interleave[2 * i + 1] = channels[1][i];
+        }
         return {
             sampleRate: data.sampleRate,
             duration: data.duration,
-            numberOfChannels: data.numberOfChannels,
             length: data.length,
-            channelOne: data.getChannelData(0),
-            channelTwo: data.numberOfChannels > 1 ? data.getChannelData(1) : data.getChannelData(0)
+            buffer: interleave
         }
     }
 
@@ -159,64 +178,51 @@ export default class MyWorkletNode extends AudioWorkletNode {
     */
     _messageProcessor(e) {
         const msg = e.data;
-        let title = msg.title;
-        let data = msg.data;
+        const data = msg.data;
 
-        // From the processor
-        if ("Initialised" === title) {
-            this.port.postMessage({
-                title: "Begin",
-                data: this._initializeProcessor(this._buffer)
-            })
-        }
-        if ("Ready" === title) {
-            let init = new CustomEvent("init", {
-                detail: data
-            })
-            this.dispatchEvent(init);
-            return;
-        }
-        if ("returnStack" === title) {
-            console.log("STACK IS CURRENTLY: ", data)
-            let stack = new CustomEvent("stack", {
-                detail: data
-            })
-            this.dispatchEvent(stack);
-            return;
-        }
+        switch (msg.type) {
+            case MsgType.INIT:
+                this.port.postMessage({
+                    type: MsgType.START,
+                    data: this._initializeProcessor(this._buffer)
+                });
+                break;
 
-        if ("Position" === title) {
-            this.time = data.time
-            let pos = new CustomEvent("pos", {
-                detail: data
-            })
-            this.dispatchEvent(pos);
-            return;
-        }
+            case MsgType.READY:
+                this.dispatchEvent(new CustomEvent("init", {
+                    detail: data
+                }));
+                return;
 
-        // From the container
-        if ("Update" === title) {
-            this.port.postMessage({
-                title: "Update",
-                data: this.data
-            })
-        }
+            case MsgType.STACK:
+                this.dispatchEvent(new CustomEvent("stack", {
+                    detail: data
+                }));
+                return;
 
-        if ("Stop" === title) {
-            this.time = data.time
-            let stop = new CustomEvent("stop", {
-                detail: "Stop"
-            })
-            this.dispatchEvent(stop);
-            return;
-        }
+            case MsgType.POS:
+                this.time = data.time;
+                this.dispatchEvent(new CustomEvent("pos", {
+                    detail: data
+                }));
+                return;
 
-        if ("Lengths" === title) {
-            let length = new CustomEvent("lengthUpdate", {
-                detail: data
-            });
-            this.dispatchEvent(length);
-            return;
+            case MsgType.STOP:
+                this.time = 0;
+                this.dispatchEvent(new CustomEvent("stop", {
+                    detail: null
+                }));
+                return;
+
+            case MsgType.LENGTH:
+                this.dispatchEvent(new CustomEvent("length", {
+                    detail: data
+                }));
+                return;
+
+            default:
+                console.log("Unknown message type in node", msg.type);
+                return;
         }
     }
 }

@@ -36,20 +36,22 @@ export default class AudioTrackController {
         this.lengthHandle = null;
         this.posHandle = null;
 
-        this.stack = null
+        this.stack = null;
 
         this.node.on('stack', (detail) => {
-            this.stack = detail
+            this.stack = detail;
         });
 
-        this.node.on('stop', (detail) => {
-            this.toggle(detail, true)
+        this.node.on('stop', () => {
+            this.toggle("Play", true);
         });
         this.registerLength = this.registerLength.bind(this);
         this.registerPos = this.registerPos.bind(this);
         this.seek = this.seek.bind(this);
-        if(!this.analyser) {this.analyser = null;
-        console.log("setting analyser to null");}
+        if (!this.analyser) {
+            this.analyser = null;
+            console.log("setting analyser to null");
+        }
     }
 
     getStack() {
@@ -58,12 +60,11 @@ export default class AudioTrackController {
     }
 
     seek(slice, time) {
-        console.log("slice in controller");
         this.node.seek(slice, time);
     }
 
     registerLength(handler) {
-        this.node.on('lengthUpdate', (detail) => {
+        this.node.on('length', (detail) => {
             handler(detail);
         });
         this.node.getLengths();
@@ -72,7 +73,6 @@ export default class AudioTrackController {
     registerPos(handler) {
         this.node.on('pos', (detail) => {
             handler(detail);
-            console.log(detail);
         });
     }
 
@@ -127,12 +127,7 @@ export default class AudioTrackController {
             this.inprogress = true;
             this._buttonNameCb(name, paused)
         }
-        this.node.port.postMessage({
-            title: "Update",
-            data: {
-                paused: !this.inprogress
-            }
-        })
+        this.node.toggle(this.inprogress);
     }
 
     get buttonNameCb() {
@@ -172,12 +167,12 @@ export default class AudioTrackController {
         this.analyser = this.audioCtx.createAnalyser();
         this.node.connect(this.analyser);
         this.analyser.connect(this.audioCtx.destination);
-        if(this.analyser == null) console.log("ANALYSER IS NULL IN CONTROLLER");
-        if(this.analyser != null) console.log("ANALYSER IS NOT NULL IN CONTROLLER");
+        if (this.analyser == null) console.log("ANALYSER IS NULL IN CONTROLLER");
+        if (this.analyser != null) console.log("ANALYSER IS NOT NULL IN CONTROLLER");
     }
 
     getAnalyser() {
-        if(this.analyser == null) console.log("Analyser has become null in the controller");
+        if (this.analyser == null) console.log("Analyser has become null in the controller");
         return this.analyser;
     }
 
