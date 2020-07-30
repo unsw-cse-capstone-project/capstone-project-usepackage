@@ -21,6 +21,7 @@ export default class AudioTrackContainer extends React.Component {
         // Perform setup after promise is fulfilled
         this.startTime = this.startTime.bind(this)
         this.toggle = this.toggle.bind(this)
+        this.props.registerCB(this.toggle)
         this.record = this.record.bind(this)
         this.gain = this.gain.bind(this)
         this.tempo = this.tempo.bind(this);

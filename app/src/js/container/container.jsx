@@ -34,6 +34,7 @@ export default class MainContainer extends React.Component {
         this.addFiles = this.addFiles.bind(this);
         this.saveFiles = this.saveFiles.bind(this);
         this.uploadFiles = this.uploadFiles.bind(this);
+        this.playAll = this.playAll.bind(this);
         this.loadFiles = this.loadFiles.bind(this);
         if (localStorage.usertoken && localStorage.poname) {
             this.loadFiles();
@@ -154,6 +155,10 @@ export default class MainContainer extends React.Component {
             })
         })
     }
+    
+    playAll(){
+        this.audioStack.play();
+    }
 
     render() {
         return (
@@ -170,6 +175,7 @@ export default class MainContainer extends React.Component {
                     </Form.Group>
                     <Button onClick={this.uploadFiles} variant="outline-primary">Upload</Button>
                     <Button onClick={this.saveFiles} variant="outline-primary">Save</Button>
+                    <Button onClick={this.playAll} variant="success">Play/Pause All</Button>
                 </Form>
                 <div className="col-12">
                     {this.audioStack.tracks}
