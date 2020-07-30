@@ -48,7 +48,8 @@ export default class AudioTrackController {
         this.registerLength = this.registerLength.bind(this);
         this.registerPos = this.registerPos.bind(this);
         this.seek = this.seek.bind(this);
-        this.analyser = null;
+        if(!this.analyser) {this.analyser = null;
+        console.log("setting analyser to null");}
     }
 
     getStack() {
@@ -171,6 +172,13 @@ export default class AudioTrackController {
         this.analyser = this.audioCtx.createAnalyser();
         this.node.connect(this.analyser);
         this.analyser.connect(this.audioCtx.destination);
+        if(this.analyser == null) console.log("ANALYSER IS NULL IN CONTROLLER");
+        if(this.analyser != null) console.log("ANALYSER IS NOT NULL IN CONTROLLER");
+    }
+
+    getAnalyser() {
+        if(this.analyser == null) console.log("Analyser has become null in the controller");
+        return this.analyser;
     }
 
     executeCut(timeSample) {

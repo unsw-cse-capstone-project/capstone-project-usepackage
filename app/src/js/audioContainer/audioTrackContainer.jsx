@@ -54,19 +54,14 @@ export default class AudioTrackContainer extends React.Component {
 
     componentDidMount() {
         this.props.onMounted(this.record)
-        console.log("Component mounted");
-        console.log("REEEEEEEEEEE");
-        console.log("REEEEEEEEEEE");
-        console.log("REEEEEEEEEEE");
-        console.log("REEEEEEEEEEE");
-        console.log("REEEEEEEEEEE");
+        console.log("audioTrackContainer mounted");
         AudioTrackController.create(this.audioRecord).then(controller => {
             this.setState({
                 controller: controller
             })
             return this.state
         }).then((state) => {
-            this.state.analyser = this.state.controller.analyser;
+            this.state.analyser = this.state.controller.getAnalyser();
             state.controller.timeCb = (time) => this.setState({time: Number.parseFloat(128*time/44100).toFixed(3).toString()})
             state.controller.buttonNameCb = (name, paused) => this.setState({
                 toggleName: name,
@@ -76,6 +71,9 @@ export default class AudioTrackContainer extends React.Component {
                 state.controller.registerLength(this.lengthHandler);
             if (this.posHandler)
                 state.controller.registerPos(this.posHandler);
+            console.log(this.state.controller);
+            console.log(this.state.controller.getAnalyser());
+            this.state.visualiser = <FreqVisualiser width={300} height={100} analyser={this.state.analyser}/>;
         })
     }
 
@@ -316,7 +314,7 @@ export default class AudioTrackContainer extends React.Component {
                     />
                 </div>
                 <div className="col-12">
-                {/* <FreqVisualiser width={300} height={100} analyser={this.state.analyser}/> */}
+                {this.state.visualiser}
                 </div>
             </div>
         );
