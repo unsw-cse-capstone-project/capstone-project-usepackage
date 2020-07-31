@@ -26,6 +26,7 @@ export default class AudioTrackContainer extends React.Component {
         // Perform setup after promise is fulfilled
         this.startTime = this.startTime.bind(this)
         this.toggle = this.toggle.bind(this)
+        this.stop = this.stop.bind(this);
         this.props.registerCB(this.toggle)
         this.record = this.record.bind(this)
         this.gain = this.gain.bind(this)
@@ -110,6 +111,17 @@ export default class AudioTrackContainer extends React.Component {
 
     stopTime() {
         clearInterval(this.timeInterval)
+    }
+    
+    stop() {
+        if(this.state.controller && !this.state.paused){
+            this.toggle();
+        }
+        const timeStore = this.seekT ? this.seekT : 0;
+        this.seekT = 0;
+        this.handleSeekT();
+        this.seekT = timeStore;
+        this.stopTime();
     }
 
     toggle() {
@@ -259,7 +271,9 @@ export default class AudioTrackContainer extends React.Component {
             <div className="trackContainer row">
                 <div className="col-12 trackTitle"><h2>Track</h2></div>
                 <div className="col-12 timeFont">{this.state.time}</div>
-                <div className="col-4"><Button onClick={this.toggle}>{this.state.toggleName}</Button></div>
+                <div className="col-4"><Button onClick={this.toggle}>{this.state.toggleName}</Button>
+                <Button onClick={this.stop} variant="danger">Stop</Button>
+                </div>
                 <div className="col-4">
                     <Button onClick={this.undo} variant="danger"> Undo </Button>
                     <Button onClick={this.redo} variant="success"> Redo </Button>
