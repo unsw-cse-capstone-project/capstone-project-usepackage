@@ -71,7 +71,7 @@ export default class AudioTrackContainer extends React.Component {
             if (this.posHandler)
                 state.controller.registerPos(this.posHandler);
             this.setState({
-                visualiser: <FreqVisualiser width={300} height={100} analyser={state.controller.analyser}/>
+                visualiser: <FreqVisualiser width={500} height={100} analyser={state.controller.analyser}/>
             });
         })
     }
