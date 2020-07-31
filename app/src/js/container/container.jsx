@@ -66,17 +66,7 @@ export default class MainContainer extends React.Component {
             headers: {
                 'authorization': localStorage.usertoken,
                 'projmetadata': localStorage.poname,
-                'projectinfo' : ""
-            }
-        }
-        if(localStorage.getItem('projecttoken')) {
-            reque = {
-                method: 'GET',
-                headers: {
-                    'authorization': localStorage.usertoken,
-                    'projmetadata': localStorage.poname,
-                    'projectinfo' : localStorage.projecttoken
-                }
+                'projectinfo' : localStorage.getItem('projecttoken') ? localStorage.projecttoken : ""
             }
         }
         // fetch('/projects/updateaccess', ...) ==> 
@@ -91,26 +81,26 @@ export default class MainContainer extends React.Component {
             localStorage.setItem('projecttoken', message);
             console.log("obtaining number of files info");
 
-            let reques = {
-                method: 'GET',
-                headers: {
-                    'authorization': localStorage.usertoken,
-                    'projmetadata': localStorage.poname,
-                    'projectinfo': localStorage.projecttoken
-                }
-            }
-
             setInterval(() => {
-                fetch('/projects/updateaccess', reques)
+                fetch('/projects/updateaccess', {
+                    method: 'GET',
+                    headers: {
+                        'authorization': localStorage.usertoken,
+                        'projmetadata': localStorage.poname,
+                        'projectinfo': localStorage.projecttoken
+                    }
+                })
                 .then(data => 
                     data.body.getReader())
                 .then(reader => reader.read())
                 .then(data => {
                     const message = new TextDecoder("utf-8").decode(data.value);
+
+                    if(message === "Token does not match!") return new Error("Token does not match!");
+
                     localStorage.setItem('projecttoken', message);
-                    reques.headers.projectinfo = message;
                     console.log("token updated");
-                });
+                }).catch(err => console.log(err));
             }, 30 * 1000);
 
             let len = 0;
@@ -204,68 +194,84 @@ export default class MainContainer extends React.Component {
         // fetch(enoughspace) --> proj2 + proj3 + newproj1--> 200MB
         // 2. if there is enough storage, do something like fetch('project/deleteallfilesinproject') (no files in current project)
         // 3. reupload all the files to the db using MainContainer.Save(data)
-        const blobs = this.audioStack.record();
 
-        let sum = 0;
-        let files = []
-        blobs.forEach((blob, i) => {
-            if ( localStorage.usertoken && localStorage.poname) {
-                const file = new File([blob.file], i + ".mp3", {type: "audio/mpeg"});
-                files.push(file)
-                sum += file.size;
-            } else {
-                console.log("NOT LOGGED IN");
-            }
-        });
+        // Check here if the project token is valid.
 
-        const requestOptions = {
+        const reque = {
             method: 'GET',
-            headers: { 
-                'Authorization': localStorage.usertoken,
-                'ProjMetadata': localStorage.poname
+            headers: {
+                'authorization': localStorage.usertoken,
+                'projmetadata': localStorage.poname,
+                'projectinfo' : localStorage.getItem('projecttoken') ? localStorage.projecttoken : ""
             }
-        };
+        }
 
-        fetch('/projects/enoughspace', requestOptions)
+        fetch('/projects/updateaccess', reque)
         .then(data => 
             data.body.getReader())
         .then(reader => reader.read())
         .then(data => {
-            const message = new TextDecoder("utf-8").decode(data.value)
-            if(parseInt(message) + sum <= 209715200) {
-                // delete all files in proj here
-                fetch('/projects/deleteall', requestOptions).then( () => {
-                    // reupload all files to db here
-                    files.forEach( (file, i) => {
-                        let data = new FormData();
-                        data.append('file', file);
-                        // data.append('edits', 'abc134');
-                        console.log("Attempting to save blob")
-                        MainContainer.Save(data, blobs[i].stack, this.state.metadata)
-                        .then(data => 
-                            data.body.getReader())
-                        .then(reader => reader.read())
-                        .then(data => {
-                            const message = new TextDecoder("utf-8").decode(data.value)
-                            alert(message)
-                        }).catch(err => console.log(err));
-                    });
-                });
-            } else {
-                console.log("Not enough space!");
-            }
-        }).catch(err => console.log(err));
+            const message = new TextDecoder("utf-8").decode(data.value);
 
-        
-        
-        // localStorage.usertoken
-        // let a = document.createElement('a');
-        // a.download = 'test.mp3'
-        // a.href = URL.createObjectURL(blob);
-        // a.innerText = "Download Link!";
-        // a.hidden = true;
-        // document.body.appendChild(a);
-        // a.click()
+            if(message === "Token does not match!") return new Error(message);
+
+            localStorage.setItem('projecttoken', message);
+            console.log("token updated");
+
+            const blobs = this.audioStack.record();
+
+            let sum = 0;
+            let files = []
+            blobs.forEach((blob, i) => {
+                if ( localStorage.usertoken && localStorage.poname) {
+                    const file = new File([blob.file], i + ".mp3", {type: "audio/mpeg"});
+                    files.push(file)
+                    sum += file.size;
+                } else {
+                    console.log("NOT LOGGED IN");
+                }
+            });
+
+            const requestOptions = {
+                method: 'GET',
+                headers: { 
+                    'Authorization': localStorage.usertoken,
+                    'ProjMetadata': localStorage.poname
+                }
+            };
+
+            fetch('/projects/enoughspace', requestOptions)
+            .then(data => 
+                data.body.getReader())
+            .then(reader => reader.read())
+            .then(data => {
+                const message = new TextDecoder("utf-8").decode(data.value)
+                if(parseInt(message) + sum <= 209715200) {
+                    // delete all files in proj here
+                    fetch('/projects/deleteall', requestOptions).then( () => {
+                        // reupload all files to db here
+                        files.forEach( (file, i) => {
+                            let data = new FormData();
+                            data.append('file', file);
+                            // data.append('edits', 'abc134');
+                            console.log("Attempting to save blob")
+                            MainContainer.Save(data, blobs[i].stack, this.state.metadata)
+                            .then(data => 
+                                data.body.getReader())
+                            .then(reader => reader.read())
+                            .then(data => {
+                                const message = new TextDecoder("utf-8").decode(data.value)
+                                alert(message)
+                            }).catch(err => console.log(err));
+                        });
+                    });
+                } else {
+                    console.log("Not enough space!");
+                }
+            }).catch(err => console.log(err));
+        }).catch((err) => {
+            alert(err);
+        });
     }
 
     deleteCb(message) {
