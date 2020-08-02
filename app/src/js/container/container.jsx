@@ -5,6 +5,7 @@ import AudioStack from '../audioContainer/audioStack'
 import Modal from 'react-bootstrap/Modal'
 import InputGroup from 'react-bootstrap/InputGroup';
 import FormControl from 'react-bootstrap/FormControl';
+import {fetchGet, fetchPost, fetchGetJSON} from '../extramodules/custfetch';
 
 const dbURL = "http://localhost:8080"
 
@@ -60,56 +61,39 @@ export default class MainContainer extends React.Component {
 
     loadFiles() {
         // CHECK HERE IF USER CAN ACCESS PROJECT using /projects/attemptaccess
-
-        let reque = {
-            method: 'GET',
-            headers: {
-                'authorization': localStorage.usertoken,
-                'projmetadata': localStorage.poname,
-                'projectinfo' : localStorage.getItem('projecttoken') ? localStorage.projecttoken : ""
-            }
+        let opts = {
+            'projmetadata': localStorage.poname,
+            'projectinfo' : localStorage.getItem('projecttoken') ? localStorage.projecttoken : ""
         }
         // fetch('/projects/updateaccess', ...) ==> 
 
-        fetch('/projects/attemptaccess', reque)
-        .then(data => data.body.getReader())
-        .then(reader => reader.read())
-        .then(data => {
-            const message = new TextDecoder("utf-8").decode(data.value);
+        fetchGet('/projects/attemptaccess', {
+            'projmetadata': localStorage.poname,
+            'projectinfo' : localStorage.getItem('projecttoken') ? localStorage.projecttoken : ""
+        })
+        .then(message => {
             console.log(message);
             if(message === "Cannot allocate session!" || message === "Forbidden") return new Error(message);
             localStorage.setItem('projecttoken', message);
             console.log("obtaining number of files info");
 
             setInterval(() => {
-                fetch('/projects/updateaccess', {
-                    method: 'GET',
-                    headers: {
-                        'authorization': localStorage.usertoken,
-                        'projmetadata': localStorage.poname,
-                        'projectinfo': localStorage.projecttoken
-                    }
-                })
-                .then(data => 
-                    data.body.getReader())
-                .then(reader => reader.read())
-                .then(data => {
-                    const message = new TextDecoder("utf-8").decode(data.value);
-
+                fetchGet('/projects/updateaccess', {
+                    'projmetadata': localStorage.poname,
+                    'projectinfo' : localStorage.getItem('projecttoken') ? localStorage.projecttoken : ""
+                }).then(message => {
                     if(message === "Token does not match!") return new Error("Token does not match!");
-
                     localStorage.setItem('projecttoken', message);
                     console.log("token updated");
                 }).catch(err => console.log(err));
-            }, 30 * 1000);
+            }, 10 * 1000);
 
             let len = 0;
-            fetch('/projects/numfiles', reque)
-            .then(data => 
-                data.body.getReader())
-            .then(reader => reader.read())
-            .then(data => {
-                const message = new TextDecoder("utf-8").decode(data.value)
+            fetchGet('/projects/numfiles', {
+                'projmetadata': localStorage.poname,
+                'projectinfo' : localStorage.getItem('projecttoken') ? localStorage.projecttoken : ""
+            })
+            .then(message => {
                 if(message === "fail") console.log(message);
                 // console.log(message);
                 len = parseInt(message);
@@ -120,7 +104,7 @@ export default class MainContainer extends React.Component {
                         method: 'GET',
                         headers: {
                             'authorization': localStorage.usertoken,
-                            'ProjMetadata': localStorage.poname,
+                            'projmetadata': localStorage.poname,
                             'nth': i
                         }
                     }).then(file => {
@@ -141,32 +125,21 @@ export default class MainContainer extends React.Component {
                         // Empty the fileURLs since they have already been processed
                         this.fileURLs = [];
                     }).then(() => {
-                        fetch('projects/getstack', {
-                            method: 'GET',
-                            headers: {
-                                'authorization': localStorage.usertoken,
-                                'ProjMetadata': localStorage.poname,
+                        fetchGet('projects/getstack', {
+                                'projmetadata': localStorage.poname,
                                 'nth': i
                             }
-                        }).then(data => data.body.getReader())
-                        .then(reader => reader.read())
-                        .then(data => {
-                            const message = new TextDecoder("utf-8").decode(data.value)
+                        ).then(message => {
                             console.log("STACK!!! ", message)})
                     }).catch(err => {
                         console.log(err);
                     });
                 }
             }).catch(err => console.log(err));
-            fetch('projects/getmetadata', {
-                method: 'GET',
-                headers: {
-                    'authorization': localStorage.usertoken,
-                    'ProjMetadata': localStorage.poname
+            fetchGetJSON('projects/getmetadata', {
+                    'projmetadata': localStorage.poname
                 }
-            })
-            .then(res => res.json())
-            .then(json => {
+            ).then(json => {
                 this.setState({
                     metadata: json
                 });
@@ -213,7 +186,7 @@ export default class MainContainer extends React.Component {
         .then(data => {
             const message = new TextDecoder("utf-8").decode(data.value);
 
-            if(message === "Token does not match!") return new Error(message);
+            if(message === "Token does not match!" || message === "Forbidden") return new Error(message);
 
             localStorage.setItem('projecttoken', message);
             console.log("token updated");
@@ -231,21 +204,13 @@ export default class MainContainer extends React.Component {
                     console.log("NOT LOGGED IN");
                 }
             });
+            const opts = { 
+                'Authorization': localStorage.usertoken,
+                'projmetadata': localStorage.poname
+            }
 
-            const requestOptions = {
-                method: 'GET',
-                headers: { 
-                    'Authorization': localStorage.usertoken,
-                    'ProjMetadata': localStorage.poname
-                }
-            };
-
-            fetch('/projects/enoughspace', requestOptions)
-            .then(data => 
-                data.body.getReader())
-            .then(reader => reader.read())
-            .then(data => {
-                const message = new TextDecoder("utf-8").decode(data.value)
+            fetchGet('/projects/enoughspace', opts)
+            .then(message => {
                 if(parseInt(message) + sum <= 209715200) {
                     // delete all files in proj here
                     fetch('/projects/deleteall', requestOptions).then( () => {
@@ -379,7 +344,7 @@ MainContainer.Save = (obj, stack, met) => {
         method: 'POST',
         headers: { 
             'Authorization': localStorage.usertoken,
-            'ProjMetadata': localStorage.poname,
+            'projmetadata': localStorage.poname,
             'Stack' : JSON.stringify(stack),
             'FinalMetadata': JSON.stringify(met)
         },
@@ -392,9 +357,24 @@ MainContainer.Save = (obj, stack, met) => {
 
 export function MetadataModal(props) {
     const [show, setShow] = React.useState(false);
-
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true); 
+
+    const headings = ["title", "artist", "album", "year", "track", "genre", "comment"]
+    const objs = headings.map((item, i) => {
+        return (
+        <InputGroup key={i}>
+            <InputGroup.Prepend>
+                <InputGroup.Text id="inputGroup-sizing-default">{item[0].toUpperCase()+item.slice(1)}</InputGroup.Text>
+            </InputGroup.Prepend>
+            <FormControl id={"met-"+item} 
+                aria-label="Default" 
+                aria-describedby="inputGroup-sizing-default" 
+                defaultValue={props.metadata[item]}
+            />
+        </InputGroup>
+        );
+    })
     return (
     <>
         <Button variant={props.variant} onClick={handleShow}>{props.name}</Button>
@@ -403,48 +383,7 @@ export function MetadataModal(props) {
                 <Modal.Title>Metadata</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <InputGroup>
-                    <InputGroup.Prepend>
-                        <InputGroup.Text id="inputGroup-sizing-default">Title</InputGroup.Text>
-                    </InputGroup.Prepend>
-                    <FormControl id="met-title" aria-label="Default" aria-describedby="inputGroup-sizing-default" defaultValue={props.metadata.title}/>
-                </InputGroup>
-                <InputGroup>
-                    <InputGroup.Prepend>
-                        <InputGroup.Text id="inputGroup-sizing-default">Artist</InputGroup.Text>
-                    </InputGroup.Prepend>
-                    <FormControl id="met-artist" aria-label="Default" aria-describedby="inputGroup-sizing-default" defaultValue={props.metadata.artist}/>
-                </InputGroup>
-                <InputGroup>
-                    <InputGroup.Prepend>
-                        <InputGroup.Text id="inputGroup-sizing-default">Album</InputGroup.Text>
-                    </InputGroup.Prepend>
-                    <FormControl id="met-album" aria-label="Default" aria-describedby="inputGroup-sizing-default" defaultValue={props.metadata.album}/>
-                </InputGroup>
-                <InputGroup>
-                    <InputGroup.Prepend>
-                        <InputGroup.Text id="inputGroup-sizing-default">Year</InputGroup.Text>
-                    </InputGroup.Prepend>
-                    <FormControl id="met-year" aria-label="Default" aria-describedby="inputGroup-sizing-default" defaultValue={props.metadata.year}/>
-                </InputGroup>
-                <InputGroup>
-                    <InputGroup.Prepend>
-                        <InputGroup.Text id="inputGroup-sizing-default">Track</InputGroup.Text>
-                    </InputGroup.Prepend>
-                    <FormControl id="met-track" aria-label="Default" aria-describedby="inputGroup-sizing-default" defaultValue={props.metadata.track}/>
-                </InputGroup>
-                <InputGroup>
-                    <InputGroup.Prepend>
-                        <InputGroup.Text id="inputGroup-sizing-default">Genre</InputGroup.Text>
-                    </InputGroup.Prepend>
-                    <FormControl id="met-genre" aria-label="Default" aria-describedby="inputGroup-sizing-default" defaultValue={props.metadata.genre}/>
-                </InputGroup>
-                <InputGroup>
-                    <InputGroup.Prepend>
-                        <InputGroup.Text id="inputGroup-sizing-default">Comment</InputGroup.Text>
-                    </InputGroup.Prepend>
-                    <FormControl id="met-comment" aria-label="Default" aria-describedby="inputGroup-sizing-default" defaultValue={props.metadata.genre}/>
-                </InputGroup> 
+                {objs}
             </Modal.Body>
             <Modal.Footer>
             <Button variant="secondary" onClick={handleClose}>

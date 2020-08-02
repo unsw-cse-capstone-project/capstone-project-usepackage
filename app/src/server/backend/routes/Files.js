@@ -8,6 +8,12 @@ const Grid = require('gridfs-stream');
 const conn = require('../../server-dev')
     // Grid.mongo = mongo;
 
+
+/**
+ * NOTE: THIS LIBRARY IS DEPRECATED! DO NOT USE ANY OF THE METHODS HERE
+ *       PLEASE USE THE METHODS IN Projects.js
+ */
+
 console.log("GridFS Connected")
 
 const gfs = Grid(conn, mongoDriver);

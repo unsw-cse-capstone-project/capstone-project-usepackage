@@ -4,6 +4,8 @@ import Modal from 'react-bootstrap/Modal';
 import InputGroup from 'react-bootstrap/InputGroup';
 import FormControl from 'react-bootstrap/FormControl';
 import Table from 'react-bootstrap/Table';
+import {fetchPost, fetchGet, fetchGetJSON} from '../extramodules/custfetch';
+
 
 const dbURL = "http://localhost:8080"
 
@@ -20,7 +22,7 @@ export default class Profile extends React.Component {
                 red: false,
                 green: false,
                 blue: false,
-                yellow: false,
+                orange: false,
                 purple: false
             },
             search: "",
@@ -52,22 +54,8 @@ export default class Profile extends React.Component {
         let name = {
             projName: document.getElementById("projName").value
         }
-        const requestOptions = {
-            method: 'POST',
-            headers: {
-                'Authorization': localStorage.usertoken,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                projectName: name.projName
-            })
-        };
-        fetch('/projects/create', requestOptions)
-        .then(data => 
-            data.body.getReader())
-        .then(reader => reader.read())
-        .then(data => {
-            const message = new TextDecoder("utf-8").decode(data.value)
+        const optBody = JSON.stringify({ projectName: name.projName })
+        fetchPost('/projects/create',{'Content-Type': 'application/json'},optBody).then(message => {
             if(message === "success") {
                 alert('success');
                 this.loadProjects();
@@ -84,19 +72,15 @@ export default class Profile extends React.Component {
 
     deleteProject(e) {
         if (confirm("Are you sure you want to delete this project?")) {
-            const requestOptions = {
-                method: 'GET',
-                headers: { 
-                    'Authorization': localStorage.usertoken,
-                    'ProjMetadata': e.target.getAttribute('aria-valuenow')
-                }
-            };
-            fetch('/projects/deleteall', requestOptions).then( () => {
-                fetch('projects/deleteproject', requestOptions).then( () => {
+            const opts = {
+                'projmetadata': e.target.getAttribute('aria-valuenow')
+            }
+            fetchGet('/projects/deleteall', opts).then(message => {
+                fetchGet('projects/deleteproject', opts).then(message => {
                     this.loadProjects();
                     this.getTotalSize();
                 });
-            });
+            })
         } else return;
     }
 
@@ -130,20 +114,11 @@ export default class Profile extends React.Component {
             colour: colour,
             state: booleo
         });
-        const requestOptions = {
-            method: 'GET',
-            headers: { 
-                'authorization': localStorage.usertoken,
-                'ProjMetadata': item,
-                'Tag': tagReq 
-            }
+        const opts = {
+            'projmetadata': item,
+            'Tag': tagReq 
         }
-        fetch('/projects/changetag', requestOptions)
-        .then(data => 
-            data.body.getReader())
-        .then(reader => reader.read())
-        .then(data => {
-            const message = new TextDecoder("utf-8").decode(data.value)
+        fetchGet('/projects/changetag', opts).then(message => {
             if(message === "success") {
                 this.loadProjects();
             } else {
@@ -154,29 +129,28 @@ export default class Profile extends React.Component {
     }
 
     printTags(item) {
+        const cols = ["red", "green", "blue", "orange", "purple"]
         const tags = item.tags
-        const red    = tags.red    === true ? 
-                         <span aria-valuenow={JSON.stringify(item)} style={{color:    "red", fontSize: "20px"}} onClick={(e) => this.changeTag(e,    "red", false)}>★</span> : 
-                         <span aria-valuenow={JSON.stringify(item)} style={{color:    "red", fontSize: "20px"}} onClick={(e) => this.changeTag(e,    "red",  true)}>☆</span>
-        const green  = tags.green  === true ? 
-                         <span aria-valuenow={JSON.stringify(item)} style={{color:  "green", fontSize: "20px"}} onClick={(e) => this.changeTag(e,  "green", false)}>★</span> : 
-                         <span aria-valuenow={JSON.stringify(item)} style={{color:  "green", fontSize: "20px"}} onClick={(e) => this.changeTag(e,  "green",  true)}>☆</span>
-        const blue   = tags.blue   === true ? 
-                         <span aria-valuenow={JSON.stringify(item)} style={{color:   "blue", fontSize: "20px"}} onClick={(e) => this.changeTag(e,   "blue", false)}>★</span> : 
-                         <span aria-valuenow={JSON.stringify(item)} style={{color:   "blue", fontSize: "20px"}} onClick={(e) => this.changeTag(e,   "blue",  true)}>☆</span>
-        const yellow = tags.yellow === true ? 
-                         <span aria-valuenow={JSON.stringify(item)} style={{color: "orange", fontSize: "20px"}} onClick={(e) => this.changeTag(e, "yellow", false)}>★</span> : 
-                         <span aria-valuenow={JSON.stringify(item)} style={{color: "orange", fontSize: "20px"}} onClick={(e) => this.changeTag(e, "yellow",  true)}>☆</span>
-        const purple = tags.purple === true ? 
-                         <span aria-valuenow={JSON.stringify(item)} style={{color: "purple", fontSize: "20px"}} onClick={(e) => this.changeTag(e, "purple", false)}>★</span> : 
-                         <span aria-valuenow={JSON.stringify(item)} style={{color: "purple", fontSize: "20px"}} onClick={(e) => this.changeTag(e, "purple",  true)}>☆</span>
+        const tagVals = cols.map((col, i) => {
+            if ( tags[col] === true ) {
+                return (
+                <span key={col+i.toString()+"1"} aria-valuenow={JSON.stringify(item)} 
+                    style={{color: col, fontSize: "20px"}} 
+                    onClick={(e) => this.changeTag(e, col, false)}>
+                    ★
+                </span>);  
+            } else {
+                return (
+                <span key={col+i.toString()+"1"} aria-valuenow={JSON.stringify(item)} 
+                    style={{color: col, fontSize: "20px"}} 
+                    onClick={(e) => this.changeTag(e, col, true)}>
+                    ☆
+                </span>);
+            }
+        })
         return (
             <td>
-                {red}&nbsp;
-                {green}&nbsp;
-                {blue}&nbsp;
-                {yellow}&nbsp;
-                {purple}&nbsp;
+                {tagVals}
             </td>
         );
     }
@@ -202,17 +176,11 @@ export default class Profile extends React.Component {
     }
 
     loadProjects() {
-        const requestOptions = {
-            method: 'GET',
-            headers: { 
-                'authorization': localStorage.usertoken,
-                'Tag': JSON.stringify(this.state.tags),
-                'Search': this.state.search
-            }
-        };
-        fetch('/projects/', requestOptions).then(jsonRes => {
-            return jsonRes.json();
-        }).then(jsonData => {
+        const opts = {
+            'Tag': JSON.stringify(this.state.tags),
+            'Search': this.state.search
+        }
+        fetchGetJSON('/projects/', opts).then(jsonData => {
             if (this.state.comparatorO !== null) {
                 jsonData[0].sort(this.state.comparatorO);
             }
@@ -223,11 +191,10 @@ export default class Profile extends React.Component {
                 projects: jsonData[0].map((item, num) => {
                     const date = new Date(item.date);
                     const dateString = date.getDate() + "/" + date.getMonth() + "/" + date.getFullYear() + " " + date.getHours() + ":" + date.getMinutes();
-                    // return <li key={num} aria-valuenow={JSON.stringify(item)} onClick={(e) => this.setSession(e)}>{item.name}</li>
                     return (
                         <tr key={num} >
                             <td>{num + 1}</td>
-                            <td aria-valuenow={JSON.stringify(item)} onClick={(e) => this.setSession(e)}>{item.name}</td>
+                            <td aria-valuenow={JSON.stringify(item)} className="projname" onClick={(e) => this.setSession(e)}>{item.name}</td>
                             <td>{item.owner}</td>
                             {this.printTags(item)}
                             <td>{dateString}</td>
@@ -239,11 +206,10 @@ export default class Profile extends React.Component {
                 cprojects: jsonData[1].map((item, num) => {
                     const date = new Date(item.date);
                     const dateString = date.getDate() + "/" + date.getMonth() + "/" + date.getFullYear() + " " + date.getHours() + ":" + date.getMinutes();
-                    // return <li key={num} aria-valuenow={JSON.stringify(item)} onClick={(e) => this.setSession(e)}>{item.name}</li>
                     return (
                         <tr key={num}>
                             <td>{num + 1}</td>
-                            <td aria-valuenow={JSON.stringify(item)} onClick={(e) => this.setSession(e)}>{item.name}</td>
+                            <td aria-valuenow={JSON.stringify(item)} className="projname" onClick={(e) => this.setSession(e)}>{item.name}</td>
                             <td>{item.owner}</td>
                             {this.printTags(item)}
                             <td>{dateString}</td>
@@ -255,34 +221,33 @@ export default class Profile extends React.Component {
     }
 
     loadUser() {
-        const requestOptions = {
-            method: 'GET',
-            headers: { 
-                'authorization': localStorage.usertoken
-            }
-        };
-        fetch('/users/userInfo', requestOptions)
-        .then(data => 
-            data.body.getReader())
-        .then(reader => reader.read())
-        .then(data => {
-            const message = new TextDecoder("utf-8").decode(data.value)
+        fetchGet('/users/userInfo').then(message => {
             this.setState({user: message})
         }).catch(err => console.log(err));
     }
 
     tableInterface() {
+        const upArrow = <span style={{color: "green"}}  onClick={() => this.setComparator(1, 0)}> ▲ </span>
+        const downArrow = <span style={{color: "red"}} onClick={() => this.setComparator(2, 0)}> ▼ </span>
+        const tblheadVals = [
+            "#", 
+            <>Project Name {upArrow} {downArrow}</>, 
+            "Owner", 
+            "Tags", 
+            <>Last Modified {upArrow} {downArrow}</>, 
+            "Delete", 
+            "Share"
+        ]
+        const tblhead = tblheadVals.map((item, i) => {
+            return (
+                <th key={item + i}>{item}</th>
+            )
+        })
         return (
             <Table striped bordered hover size="sm">
                 <thead>
                     <tr>
-                        <th>#</th>
-                        <th>Project name <span style={{color: "green"}} onClick={() => this.setComparator(1, 0)}>▲</span>&nbsp;<span style={{color: "red"}} onClick={() => this.setComparator(2, 0)}>▼</span></th>
-                        <th>Owner</th>
-                        <th>Tags</th>
-                        <th>Last Modified <span style={{color: "green"}} onClick={() => this.setComparator(3, 0)}>▲</span>&nbsp;<span style={{color: "red"}} onClick={() => this.setComparator(4, 0)}>▼</span></th>
-                        <th>Delete</th>
-                        <th>Share</th>
+                        {tblhead}
                     </tr>
                 </thead>
                 <tbody>
@@ -293,19 +258,29 @@ export default class Profile extends React.Component {
     }
 
     tableInterfaceCollab() {
+        const upArrow = <span style={{color: "green"}}  onClick={() => this.setComparator(1, 0)}> ▲ </span>
+        const downArrow = <span style={{color: "red"}} onClick={() => this.setComparator(2, 0)}> ▼ </span>
+        const tblheadVals = [
+            "#", 
+            <>Project Name {upArrow} {downArrow}</>, 
+            "Owner", 
+            "Tags", 
+            <>Last Modified {upArrow} {downArrow}</>
+        ]
+        const tblhead = tblheadVals.map((item, i) => {
+            return (
+                <th key={item+i}>{item}</th>
+            )
+        })
         return (
             <Table striped bordered hover size="sm">
                 <thead>
                     <tr>
-                    <th>#</th>
-                        <th>Project name <span style={{color: "green"}} onClick={() => this.setComparator(1, 1)}>▲</span>&nbsp;<span style={{color: "red"}} onClick={() => this.setComparator(2, 1)}>▼</span></th>
-                        <th>Owner</th>
-                        <th>Tags</th>
-                        <th>Last Modified <span style={{color: "green"}} onClick={() => this.setComparator(3, 1)}>▲</span>&nbsp;<span style={{color: "red"}} onClick={() => this.setComparator(4, 1)}>▼</span></th>
+                    {tblhead}
                     </tr>
                 </thead>
                 <tbody>
-                        {this.state.cprojects}
+                    {this.state.cprojects}
                 </tbody>
             </Table>
         )
@@ -316,22 +291,9 @@ export default class Profile extends React.Component {
     }
 
     getTotalSize() {
-        const requestOptions = {
-            method: 'GET',
-            headers: { 
-                'authorization': localStorage.usertoken
-            }
-        };
-        fetch('/projects/totalspace', requestOptions)
-        .then(data => 
-            data.body.getReader())
-        .then(reader => reader.read())
-        .then(data => {
-            const message = new TextDecoder("utf-8").decode(data.value)
-            this.setState({
-                totalSize: (parseInt(message) / 1048576).toFixed(3)
-            })
-        }).catch(err => console.log(err));
+        fetchGet('/projects/totalspace').then(message => {
+            this.setState({totalSize: (parseInt(message) / 1048576).toFixed(3) })
+        })
     }
 
     updateTagg(colour, state) {
@@ -346,29 +308,29 @@ export default class Profile extends React.Component {
     }
 
     filterTags() {
+        const cols = ["red", "green", "blue", "orange", "purple"]
         const tags = this.state.tags
-        const red    = tags.red    === true ? 
-                         <span style={{color:    "red", fontSize: "20px"}} onClick={()=>this.updateTagg("red", false)}>★</span> : 
-                         <span style={{color:    "red", fontSize: "20px"}} onClick={()=>this.updateTagg("red",  true)}>☆</span>
-        const green  = tags.green  === true ? 
-                         <span style={{color:  "green", fontSize: "20px"}} onClick={()=>this.updateTagg("green", false)}>★</span> : 
-                         <span style={{color:  "green", fontSize: "20px"}} onClick={()=>this.updateTagg("green",  true)}>☆</span>
-        const blue   = tags.blue   === true ? 
-                         <span style={{color:   "blue", fontSize: "20px"}} onClick={()=>this.updateTagg("blue", false)}>★</span> : 
-                         <span style={{color:   "blue", fontSize: "20px"}} onClick={()=>this.updateTagg("blue",  true)}>☆</span>
-        const yellow = tags.yellow === true ? 
-                         <span style={{color: "orange", fontSize: "20px"}} onClick={()=>this.updateTagg("yellow", false)}>★</span> : 
-                         <span style={{color: "orange", fontSize: "20px"}} onClick={()=>this.updateTagg("yellow",  true)}>☆</span>
-        const purple = tags.purple === true ? 
-                         <span style={{color: "purple", fontSize: "20px"}} onClick={()=>this.updateTagg("purple", false)}>★</span> : 
-                         <span style={{color: "purple", fontSize: "20px"}} onClick={()=>this.updateTagg("purple",  true)}>☆</span>
-        return (<>
-                {red}&nbsp;
-                {green}&nbsp;
-                {blue}&nbsp;
-                {yellow}&nbsp;
-                {purple}&nbsp;
-                </>
+        const tagVals = cols.map((col, i) => {
+            if ( tags[col] === true ) {
+                return (
+                <span key={col+i.toString()+"2"} 
+                    style={{color: col, fontSize: "20px"}} 
+                    onClick={()=>this.updateTagg(col, false)}>
+                    ★
+                </span>);  
+            } else {
+                return (
+                <span key={col+i.toString()+"2"}
+                    style={{color: col, fontSize: "20px"}} 
+                    onClick={()=>this.updateTagg(col, true)}>
+                    ☆
+                </span>);
+            }
+        })
+        return (
+            <>
+                {tagVals}
+            </>
         );
     }
 

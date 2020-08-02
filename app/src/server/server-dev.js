@@ -9,6 +9,10 @@ const fetch = require('cross-fetch')
 const cors = require('cors')
 const mongoose = require('mongoose')
 
+/**
+ * server-dev.js is where all the frontend loading routes are located at.\
+ */
+
 const app = express(),
     DIST_DIR = __dirname,
     WORKLET_DIR = path.join(DIST_DIR, '../src/js/myWorklets'),
@@ -22,6 +26,8 @@ const app = express(),
     COLLAB_FILE = path.join(DIST_DIR, 'collab.html'),
     compiler = webpack(config)
 
+
+// configuration for frontend routes displayed here
 app.use(webpackDevMiddleware(compiler, {
     publicPath: config.output.publicPath
 }));
@@ -36,8 +42,12 @@ app.use(
     })
 );
 
+// URL to the backend
 const mongoURI = 'mongodb://localhost:27017/usepackage'
 
+
+// Users, Files, and Projects are defined so that routes to the backend can be used
+// MongoDB must be running in a separate session for this to work. 
 let Users = null,
     Files = null,
     Projects = null;
@@ -56,7 +66,7 @@ mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true }).
     console.log('MongoDB Connected');
 }).catch(err => { console.log(err); });
 
-
+// Main page. Users are redirected directly to the Editor UI
 app.get('/', (req, res, next) => {
     compiler.outputFileSystem.readFile(HTML_FILE, (err, result) => {
             if (err) {
@@ -70,31 +80,28 @@ app.get('/', (req, res, next) => {
         // res.sendFile(HTML_FILE)
 })
 
+// same as the above. 
 app.get('/home', (req, res, next) => {
-    // compiler.outputFileSystem.readFile(HTML_FILE, (err, result) => {
-    //     if (err) {
-    //         console.log(req.url)
-    //         return next(err)
-    //     }
-    //     res.set('content-type', 'text/html')
-    //     res.send(result)
-    //     res.end()
-    // })
     res.sendFile(HTML_FILE)
 })
 
+// Register page
 app.get('/register', (req, res, next) => {
     res.sendFile(REGISTER_FILE)
 });
 
+// Login Page
 app.get('/login', (req, res, next) => {
     res.sendFile(LOGIN_FILE);
 })
 
+// Profile Page. Note that the profile page will only work as intended if the user is logged in.
+// If the user is not logged in, no projects will be displayed. 
 app.get('/profile', (req, res, next) => {
     res.sendFile(PROFILE_FILE)
 })
 
+// Collaboration link. Note that the validity of the link is not checked until the user attempts to log in. 
 app.get('/collabs/:ownername/:projectname/:randomlink', (req, res, next) => {
     res.sendFile(COLLAB_FILE)
 })
