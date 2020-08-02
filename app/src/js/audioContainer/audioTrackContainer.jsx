@@ -50,6 +50,7 @@ export default class AudioTrackContainer extends React.Component {
         this.virtualCuts = [0];
         this.lengthHandler = null;
         this.posHandler = null;
+        this.waveResolve = null;
         //this.duration = this.state.controller.audioRecord.audioData.length / this.state.controller.audioRecord.audioData.sampleRate;
     }
 
@@ -74,6 +75,10 @@ export default class AudioTrackContainer extends React.Component {
             this.setState({
                 visualiser: <FreqVisualiser width={500} height={100} analyser={state.controller.analyser}/>
             });
+            if (this.waveResolve) {
+                this.waveResolve(state.controller.waveform);
+                this.waveResolve = null;
+            }
         })
     }
 
@@ -265,6 +270,14 @@ export default class AudioTrackContainer extends React.Component {
         for (; i + 1 < this.virtualCuts.length && this.virtualCuts[i + 1] < time; i++);
         this.handleSeek(i, Math.round(this.state.controller.audioRecord.audioData.sampleRate * (time - this.virtualCuts[i])));
     }
+
+    getWave() {
+        return new Promise((resolve) => {
+            if (this.controller)
+                return this.controller.waveform;
+            this.waveResolve = resolve;
+        });
+    }
     
     render() {
         return (
@@ -324,6 +337,7 @@ export default class AudioTrackContainer extends React.Component {
                         height={60}
                         regLen={this.registerLengthHandler.bind(this)}
                         regPos={this.registerPosHandler.bind(this)}
+                        getWave={this.getWave.bind(this)}
                     />
                 </div>
                 <div className="col-12">

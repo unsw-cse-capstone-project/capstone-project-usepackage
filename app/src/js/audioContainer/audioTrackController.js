@@ -36,7 +36,6 @@ export default class AudioTrackController {
         this.inprogress = false;
         this.lengthHandle = null;
         this.posHandle = null;
-
         this.stack = null;
 
         this.node.on('stack', (detail) => {
@@ -49,6 +48,10 @@ export default class AudioTrackController {
         this.registerLength = this.registerLength.bind(this);
         this.registerPos = this.registerPos.bind(this);
         this.seek = this.seek.bind(this);
+    }
+
+    get waveform() {
+        return this.audioRecord.audioData;
     }
 
     getStack() {
