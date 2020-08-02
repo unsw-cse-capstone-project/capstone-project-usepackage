@@ -8,6 +8,11 @@ export default class CutBar extends React.Component {
             width: props.width,
             height: props.height,
             cuts: [{
+                sourceStart: 0,
+                sourceEnd: 1,
+                gain: [1, 1]
+            }],
+            lengths: [{
                 length: 1,
                 cropped: false
             }],
@@ -15,21 +20,29 @@ export default class CutBar extends React.Component {
             duration: 1,
             position: 0,
             length: 1
-        }
+        };
         this.interact = {
             start: 0,
             end: 0,
             selected: false,
-        }
+        };
+        this.waveform = null;
         this.cutCB = props.cutCB;
         this.ref = React.createRef();
+        this.bgref = React.createRef();
         this.draw = this.draw.bind(this);
+        this.drawbg = this.drawbg.bind(this);
         props.regLen(this.drawLengths.bind(this));
         props.regPos(this.drawMove.bind(this));
+        props.getWave().then((waveform) => {
+            this.waveform = waveform;
+            this.drawbg();
+        });
     }
 
     componentDidMount() {
         const canvas = this.ref.current;
+        this.canvasCtx2 = this.bgref.current.getContext('2d');
         canvas.addEventListener('mousedown', (e) => {
             console.log("MOUSEDOWN"); // DEBUG
             this.interact.start = e.offsetX;
@@ -81,11 +94,12 @@ export default class CutBar extends React.Component {
         this.draw();
     }
 
-    drawLengths(lengths) {
+    drawLengths(data) {
         this.setState({
-            cuts: lengths,
-            cropped: lengths.filter(v => v.cropped),
-            length: lengths.reduce((a, b) => (a + b.length), 0)
+            cuts: data.cuts,
+            lengths: data.lengths,
+            cropped: data.lengths.filter(v => v.cropped),
+            length: data.lengths.reduce((a, b) => (a + b.length), 0),
         });
         this.draw();
     }
@@ -97,10 +111,47 @@ export default class CutBar extends React.Component {
         this.draw(true);
     }
 
+    drawbg() {
+        if (this.waveform) {
+            const form = [
+                this.waveform.getChannelData(0),
+                this.waveform.getChannelData(1)
+            ];
+            this.bgref.current.width = this.state.width;
+            this.canvasCtx2.strokeStyle = 'black';
+            let canvasStart = 0;
+            for (let i = 0; i < this.state.cuts.length; i++) {
+                const cut = this.state.cuts[i];
+                console.log("CUT", cut);
+                const length = this.state.lengths[i].length;
+                const canvasLength = length * this.state.width / this.state.length;
+                for (let n = 0; n < 2; n++) {
+                    const mid = this.state.height / 4 + n * this.state.height / 2;
+                    this.canvasCtx2.moveTo(canvasStart, mid);
+                    for (let x = 0; x < canvasLength; x += 0.1) {
+                        const offset = Math.floor((cut.sourceEnd - cut.sourceStart) * x / canvasLength);
+                        const val = form[n][cut.sourceStart + offset] * cut.gain[n];
+                        this.canvasCtx2.lineTo(
+                            canvasStart + x,
+                            mid + (val > 1 ? 1 : (val < -1 ? -1 : val)) * this.state.height / 4
+                        );
+                    }
+                    this.canvasCtx2.stroke();
+                }
+                canvasStart += canvasLength;
+            }
+            this.setState({
+                width: this.state.width
+            });
+        }
+    }
+
     draw(drawpos=false) {
-        let cuts = this.state.cuts;
+        if (!drawpos)
+            this.drawbg();
+        let cuts = this.state.lengths;
         let numCuts = 0;
-        if ( this.state.cuts != undefined ) {
+        if ( this.state.lengths != undefined ) {
             numCuts = cuts.length;
         }
         this.canvasCtx.fillStyle = 'black';
@@ -153,6 +204,7 @@ export default class CutBar extends React.Component {
         return (
             <div className="CutBar">
                 <canvas ref={this.ref} width={this.state.width} height={this.state.height}></canvas>
+                <canvas ref={this.bgref} width={this.state.width} height={this.state.height}></canvas>
             </div>
         );
     }

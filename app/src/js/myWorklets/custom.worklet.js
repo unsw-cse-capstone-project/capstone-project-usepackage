@@ -133,7 +133,10 @@ class CustomProcessor extends AudioWorkletProcessor {
 
         this.port.postMessage({
             type: MsgType.LENGTH,
-            data: this._cuts.getLengths()
+            data: {
+                lengths: this._cuts.getLengths(),
+                cuts: this._cuts.cuts
+            }
         });
     }
 
