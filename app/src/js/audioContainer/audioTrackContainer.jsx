@@ -8,13 +8,15 @@ import FormControl from 'react-bootstrap/FormControl';
 import CutBar from '../BasicComponents/CutBar2.jsx';
 import Hotkeys from '../BasicComponents/Hotkeys.jsx';
 import FreqVisualiser from '../BasicComponents/FreqVisualiser.jsx';
+import { BsXCircleFill, BsFillPlayFill, BsFillPauseFill, BsFillStopFill } from "react-icons/bs"
+import { MdUndo, MdRedo } from "react-icons/md";
 
 export default class AudioTrackContainer extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
             deleteCb: props.deleteCb,
-            toggleName: "Start",
+            toggleName: "Play",
             controller: null,
             time: "0.00",
             paused: true,
@@ -282,22 +284,38 @@ export default class AudioTrackContainer extends React.Component {
     render() {
         return (
             <div className="trackContainer row">
-                <div className="col-12 trackTitle"><h2>Track</h2></div>
-                <div className="col-12 timeFont">{this.state.time}</div>
-                <div className="col-4"><Button onClick={this.toggle}>{this.state.toggleName}</Button>
-                <Button onClick={this.stop} variant="danger">Stop</Button>
+                <div className="col-11 trackTitle"><h2>Track</h2></div>
+                <div className="col-1 text-right">
+                    <Button onClick={() => this.state.deleteCb(this.props.audioRecord.fileURL)} variant="danger"><BsXCircleFill /></Button>
                 </div>
                 <div className="col-4">
-                    <Button onClick={this.undo} variant="danger"> Undo </Button>
-                    <Button onClick={this.redo} variant="success"> Redo </Button>
+                    <CutBar
+                        cutCB={this.executeCut}
+                        width={600}
+                        height={60}
+                        regLen={this.registerLengthHandler.bind(this)}
+                        regPos={this.registerPosHandler.bind(this)}
+                        getWave={this.getWave.bind(this)}
+                    />
+                    <div>{this.state.time}</div>
                 </div>
+                <div className="col-1"><Slider name="VL" controlId="gainControllerL" changeCallBack={e => this.gain(e, 0)} /></div>
+                <div className="col-1"><Slider name="VR" controlId="gainControllerR" changeCallBack={e => this.gain(e, 1)} /></div>
+                <div className="col-1"><Slider name="Tm" controlId="tempoController" changeCallBack={this.tempo} /></div>
+                <div className="col-1"><Slider name="Pt" controlId="pitchController" changeCallBack={this.pitch} /></div>
+                {/* add visualisers later */}
+                {/* <div className="col-12">
+                {this.state.visualiser}
+                </div> */}
+                
                 <div className="col-4">
-                    <Button onClick={() => this.state.deleteCb(this.props.audioRecord.fileURL)} variant="danger"> Delete </Button>
+                <Button className="btn-margin" onClick={this.toggle}>{this.state.toggleName === "Play" ? <BsFillPlayFill /> : <BsFillPauseFill />}</Button>
+                <Button className="btn-margin" onClick={this.stop} variant="danger"><BsFillStopFill /></Button>
+                <Button className="btn-margin" onClick={this.undo} variant="warning"><MdUndo /></Button>
+                <Button className="btn-margin" onClick={this.redo} variant="success"><MdRedo /></Button>
                 </div>
-                <div className="col-1"><Slider name="VolumeL" controlId="gainControllerL" changeCallBack={e => this.gain(e, 0)} /></div>
-                <div className="col-1"><Slider name="VolumeR" controlId="gainControllerR" changeCallBack={e => this.gain(e, 1)} /></div>
-                <div className="col-1"><Slider name="Tempo" controlId="tempoController" changeCallBack={this.tempo} /></div>
-                <div className="col-1"><Slider name="Pitch" controlId="pitchController" changeCallBack={this.pitch} /></div>
+                
+
                 <div><Hotkeys undoHandler={this.undo} redohandler={this.redo}/></div>
                 <div className="col-6">
                     <SelectTime 
@@ -330,19 +348,8 @@ export default class AudioTrackContainer extends React.Component {
                         updateSeekT={this.updateSeekT.bind(this)}
                     />
                 </div>
-                <div className="col-12">
-                    <CutBar
-                        cutCB={this.executeCut}
-                        width={600}
-                        height={60}
-                        regLen={this.registerLengthHandler.bind(this)}
-                        regPos={this.registerPosHandler.bind(this)}
-                        getWave={this.getWave.bind(this)}
-                    />
-                </div>
-                <div className="col-12">
-                {this.state.visualiser}
-                </div>
+
+                
             </div>
         );
     }

@@ -203,8 +203,8 @@ export default class CutBar extends React.Component {
     render() {
         return (
             <div className="CutBar">
-                <canvas ref={this.ref} width={this.state.width} height={this.state.height}></canvas>
-                <canvas ref={this.bgref} width={this.state.width} height={this.state.height}></canvas>
+                <div><canvas ref={this.ref} width={this.state.width} height={this.state.height}></canvas></div>
+                <div><canvas ref={this.bgref} width={this.state.width} height={this.state.height}></canvas></div>
             </div>
         );
     }

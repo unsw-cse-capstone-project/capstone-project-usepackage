@@ -5,7 +5,9 @@ import AudioStack from '../audioContainer/audioStack'
 import Modal from 'react-bootstrap/Modal'
 import InputGroup from 'react-bootstrap/InputGroup';
 import FormControl from 'react-bootstrap/FormControl';
-import {fetchGet, fetchPost, fetchGetJSON} from '../extramodules/custfetch';
+import { fetchGet, fetchPost, fetchGetJSON } from '../extramodules/custfetch';
+import { BsInfoCircleFill, BsCollectionPlayFill } from 'react-icons/bs'
+import { MdFileUpload, MdFileDownload, MdShare, MdSave } from 'react-icons/md'
 
 const dbURL = "http://localhost:8080"
 
@@ -289,12 +291,14 @@ export default class MainContainer extends React.Component {
 
     drawSaveButton() {
         if(localStorage.getItem('usertoken') && localStorage.getItem('poname'))
-            return <Button onClick={this.saveFiles} variant="outline-primary">Save</Button>
+            return <Button className="btn-margin btn-save" onClick={this.saveFiles}><MdSave /></Button>
     }
 
     render() {
+        const projHeader = localStorage.getItem('poname') ? JSON.parse(localStorage.poname).name : "";
         return (
             <div className="row main">
+                <h1>{projHeader}</h1>
                 <Form className="col-12">
                     <Form.Group>
                         <Form.File 
@@ -305,9 +309,9 @@ export default class MainContainer extends React.Component {
                             onChange={e => this.addFiles(e.target.files)}
                         />
                     </Form.Group>
-                    <Button onClick={this.uploadFiles} variant="outline-primary">Upload</Button>
+                    <Button className="btn-margin" onClick={this.uploadFiles} variant="outline-primary"><MdFileUpload /></Button>
                     {this.drawSaveButton()}
-                    <Button onClick={this.playAll} variant="success">Play/Pause All</Button>
+                    <Button className="btn-margin" onClick={this.playAll} variant="success"><BsCollectionPlayFill /></Button>
                     <MetadataModal variant={"info"} name={"Metadata"} metadata={this.state.metadata} handler={this.updateMetadata}/>
                     <ShareLinkModal inf={localStorage.getItem('poname')} name={"Share"} variant={"warning"}/>
                     <DownLoadModel name={"Download"} defaultState={this.state.downloadType} radioHandler={this.radioHandler} handler={this.downloadHandler}/>
@@ -372,7 +376,7 @@ export function MetadataModal(props) {
     })
     return (
     <>
-        <Button variant={props.variant} onClick={handleShow}>{props.name}</Button>
+        <Button className="btn-margin" variant={props.variant} onClick={handleShow}><BsInfoCircleFill /></Button>
         <Modal show={show} onHide={handleClose}>
             <Modal.Header closeButton>
                 <Modal.Title>Metadata</Modal.Title>
@@ -406,7 +410,7 @@ export function DownLoadModel(props) {
     })
     return (
     <>
-        <Button variant={props.variant} onClick={handleShow}>{props.name}</Button>
+        <Button className="btn-margin" variant={props.variant} onClick={handleShow}><MdFileDownload /></Button>
         <Modal show={show} onHide={handleClose}>
             <Modal.Header closeButton>
                 <Modal.Title>Download</Modal.Title>
@@ -440,7 +444,7 @@ export function ShareLinkModal(props) {
     const link = 'http://localhost:8080/collabs/' + inf.owner + '/' + inf.name + '/' + inf.str;
     return (
     <>
-        <Button variant={props.variant} onClick={handleShow}>{props.name}</Button>
+        <Button className="btn-margin" variant={props.variant} onClick={handleShow}><MdShare /></Button>
         <Modal show={show} onHide={handleClose}>
             <Modal.Header closeButton>
                 <Modal.Title>Share Link</Modal.Title>
