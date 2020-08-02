@@ -115,7 +115,7 @@ export default class CutBar extends React.Component {
         if (this.waveform) {
             const form = [
                 this.waveform.getChannelData(0),
-                this.waveform.getChannelData(1)
+                this.waveform.getChannelData(this.waveform.numberofChannels < 2 ? 0 : 1)
             ];
             this.bgref.current.width = this.state.width;
             this.canvasCtx2.strokeStyle = 'black';
