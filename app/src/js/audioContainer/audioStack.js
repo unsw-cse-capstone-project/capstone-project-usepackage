@@ -38,11 +38,12 @@ export default class AudioStack {
         })
     }
 
-    record() {
+    record(type) {
+        console.log("AUDIOSTACK TYPE: ", type) // DEBUG
         let blobs = []
         console.log("Checking RECORDS: ", this.records[0])
         this.tracks.forEach((_, i) => {
-            const recObj = this.records[i]()
+            const recObj = this.records[i](type)
             console.log("RECOBJ: ", recObj)
             blobs.push({
                 file: recObj.rec,

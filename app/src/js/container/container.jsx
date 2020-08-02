@@ -183,7 +183,7 @@ export default class MainContainer extends React.Component {
             localStorage.setItem('projecttoken', message);
             console.log("token updated");
 
-            const blobs = this.audioStack.record();
+            const blobs = this.audioStack.record("mp3");
 
             let sum = 0;
             let files = []
@@ -212,12 +212,13 @@ export default class MainContainer extends React.Component {
                             data.append('file', file);
                             // data.append('edits', 'abc134');
                             console.log("Attempting to save blob")
-                            MainContainer.Save(data, blobs[i].stack, this.state.metadata)
-                            .then(data => 
-                                data.body.getReader())
-                            .then(reader => reader.read())
-                            .then(data => {
-                                const message = new TextDecoder("utf-8").decode(data.value)
+                            const opts = 
+                            {
+                                'projmetadata': localStorage.poname,
+                                'stack' : JSON.stringify(blobs[i].stack),
+                                'FinalMetadata': JSON.stringify(this.state.metadata)
+                            } 
+                            fetchPost('/projects/save', opts, data).then(message => {
                                 alert(message)
                             }).catch(err => console.log(err));
                         });

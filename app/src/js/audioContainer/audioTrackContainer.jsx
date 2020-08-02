@@ -96,10 +96,10 @@ export default class AudioTrackContainer extends React.Component {
             this.posHandler = handler;
     }
 
-    record() {
+    record(type) {
         if ( this.state.controller ) {
             return ({
-                rec: this.state.controller.record(),
+                rec: this.state.controller.record(type),
                 stack: this.state.controller.getStack()
             })
             // return this.state.controller.record()

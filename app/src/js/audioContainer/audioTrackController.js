@@ -9,6 +9,7 @@
 import workletURL from '../myWorklets/custom.worklet.js';
 import MyWorkletNode from '../myWorklets/myWorkletNode';
 import lamejs from '../lib/lamejs.js';
+import WavAudioEncoder from '../lib/WavAudioEncoder';
 
 export default class AudioTrackController {
 
@@ -76,12 +77,14 @@ export default class AudioTrackController {
         });
     }
 
-    record(type="MP3") {
+    record(type) {
+        console.log("ATTEMPTING TO RECORD TYPE: ", type) // DEBUG
         // Time to do the recording
         let buffer = this.audioRecord.audioData
         let encoder = null;
         switch(type) {
-            case "MP3":
+            case "mp3": {
+                console.log("Encoding in MP3"); // DEBUG
                 encoder = new lamejs.Mp3Encoder(2, buffer.sampleRate, 128);
                 let mp3Data = [];
                 let mp3buf;
@@ -112,36 +115,40 @@ export default class AudioTrackController {
                 if (mp3buf.length > 0)
                     mp3Data.push(mp3buf);
                 return new Blob(mp3Data, { type: 'audio/mp3' });
-                case "OGG": {
-                    function getBuffers(event) {
-                        var buffers = [];
-                        for (var ch = 0; ch < 2; ++ch)
-                            buffers[ch] = event.inputBuffer.getChannelData(ch);
-                        return buffers;
-                    }
-                    let newCon = new OfflineAudioContext(2, buffer.length, buffer.sampleRate);
-                    let encoder = new window.OggVorbisEncoder(buffer.sampleRate, 2, 1);
-                    let input = newCon.createBufferSource();
-                    input.buffer = buffer;
-                    let processor = newCon.createScriptProcessor(2048, 2, 2);
-                    input.connect(processor);
-                    processor.connect(newCon.destination);
-                    processor.onaudioprocess = function(event) {
-                        encoder.encode(getBuffers(event));
-                    };
-                    input.start();
-                    return newCon.startRendering().then(() => {
-                        return encoder.finish();
-                    });
+            }
+
+            case "ogg": {
+                console.log("Encoding in OGG"); // DEBUG
+                function getBuffers(event) {
+                    var buffers = [];
+                    for (var ch = 0; ch < 2; ++ch)
+                        buffers[ch] = event.inputBuffer.getChannelData(ch);
+                    return buffers;
                 }
-    
-                case "WAV": {
-                    const encode = new WavAudioEncoder(buffer.sampleRate, 2);
-                    encode.encode([buffer.getChannelData(0), buffer.getChannelData(1)]);
-                    const blob = encode.finish();
-                    console.log(blob);
-                    return blob;
-                }
+                let newCon = new OfflineAudioContext(2, buffer.length, buffer.sampleRate);
+                let encoder = new window.OggVorbisEncoder(buffer.sampleRate, 2, 1); // not a constructor
+                let input = newCon.createBufferSource();
+                input.buffer = buffer;
+                let processor = newCon.createScriptProcessor(2048, 2, 2);
+                input.connect(processor);
+                processor.connect(newCon.destination);
+                processor.onaudioprocess = function(event) {
+                    encoder.encode(getBuffers(event));
+                };
+                input.start();
+                return newCon.startRendering().then(() => {
+                    return encoder.finish();
+                });
+            }
+
+            case "wav": {
+                console.log("Encoding in WAV"); // DEBUG
+                const encode = new WavAudioEncoder(buffer.sampleRate, 2); // WavAudioEncoder is not defined
+                encode.encode([buffer.getChannelData(0), buffer.getChannelData(1)]);
+                const blob = encode.finish();
+                console.log(blob);
+                return blob;
+            }
         }
         console.log("Recording buffer...", buffer)
     }
