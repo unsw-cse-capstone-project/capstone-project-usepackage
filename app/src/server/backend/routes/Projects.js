@@ -463,20 +463,18 @@ projects.post('/save', [checkToken, testMiddleWare], (req, res, next) => {
 
 // f1 is a function that takes in a file query
 // it returns a promise that resolve the size of the audio file (in Bytes)
-function f1(query) {
+function getFileSizePromise(query) {
     return new Promise((resolve, reject) => {
         gfs.files.find(query).toArray((err, files) => {
-            // console.log("QUERY: ", query);
-            // console.log("FILES: ", files[0]);
             resolve(files[0].length);
         })
     });
 }
 
-// f2 is a function that returns a promise. It takes in project query
-// f2 pushes all the f1 promises in the queue, then reduces all the promises in
+// accumulateFileSize is a function that returns a promise. It takes in project query
+// accumulateFileSize pushes all the getFileSizePromise promises in the queue, then reduces all the promises in
 // the queue and accumulates the entire size of the project in Bytes.
-function f2(query) {
+function accumulateFileSize(query) {
     return new Promise((resolve, reject) => {
         let queue = [];
         let totalSize = 0;
@@ -485,7 +483,7 @@ function f2(query) {
             for (let i = 0; i < arr.length; i++) {
                 // console.log("arr loop 1: ", arr[i].files);
                 for (let j = 0; j < arr[i].files.length; j++) {
-                    queue.push(f1({ _id: arr[i].files[j].file_id }));
+                    queue.push(getFileSizePromise({ _id: arr[i].files[j].file_id }));
                 }
             }
         }).then(() => {
@@ -505,109 +503,44 @@ function f2(query) {
 
 /*
  * GET /projects/totalspace
- * Saves the project
- * Only one audio file is saved at a time 
+ * returns the cumulative size of all projects of a given user
  */
 projects.get('/totalspace', checkToken, (req, res, next) => {
-
-    // // f1 is a function that takes in a file query
-    // // it returns a promise that resolve the size of the audio file (in Bytes)
-    // function f1(query) {
-    //     return new Promise((resolve, reject) => {
-    //         gfs.files.find(query).toArray((err, files) => {
-                // console.log("QUERY: ", query);
-                // console.log("FILES: ", files[0]);
-    //             resolve(files[0].length);
-    //         })
-    //     });
-    // }
-
-    // // f2 is a function that returns a promise. It takes in project query
-    // // f2 pushes all the f1 promises in the queue, then reduces all the promises in
-    // // the queue and accumulates the entire size of the project in Bytes.
-    // function f2(query) {
-    //     return new Promise((resolve, reject) => {
-    //         let queue = [];
-    //         let totalSize = 0;
-    //         Project.find(query).then(arr => {
-                // console.log("arr null?", arr);
-    //             for (let i = 0; i < arr.length; i++) {
-                    // console.log("arr loop 1: ", arr[i].files);
-    //                 for (let j = 0; j < arr[i].files.length; j++) {
-    //                     queue.push(f1({ _id: arr[i].files[j].file_id }));
-    //                 }
-    //             }
-    //         }).then(() => {
-                // console.log(queue);
-    //             // resolve all the promises in the queue by reducing
-    //             return queue.reduce((prev, curr) => {
-    //                 return prev.then(x => {
-    //                     totalSize += x;
-    //                     return curr
-    //                 });
-    //             }, Promise.resolve(totalSize))
-    //         }).then((curr) => {
-    //             resolve(totalSize + curr) // edge case: final size is not accumulated, so this is done manually here
-    //         });
-    //     });
-    // }
     User.findOne({ username: req.token.username }).then(userObj => {
-        // Once f2 accumulates the filesize, return this result back to the client
-        f2({ owner: userObj._id }).then(totalSize => {
+        // Once accumulateFileSize accumulates the filesize, return this result back to the client
+        accumulateFileSize({ owner: userObj._id }).then(totalSize => {
             // console.log(totalSize);
             res.send(totalSize.toString(10))
         });
     });
 });
 
-projects.get('/enoughspace', checkToken, (req, res, next) => {
-    // // NOTE: f1 and f2
-    // function f1(query) {
-    //     return new Promise((resolve, reject) => {
-    //         gfs.files.find(query).toArray((err, files) => {
-    //             resolve(files[0].length);
-    //         })
-    //     });
-    // }
 
-    // function f2(query) {
-    //     return new Promise((resolve, reject) => {
-    //         let queue = [];
-    //         let totalSize = 0;
-    //         Project.find(query).then(arr => {
-    //             for (let i = 0; i < arr.length; i++) {
-    //                 for (let j = 0; j < arr[i].files.length; j++) {
-    //                     queue.push(f1({ _id: arr[i].files[j].file_id }));
-    //                 }
-    //             }
-    //         }).then(() => {
-                // console.log(queue);
-    //             return queue.reduce((prev, curr) => {
-    //                 return prev.then(x => {
-    //                     totalSize += x;
-    //                     return curr
-    //                 });
-    //             }, Promise.resolve(totalSize))
-    //         }).then((curr) => {
-    //             resolve(totalSize + curr)
-    //         });
-    //     });
-    // }
+/*
+ * GET /projects/enoughspace
+ * returns the cumulatie size of all projects of a given user except the current project
+ */
+projects.get('/enoughspace', checkToken, (req, res, next) => {
     const metaData = JSON.parse(req.headers.projmetadata);
     User.findOne({ username: metaData.owner }).then(userObj => {
         const projQuery = {
             owner: userObj._id
         }
+        // projection removes results from the query that has the specified field
         const projection = {
             projection: { name: metaData.name }
         }
-        f2(projQuery, projection).then(totalSize => {
+        accumulateFileSize(projQuery, projection).then(totalSize => {
             // console.log(totalSize);
             res.send(totalSize.toString(10))
         });
     });
 });
 
+/*
+ * GET /projects/deleteproject
+ * Deletes the project. Note: /deleteall is called before this is called. 
+ */
 projects.get('/deleteproject', checkToken, (req, res, next) => {
     const metaData = JSON.parse(req.headers.projmetadata);
     User.findOne({ username: metaData.owner }).then(userObj => {
@@ -625,6 +558,10 @@ projects.get('/deleteproject', checkToken, (req, res, next) => {
     }).catch(err => res.send(err));
 });
 
+/*
+ * GET /projects/deleteall
+ * Deletes all audio files associated to a given project
+ */
 projects.get('/deleteall', checkToken, (req, res, next) => {
     const metaData = JSON.parse(req.headers.projmetadata);
     let filesToRemove = [];
@@ -633,18 +570,22 @@ projects.get('/deleteall', checkToken, (req, res, next) => {
             name: metaData.name,
             owner: userObj._id
         }
+        // find project in which you want to delete all the files
         Project.findOne(projQuery).then(projObj => {
+            // push the remove commands to a queue
             projObj.files.forEach(fileObj => {
                 filesToRemove.push(gfs.remove({ _id: fileObj._id }))
             });
             return projObj._id
         }).then((id) => {
+            // perform reduce/remove
             filesToRemove.reduce((prev, curr) => {
                 // console.log("REMOVING FILE");
                 return prev.then(curr);
             }, Promise.resolve())
             return id
         }).then((id) => {
+            // set the file array in the project to []
             Project.updateOne({ _id: id }, { $set: { files: [] } }).then(() => {
                 res.send("Removed files");
             });
@@ -652,6 +593,10 @@ projects.get('/deleteall', checkToken, (req, res, next) => {
     }).catch(err => res.send(err));
 });
 
+/*
+ * GET /projects/changetag
+ * Changes the tag combination of a project
+ */
 projects.get('/changetag', checkToken, (req, res, next) => {
     const metaData = JSON.parse(req.headers.projmetadata);
     const tag = JSON.parse(req.headers.tag);
@@ -664,6 +609,7 @@ projects.get('/changetag', checkToken, (req, res, next) => {
         }
         Project.findOne(projQuery).then(projObj => {
             Project.updateOne({ _id: projObj._id }, {
+                // set the tags to what was given from the client
                 $set: {
                     [`tags.${colo}`]: state
                 }
@@ -674,6 +620,10 @@ projects.get('/changetag', checkToken, (req, res, next) => {
     }).catch(err => res.send(err));
 });
 
+/*
+ * GET /projects/getmetadata
+ * returns the project metadata to the user
+ */
 projects.get('/getmetadata', checkToken, (req, res, next) => {
     const metaData = JSON.parse(req.headers.projmetadata);
     User.findOne({ username: metaData.owner }).then(userObj => {
@@ -681,6 +631,7 @@ projects.get('/getmetadata', checkToken, (req, res, next) => {
             name: metaData.name,
             owner: userObj._id
         }
+        // send metadata once project is found
         Project.findOne(projQuery).then(projObj => {
             const meta = projObj.metadata;
             res.json(meta);
@@ -688,6 +639,10 @@ projects.get('/getmetadata', checkToken, (req, res, next) => {
     }).catch(err => res.send(err));
 });
 
+/*
+ * GET /projects/addcollaborator
+ * adds a collaborator to a given project
+ */
 projects.get('/addcollaborator', checkToken, (req, res, next) => {
     const collabData = JSON.parse(req.headers.projectcollab);
     // console.log(collabData);
@@ -705,10 +660,11 @@ projects.get('/addcollaborator', checkToken, (req, res, next) => {
         Project.findOne(projQuery).then(projObj => {
             // console.log("FOUND PROJECT?");
             if (projObj === null) {
-                res.status(995).send("Oops something went wrong!");
+                res.status(995).send("Project not found!");
                 return;
             }
             User.findOne({ username: req.token.username }).then(userObj2 => {
+                // case: user is not in the list of collaborators for the project 
                 if (!projObj.collaborators.includes(userObj2._id)) {
                     Project.updateOne({ _id: projObj._id }, { $push: { collaborators: userObj2._id } }).then((stat) => {
                         // console.log({
@@ -724,7 +680,7 @@ projects.get('/addcollaborator', checkToken, (req, res, next) => {
                             tags: projObj.tags
                         });
                         return;
-                    }).catch(err => res.status(990).send("yeah nah"));
+                    }).catch(err => res.status(990).send("Error in adding the collaborator to the project"));
                 }
                 res.json({
                     name: projObj.name,
@@ -742,7 +698,27 @@ projects.get('/addcollaborator', checkToken, (req, res, next) => {
     });
 });
 
-// when a user attempts to 
+function updateProjectToken(id, projQuery) {
+    const payload = {
+        projid: id
+    };
+    let token = jwt.sign(payload, process.env.SECRET_KEY, {
+        expiresIn: 60
+    });
+    return Project.updateOne(projQuery, { $set: { sessiontoken: token } }).then(() => {
+        return token;
+    });
+}
+
+/*
+ * GET /projects/attemptaccess
+ * When a user attempts to gain access to the project
+ * attemptaccess will check project token validity
+ * if token is expired or owner is attempting to access project
+ *   attemptaccesss immediately grants access and appropriately updates tokens
+ * otherwise, if the token is valid an a collaborator is attempting to access project
+ * it will not work!
+ */
 projects.get('/attemptaccess', checkToken, (req, res, next) => {
     // note: projmetadata contains owner and name
     const metaData = JSON.parse(req.headers.projmetadata);
@@ -756,45 +732,18 @@ projects.get('/attemptaccess', checkToken, (req, res, next) => {
             const sesstoken = projObj.sessiontoken
                 // first check whether sesstoken (in the database) is an empty string.
             if (sesstoken === "" || sesstoken === projtoken) {
-                const payload = {
-                    projid: projObj._id
-                };
-                let token = jwt.sign(payload, process.env.SECRET_KEY, {
-                    expiresIn: 60
-                });
-                Project.updateOne(projQuery, { $set: { sessiontoken: token } }).then(() => {
-                    res.send(token);
-                    return;
-                });
+                updateProjectToken(projObj._id, projQuery).then((token) => res.send(token));
             } else {
                 // if sesstoken is not empty, we need to check if the token is valid
                 jwt.verify(sesstoken, process.env.SECRET_KEY, (err, authorisedData) => {
                     if (err) {
                         // token timed out. allocate session.
-                        const payload = {
-                            projid: projObj._id
-                        };
-                        let token = jwt.sign(payload, process.env.SECRET_KEY, {
-                            expiresIn: 60
-                        });
-                        Project.updateOne(projQuery, { $set: { sessiontoken: token } }).then(() => {
-                            res.send(token);
-                            return;
-                        });
+                        updateProjectToken(projObj._id, projQuery).then((token) => res.send(token));
                     } else {
                         // token is valid. we need to check whether the owner is equal to the editor
                         // allocate if true
                         if (req.token.username === metaData.owner) {
-                            const payload = {
-                                projid: projObj._id
-                            };
-                            let token = jwt.sign(payload, process.env.SECRET_KEY, {
-                                expiresIn: 60
-                            });
-                            Project.updateOne(projQuery, { $set: { sessiontoken: token } }).then(() => {
-                                res.send(token);
-                                return;
-                            });
+                            updateProjectToken(projObj._id, projQuery).then((token) => res.send(token));
                         } else {
                             res.status(999).send("Cannot allocate session!");
                         }
@@ -805,8 +754,12 @@ projects.get('/attemptaccess', checkToken, (req, res, next) => {
     }).catch(err => res.send(err));
 });
 
+/*
+ * GET /projects/updateaccess
+ * Updates project token every 30 seconds, provided the current token is valid and is the same. 
+ */
 projects.get('/updateaccess', checkToken, (req, res, next) => {
-    console.log("The metadata: ", req.headers.projmetadata)
+    // console.log("The metadata: ", req.headers.projmetadata)
     const metaData = JSON.parse(req.headers.projmetadata);
     const projtoken = req.headers.projectinfo;
     User.findOne({ username: metaData.owner }).then(userObj => {
@@ -816,19 +769,10 @@ projects.get('/updateaccess', checkToken, (req, res, next) => {
             owner: userObj._id
         }
         Project.findOne(projQuery).then(projObj => {
-            console.log("projtoken: ", projtoken);
-            console.log("projObj.sessionToken: ", projObj.sessiontoken);
+            // console.log("projtoken: ", projtoken);
+            // console.log("projObj.sessionToken: ", projObj.sessiontoken);
             if (projtoken === projObj.sessiontoken) {
-                const payload = {
-                    projid: projObj._id
-                };
-                let token = jwt.sign(payload, process.env.SECRET_KEY, {
-                    expiresIn: 60
-                });
-                Project.updateOne(projQuery, { $set: { sessiontoken: token } }).then(() => {
-                    res.send(token);
-                    return;
-                });
+                updateProjectToken(projObj._id, projQuery).then((token) => res.send(token));
             } else {
                 res.status(999).send("Token does not match!");
             }

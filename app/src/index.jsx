@@ -15,11 +15,6 @@ import Topnav from './js/Topnav.jsx'
 // The following tests how parseFunction works. 
 // runCommand("-i inputfile.wav \"-i\" \"input file.wav\" \"output file.wav\"");
 
-ReactDOM.render(
-  <Topnav name="Screaming Goat" />,
-  document.getElementById('nav-bar') 
-)
-
 // ReactDOM.render(
 // <Container main={<EditorGUI title="Screaming Goat" />}/>,
 //   document.getElementById('react-container') 

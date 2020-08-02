@@ -73,41 +73,74 @@ export default class AudioTrackController {
         });
     }
 
-    record() {
+    record(type="MP3") {
         // Time to do the recording
         let buffer = this.audioRecord.audioData
-        console.log("Recording buffer...", buffer)
-
-        const encoder = new lamejs.Mp3Encoder(2, buffer.sampleRate, 128);
-        let mp3Data = [];
-        let mp3buf;
-        const sampleBlockSize = 576;
-
-        function FloatArray2Int16(floatbuffer) {
-            var int16Buffer = new Int16Array(floatbuffer.length);
-            for (var i = 0, len = floatbuffer.length; i < len; i++) {
-                if (floatbuffer[i] < 0) {
-                    int16Buffer[i] = 0x8000 * floatbuffer[i];
-                } else {
-                    int16Buffer[i] = 0x7FFF * floatbuffer[i];
+        let encoder = null;
+        switch(type) {
+            case "MP3":
+                encoder = new lamejs.Mp3Encoder(2, buffer.sampleRate, 128);
+                let mp3Data = [];
+                let mp3buf;
+                const sampleBlockSize = 576;
+        
+                function FloatArray2Int16(floatbuffer) {
+                    var int16Buffer = new Int16Array(floatbuffer.length);
+                    for (var i = 0, len = floatbuffer.length; i < len; i++) {
+                        if (floatbuffer[i] < 0) {
+                            int16Buffer[i] = 0x8000 * floatbuffer[i];
+                        } else {
+                            int16Buffer[i] = 0x7FFF * floatbuffer[i];
+                        }
+                    }
+                    return int16Buffer;
                 }
-            }
-            return int16Buffer;
+                const left = FloatArray2Int16(buffer.getChannelData(0));
+                const right = FloatArray2Int16(buffer.numberOfChannels > 1 ? buffer.getChannelData(1) : buffer.getChannelData(0));
+                for (let i = 0; i < buffer.length; i += sampleBlockSize) {
+                    let leftChunk = left.subarray(i, i + sampleBlockSize);
+                    let rightChunk = right.subarray(i, i + sampleBlockSize);
+                    mp3buf = encoder.encodeBuffer(leftChunk, rightChunk);
+                    if (mp3buf.length > 0) {
+                        mp3Data.push(mp3buf);
+                    }
+                }
+                mp3buf = encoder.flush();
+                if (mp3buf.length > 0)
+                    mp3Data.push(mp3buf);
+                return new Blob(mp3Data, { type: 'audio/mp3' });
+                case "OGG": {
+                    function getBuffers(event) {
+                        var buffers = [];
+                        for (var ch = 0; ch < 2; ++ch)
+                            buffers[ch] = event.inputBuffer.getChannelData(ch);
+                        return buffers;
+                    }
+                    let newCon = new OfflineAudioContext(2, buffer.length, buffer.sampleRate);
+                    let encoder = new window.OggVorbisEncoder(buffer.sampleRate, 2, 1);
+                    let input = newCon.createBufferSource();
+                    input.buffer = buffer;
+                    let processor = newCon.createScriptProcessor(2048, 2, 2);
+                    input.connect(processor);
+                    processor.connect(newCon.destination);
+                    processor.onaudioprocess = function(event) {
+                        encoder.encode(getBuffers(event));
+                    };
+                    input.start();
+                    return newCon.startRendering().then(() => {
+                        return encoder.finish();
+                    });
+                }
+    
+                case "WAV": {
+                    const encode = new WavAudioEncoder(buffer.sampleRate, 2);
+                    encode.encode([buffer.getChannelData(0), buffer.getChannelData(1)]);
+                    const blob = encode.finish();
+                    console.log(blob);
+                    return blob;
+                }
         }
-        const left = FloatArray2Int16(buffer.getChannelData(0));
-        const right = FloatArray2Int16(buffer.numberOfChannels > 1 ? buffer.getChannelData(1) : buffer.getChannelData(0));
-        for (let i = 0; i < buffer.length; i += sampleBlockSize) {
-            let leftChunk = left.subarray(i, i + sampleBlockSize);
-            let rightChunk = right.subarray(i, i + sampleBlockSize);
-            mp3buf = encoder.encodeBuffer(leftChunk, rightChunk);
-            if (mp3buf.length > 0) {
-                mp3Data.push(mp3buf);
-            }
-        }
-        mp3buf = encoder.flush();
-        if (mp3buf.length > 0)
-            mp3Data.push(mp3buf);
-        return new Blob(mp3Data, { type: 'audio/mp3' });
+        console.log("Recording buffer...", buffer)
     }
 
     toggle(name, paused) {

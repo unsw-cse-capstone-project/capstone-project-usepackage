@@ -10,11 +10,6 @@ import './css/style.css'
 import Topnav from './js/Topnav.jsx'
 import Container from './js/Container.jsx'
 import Profile from './js/reglog/Profile.jsx'
-
-ReactDOM.render(
-    <Topnav name="Screaming Goat" />,
-    document.getElementById('nav-bar') // eslint-disable-line no-undef
-  )
   
 ReactDOM.render(
 <Container main={<Profile />} />,

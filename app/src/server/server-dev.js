@@ -17,7 +17,7 @@ const app = express(),
     DIST_DIR = __dirname,
     WORKLET_DIR = path.join(DIST_DIR, '../src/js/myWorklets'),
     LIB_DIR = path.join(DIST_DIR, '../lib'),
-
+    IMGS = path.join(DIST_DIR, '../src/img')
 
     HTML_FILE = path.join(DIST_DIR, 'index.html'),
     PROFILE_FILE = path.join(DIST_DIR, 'profile.html'),
@@ -106,6 +106,9 @@ app.get('/collabs/:ownername/:projectname/:randomlink', (req, res, next) => {
     res.sendFile(COLLAB_FILE)
 })
 
+app.get('/logo', (req, res, next) => {
+    res.sendFile(path.join(IMGS, "/title.svg"))
+})
 
 
 

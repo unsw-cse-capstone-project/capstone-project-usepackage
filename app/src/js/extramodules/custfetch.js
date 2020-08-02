@@ -26,21 +26,30 @@ const reqPostOpt = (opts, optbody) => {
 }
 
 export const fetchGet = (url, headeropts = {}) => {
-    console.log("fetch header: ", reqGetOpt(headeropts))
+    // console.log("fetch header: ", reqGetOpt(headeropts))
     return (
         new Promise((resolve) => {
             fetch(url, reqGetOpt(headeropts))
             .then(data => {
-                console.log(data.status)
+                if(data.status === 403) throw new Error("Session Timed out!");
                 return data.body.getReader()
             })
             .then(reader => reader.read())
             .then(data => resolve(new TextDecoder("utf-8").decode(data.value)))
+            .catch( err => {
+                alert(err);
+                localStorage.clear();
+                const a = document.createElement('a');
+                a.href = "/login";
+                a.hidden = true;
+                document.body.appendChild(a);
+                a.click();
+            })
         })
-    );
+    )
 }
 export const fetchGetJSON = (url, headeropts={}) => {
-    console.log("fetch header: ", reqGetOpt(headeropts))
+    // console.log("fetch header: ", reqGetOpt(headeropts))
     return (
         new Promise((resolve) => {
             fetch(url, reqGetOpt(headeropts))
@@ -50,7 +59,7 @@ export const fetchGetJSON = (url, headeropts={}) => {
 }
 
 export const fetchPost = (url, headeropts={}, optbody) => {
-    console.log(reqPostOpt(headeropts, optbody))
+    // console.log(reqPostOpt(headeropts, optbody))
     return (
         new Promise((resolve) => {
             fetch(url, reqPostOpt(headeropts, optbody))

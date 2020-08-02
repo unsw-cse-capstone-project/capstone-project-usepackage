@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Nav from 'react-bootstrap/Nav';
+import Navbar from 'react-bootstrap/Navbar';
 // import { Link, withRouter} from 'react-router-dom';
 
 // The container defining the structure of the dashboard
@@ -30,12 +31,14 @@ export default class Container extends React.Component {
 
     render() {
         return (
+            <>
+            {this.state.menu}
             <div className="container-fluid">
                 <div className="row">
-                    {this.state.menu}
                     {this.props.main}
                 </div>
             </div>
+            </>
         );
     }
 }
@@ -65,11 +68,12 @@ const SideMenu = (props) => {
         ;
     })
     return (
-    <div className="col-md-2 col-lg-2 d-none d-md-block bg-light">
-        <Nav defaultActiveKey="/" className="flex-column">
+    <Navbar bg="light" expand="lg" variant="light">
+        <Navbar.Brand href="/"><img src="/logo" width="100%"/></Navbar.Brand>
+        <Nav defaultActiveKey="/">
             {menuItems}
         </Nav>
-    </div>
+    </Navbar>
     );
 }
 

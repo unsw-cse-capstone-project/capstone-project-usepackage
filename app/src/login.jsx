@@ -7,13 +7,6 @@ import Container from './js/Container.jsx'
 import './img/favicon.ico';
 import './css/style.css'
 import LoginContainer from './js/reglog/LoginContainer.jsx'
-
-console.log("test")
-
-ReactDOM.render(
-    <Topnav name="Screaming Goat" />,
-    document.getElementById('nav-bar') // eslint-disable-line no-undef
-  )
   
 ReactDOM.render(
 <Container main={<LoginContainer />} />,

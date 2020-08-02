@@ -139,7 +139,7 @@ export default class CutBar extends React.Component {
             if (cuts[i].cropped)
                 this.canvasCtx.fillStyle = 'white';
             else
-                this.canvasCtx.fillStyle = 'yellow';
+                this.canvasCtx.fillStyle = 'lightgreen';
             this.canvasCtx.font = "15px Arial";
             this.canvasCtx.fillText(i, (x + nextx) / 2, this.state.height/2);
         }

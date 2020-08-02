@@ -41,7 +41,8 @@ export default class MainContainer extends React.Component {
                 track: "",
                 genre: "",
                 comment: ""
-            }
+            },
+            downloadType: "mp3"
         }
         this.fileURLs = []
         this.addFiles = this.addFiles.bind(this);
@@ -51,6 +52,9 @@ export default class MainContainer extends React.Component {
         this.loadFiles = this.loadFiles.bind(this);
         this.deleteCb = this.deleteCb.bind(this);
         this.updateMetadata = this.updateMetadata.bind(this);
+        this.opts = this.opts.bind(this);
+        this.radioHandler = this.radioHandler.bind(this);
+        this.downloadHandler = this.downloadHandler.bind(this);
         if (localStorage.usertoken && localStorage.poname) {
             window.onbeforeunload = () => {
                 return "Please make sure that you saved your project before leaving!"
@@ -59,18 +63,18 @@ export default class MainContainer extends React.Component {
         }
     }
 
-    loadFiles() {
-        // CHECK HERE IF USER CAN ACCESS PROJECT using /projects/attemptaccess
-        let opts = {
+    opts() {
+        return {
             'projmetadata': localStorage.poname,
             'projectinfo' : localStorage.getItem('projecttoken') ? localStorage.projecttoken : ""
         }
+    }
+
+    loadFiles() {
+        // CHECK HERE IF USER CAN ACCESS PROJECT using /projects/attemptaccess
         // fetch('/projects/updateaccess', ...) ==> 
 
-        fetchGet('/projects/attemptaccess', {
-            'projmetadata': localStorage.poname,
-            'projectinfo' : localStorage.getItem('projecttoken') ? localStorage.projecttoken : ""
-        })
+        fetchGet('/projects/attemptaccess', this.opts())
         .then(message => {
             console.log(message);
             if(message === "Cannot allocate session!" || message === "Forbidden") return new Error(message);
@@ -78,10 +82,7 @@ export default class MainContainer extends React.Component {
             console.log("obtaining number of files info");
 
             setInterval(() => {
-                fetchGet('/projects/updateaccess', {
-                    'projmetadata': localStorage.poname,
-                    'projectinfo' : localStorage.getItem('projecttoken') ? localStorage.projecttoken : ""
-                }).then(message => {
+                fetchGet('/projects/updateaccess', this.opts()).then(message => {
                     if(message === "Token does not match!") return new Error("Token does not match!");
                     localStorage.setItem('projecttoken', message);
                     console.log("token updated");
@@ -89,10 +90,7 @@ export default class MainContainer extends React.Component {
             }, 10 * 1000);
 
             let len = 0;
-            fetchGet('/projects/numfiles', {
-                'projmetadata': localStorage.poname,
-                'projectinfo' : localStorage.getItem('projecttoken') ? localStorage.projecttoken : ""
-            })
+            fetchGet('/projects/numfiles', this.opts())
             .then(message => {
                 if(message === "fail") console.log(message);
                 // console.log(message);
@@ -147,47 +145,41 @@ export default class MainContainer extends React.Component {
         });
     }
 
+    radioHandler(e) {
+        this.setState({downloadType: e.target.value})
+    }
+
+    downloadHandler() {
+        console.log("downloading...", this.state.downloadType)
+        let blobs = this.audioStack.record(this.state.downloadType);
+        console.log(blobs);
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blobs[0].file);
+        a.download="test." + this.state.downloadType
+        a.hidden = true;
+        document.body.appendChild(a);
+        a.click();
+    }
+
     addFiles(Newfiles) {        
         let filteredFileURLs = Array.from(Newfiles).filter(file => file.type.includes("audio"))
             .map(file => (window.URL || window.webkitURL).createObjectURL(file))
-        // Temporarily nstore the file urls
         this.fileURLs = this.fileURLs.concat(filteredFileURLs)
     }
-    //For debugging purposes
     getSnapshotBeforeUpdate() {
         console.log("Before update")
         return null
     }
 
     saveFiles() {
+        // opts = {
+        //     'projmetadata': localStorage.poname,
+        //     'projectinfo' : localStorage.getItem('projecttoken') ? localStorage.projecttoken : ""
+        // }
 
-        // 1. check if we have enough storage space using something like fetch('projects/enoughspace/') (returns true or false)
-        // proj1 (current proj) 10MB, proj 2 150MB, proj 3 40MB
-        // currently, newproj1 30MB
-        // fetch(enoughspace) --> proj2 + proj3 + newproj1--> 200MB
-        // 2. if there is enough storage, do something like fetch('project/deleteallfilesinproject') (no files in current project)
-        // 3. reupload all the files to the db using MainContainer.Save(data)
-
-        // Check here if the project token is valid.
-
-        const reque = {
-            method: 'GET',
-            headers: {
-                'authorization': localStorage.usertoken,
-                'projmetadata': localStorage.poname,
-                'projectinfo' : localStorage.getItem('projecttoken') ? localStorage.projecttoken : ""
-            }
-        }
-
-        fetch('/projects/updateaccess', reque)
-        .then(data => 
-            data.body.getReader())
-        .then(reader => reader.read())
-        .then(data => {
-            const message = new TextDecoder("utf-8").decode(data.value);
-
+        fetchGet('/projects/updateaccess', this.opts())
+        .then(message => {
             if(message === "Token does not match!" || message === "Forbidden") return new Error(message);
-
             localStorage.setItem('projecttoken', message);
             console.log("token updated");
 
@@ -205,15 +197,15 @@ export default class MainContainer extends React.Component {
                 }
             });
             const opts = { 
-                'Authorization': localStorage.usertoken,
+                'authorization': localStorage.usertoken,
                 'projmetadata': localStorage.poname
             }
 
-            fetchGet('/projects/enoughspace', opts)
+            fetchGet('/projects/enoughspace', this.opts())
             .then(message => {
                 if(parseInt(message) + sum <= 209715200) {
                     // delete all files in proj here
-                    fetch('/projects/deleteall', requestOptions).then( () => {
+                    fetchGet('/projects/deleteall', this.opts()).then( () => {
                         // reupload all files to db here
                         files.forEach( (file, i) => {
                             let data = new FormData();
@@ -258,15 +250,12 @@ export default class MainContainer extends React.Component {
             console.log("URL: ", fileURL)
             MainContainer.UploadHandler(fileURL)
             .then(audioRecord => {
-                // Process inside the audioStack
-                // MUST COME BEFORE THE STATE CHANGE!
                 this.audioStack.add(audioRecord, (msg) => this.deleteCb(msg))
                 this.setState({
                     audioRecords: [...this.state.audioRecords, audioRecord]
                 })               
             }).then(() => {
                 console.log("Audio stack tracks: ", this.audioStack.tracks);
-                // Empty the fileURLs since they have already been processed
                 this.fileURLs = [];
             })
         })
@@ -297,6 +286,11 @@ export default class MainContainer extends React.Component {
         });
     }
 
+    drawSaveButton() {
+        if(localStorage.getItem('usertoken') && localStorage.getItem('poname'))
+            return <Button onClick={this.saveFiles} variant="outline-primary">Save</Button>
+    }
+
     render() {
         return (
             <div className="row main">
@@ -311,10 +305,11 @@ export default class MainContainer extends React.Component {
                         />
                     </Form.Group>
                     <Button onClick={this.uploadFiles} variant="outline-primary">Upload</Button>
-                    <Button onClick={this.saveFiles} variant="outline-primary">Save</Button>
+                    {this.drawSaveButton()}
                     <Button onClick={this.playAll} variant="success">Play/Pause All</Button>
                     <MetadataModal variant={"info"} name={"Metadata"} metadata={this.state.metadata} handler={this.updateMetadata}/>
                     <ShareLinkModal inf={localStorage.getItem('poname')} name={"Share"} variant={"warning"}/>
+                    <DownLoadModel name={"Download"} defaultState={this.state.downloadType} radioHandler={this.radioHandler} handler={this.downloadHandler}/>
                 </Form>
                 <div className="col-12">
                     {this.audioStack.tracks}
@@ -343,12 +338,11 @@ MainContainer.Save = (obj, stack, met) => {
     const requestOptions = {
         method: 'POST',
         headers: { 
-            'Authorization': localStorage.usertoken,
+            'authorization': localStorage.usertoken,
             'projmetadata': localStorage.poname,
-            'Stack' : JSON.stringify(stack),
+            'stack' : JSON.stringify(stack),
             'FinalMetadata': JSON.stringify(met)
         },
-        // body: JSON.stringify(obj)
         body: obj
     };
     
@@ -391,6 +385,40 @@ export function MetadataModal(props) {
             </Button>
             <Button variant="success" onClick={props.handler}>
                 Save
+            </Button>
+            </Modal.Footer>
+        </Modal>
+    </>
+    );
+}
+
+export function DownLoadModel(props) {
+    const [show, setShow] = React.useState(false);
+    const handleClose = () => setShow(false);
+    const handleShow = () => setShow(true); 
+
+    const headings = ["mp3", "ogg", "wav"]
+    const objs = headings.map((item, i) => {
+        return (
+            <Form.Check type='radio' default={props.defaultState} value={item} label={item} id={`def-${item}`} name="dl" onChange={(e) => props.radioHandler(e)}/>
+        );
+    })
+    return (
+    <>
+        <Button variant={props.variant} onClick={handleShow}>{props.name}</Button>
+        <Modal show={show} onHide={handleClose}>
+            <Modal.Header closeButton>
+                <Modal.Title>Download</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                {objs}
+            </Modal.Body>
+            <Modal.Footer>
+            <Button variant="secondary" onClick={handleClose}>
+                Cancel
+            </Button>
+            <Button variant="success" onClick={props.handler}>
+                Download
             </Button>
             </Modal.Footer>
         </Modal>
