@@ -294,10 +294,10 @@ export default class AudioTrackContainer extends React.Component {
                 <div className="col-4">
                     <Button onClick={() => this.state.deleteCb(this.props.audioRecord.fileURL)} variant="danger"> Delete </Button>
                 </div>
-                <div className="col-6"><Slider name="VolumeL" controlId="gainControllerL" changeCallBack={e => this.gain(e, 0)} /></div>
-                <div className="col-6"><Slider name="VolumeR" controlId="gainControllerR" changeCallBack={e => this.gain(e, 1)} /></div>
-                <div className="col-6"><Slider name="Tempo" controlId="tempoController" changeCallBack={this.tempo} /></div>
-                <div className="col-6"><Slider name="Pitch" controlId="pitchController" changeCallBack={this.pitch} /></div>
+                <div className="col-1"><Slider name="VolumeL" controlId="gainControllerL" changeCallBack={e => this.gain(e, 0)} /></div>
+                <div className="col-1"><Slider name="VolumeR" controlId="gainControllerR" changeCallBack={e => this.gain(e, 1)} /></div>
+                <div className="col-1"><Slider name="Tempo" controlId="tempoController" changeCallBack={this.tempo} /></div>
+                <div className="col-1"><Slider name="Pitch" controlId="pitchController" changeCallBack={this.pitch} /></div>
                 <div><Hotkeys undoHandler={this.undo} redohandler={this.redo}/></div>
                 <div className="col-6">
                     <SelectTime 

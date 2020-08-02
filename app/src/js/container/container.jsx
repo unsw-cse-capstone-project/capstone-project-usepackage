@@ -312,7 +312,7 @@ export default class MainContainer extends React.Component {
                     <ShareLinkModal inf={localStorage.getItem('poname')} name={"Share"} variant={"warning"}/>
                     <DownLoadModel name={"Download"} defaultState={this.state.downloadType} radioHandler={this.radioHandler} handler={this.downloadHandler}/>
                 </Form>
-                <div className="col-12">
+                <div className="">
                     {this.audioStack.tracks}
                 </div>
             </div>
