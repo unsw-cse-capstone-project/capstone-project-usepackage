@@ -2,6 +2,7 @@ import React from 'react'
 import {hotkeys} from 'react-keyboard-shortcuts'
  
 class Hotkeys extends React.PureComponent {
+    // A set of hotkeys
   constructor(props){
       super(props);
       this.hot_keys = {
@@ -29,25 +30,18 @@ class Hotkeys extends React.PureComponent {
             priority: 1,
             handler: (event) => this.props.redohandler(),
         },
+        'space': {
+            priority: 1,
+            handler: (event) => this.props.spacehandler(),
+        },
       }
   }
  
-//   hot_keys = {
-//     'ctrl+z': {
-//       priority: 1,
-//       handler: (event) => this.props.onClick(),
-//     },
-//   }
- 
   render () {
     return (
-      <button undoHandler={this.props.undoHandler} redohandler={this.props.redoHandler} hidden> Undo</button>
+      <button undoHandler={this.props.undoHandler} redohandler={this.props.redoHandler} spacehandler={this.props.spacehandler} hidden> Undo</button>
     )
   }
 }
 
 export default hotkeys(Hotkeys)
-
-// UndoHotkey.propTypes = {
-//     onClick: PropTypes.func.isRequired,
-// }
