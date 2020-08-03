@@ -3,8 +3,6 @@ import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 import Alert from 'react-bootstrap/Alert'
 
-const dbURL = "http://localhost:8080"
-
 export default class RegisterContainer extends React.Component {
     constructor(props) {
         super(props);
@@ -82,13 +80,13 @@ export default class RegisterContainer extends React.Component {
 
     render() {
         return (
-            <div class="container">
-                <div class="row">
-                    <div class="col-md-12">
-                        <h1 class="header-padding">Collaboration Registration</h1>
+            <div className="container">
+                <div className="row">
+                    <div className="col-md-12">
+                        <h1 className="header-padding">Collaboration Registration</h1>
                     </div>
-                    <div class="col-md-12">Please log in to join the project as a collaborator.</div>
-                    <div class="col-md-3">
+                    <div className="col-md-12">Please log in to join the project as a collaborator.</div>
+                    <div className="col-md-3">
                         <Form onKeyPress={this.handleKeyPress}>
                             <Alert variant="primary" hidden id="reg-status">
                                 <p>This is a placeholder message. Contact the developers if you see this message.</p>
