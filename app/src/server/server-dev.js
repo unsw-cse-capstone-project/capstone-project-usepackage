@@ -10,7 +10,7 @@ const cors = require('cors')
 const mongoose = require('mongoose')
 
 /**
- * server-dev.js is where all the frontend loading routes are located at.\
+ * server-dev.js is where all the frontend loading routes are located at.
  */
 
 const app = express(),

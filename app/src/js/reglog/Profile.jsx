@@ -5,6 +5,7 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import FormControl from 'react-bootstrap/FormControl';
 import Table from 'react-bootstrap/Table';
 import {fetchPost, fetchGet, fetchGetJSON} from '../extramodules/custfetch';
+import ProgressBar from 'react-bootstrap/ProgressBar';
 
 
 const dbURL = "http://localhost:8080"
@@ -63,6 +64,8 @@ export default class Profile extends React.Component {
                 alert('A project with the same name already exists. Try a different name.arguments');
             } else if (message === "limit reached") {
                 alert("You have reached the maximum number of projects each user can create: 5. Please delete some projects");
+            } else if (message === "spcchar") {
+                alert("Project names cannot contain special characters, including spaces (with the exception of \"_\")");
             } else {
                 console.log(message);
                 alert('yeah its not working dude');
@@ -166,13 +169,17 @@ export default class Profile extends React.Component {
     comparatorSortDateAscending(a, b) {
         const adate = new Date(a.date)
         const bdate = new Date(b.date)
-        return a.date.localeCompare(b.date)
+        // return a.date.localeCompare(b.date)
+        // console.log(adate + " < " + bdate + " = " + (adate < bdate).toString())
+        return adate - bdate;
     }
 
     comparatorSortDateDescending(a, b) {
         const adate = new Date(a.date)
         const bdate = new Date(b.date)
-        return b.date.localeCompare(a.date)
+        // return b.date.localeCompare(a.date)
+        // console.log(adate + " > " + bdate + " = " + (adate > bdate).toString())
+        return bdate - adate;
     }
 
     loadProjects() {
@@ -190,7 +197,8 @@ export default class Profile extends React.Component {
             this.setState({
                 projects: jsonData[0].map((item, num) => {
                     const date = new Date(item.date);
-                    const dateString = date.getDate() + "/" + date.getMonth() + "/" + date.getFullYear() + " " + date.getHours() + ":" + date.getMinutes();
+                    const dateString = String(date.getDate()).padStart(2, "0") + "/" + String(date.getMonth()).padStart(2, "0") + "/" + String(date.getFullYear()).padStart(2, "0") + " " + 
+                                       String(date.getHours()).padStart(2, "0") + ":" + String(date.getMinutes()).padStart(2, "0");
                     return (
                         <tr key={num} >
                             <td>{num + 1}</td>
@@ -205,7 +213,8 @@ export default class Profile extends React.Component {
                 }),
                 cprojects: jsonData[1].map((item, num) => {
                     const date = new Date(item.date);
-                    const dateString = date.getDate() + "/" + date.getMonth() + "/" + date.getFullYear() + " " + date.getHours() + ":" + date.getMinutes();
+                    const dateString = String(date.getDate()).padStart(2, "0") + "/" + String(date.getMonth()).padStart(2, "0") + "/" + String(date.getFullYear()).padStart(2, "0") + " " + 
+                                       String(date.getHours()).padStart(2, "0") + ":" + String(date.getMinutes()).padStart(2, "0");
                     return (
                         <tr key={num}>
                             <td>{num + 1}</td>
@@ -227,14 +236,16 @@ export default class Profile extends React.Component {
     }
 
     tableInterface() {
-        const upArrow = <span style={{color: "green"}}  onClick={() => this.setComparator(1, 0)}> ▲ </span>
-        const downArrow = <span style={{color: "red"}} onClick={() => this.setComparator(2, 0)}> ▼ </span>
+        const upArrowName = <span style={{color: "green"}}  onClick={() => this.setComparator(1, 0)}> ▲ </span>
+        const downArrowName = <span style={{color: "red"}} onClick={() => this.setComparator(2, 0)}> ▼ </span>
+        const upArrowDate = <span style={{color: "green"}}  onClick={() => this.setComparator(3, 0)}> ▲ </span>
+        const downArrowDate = <span style={{color: "red"}} onClick={() => this.setComparator(4, 0)}> ▼ </span>
         const tblheadVals = [
             "#", 
-            <>Project Name {upArrow} {downArrow}</>, 
+            <>Project Name {upArrowName} {downArrowName}</>, 
             "Owner", 
             "Tags", 
-            <>Last Modified {upArrow} {downArrow}</>, 
+            <>Last Modified {upArrowDate} {downArrowDate}</>, 
             "Delete", 
             "Share"
         ]
@@ -258,14 +269,16 @@ export default class Profile extends React.Component {
     }
 
     tableInterfaceCollab() {
-        const upArrow = <span style={{color: "green"}}  onClick={() => this.setComparator(1, 0)}> ▲ </span>
-        const downArrow = <span style={{color: "red"}} onClick={() => this.setComparator(2, 0)}> ▼ </span>
+        const upArrowName = <span style={{color: "green"}}  onClick={() => this.setComparator(1, 1)}> ▲ </span>
+        const downArrowName = <span style={{color: "red"}} onClick={() => this.setComparator(2, 1)}> ▼ </span>
+        const upArrowDate = <span style={{color: "green"}}  onClick={() => this.setComparator(3, 1)}> ▲ </span>
+        const downArrowDate = <span style={{color: "red"}} onClick={() => this.setComparator(4, 1)}> ▼ </span>
         const tblheadVals = [
             "#", 
-            <>Project Name {upArrow} {downArrow}</>, 
+            <>Project Name {upArrowName} {downArrowName}</>, 
             "Owner", 
             "Tags", 
-            <>Last Modified {upArrow} {downArrow}</>
+            <>Last Modified {upArrowDate} {downArrowDate}</>
         ]
         const tblhead = tblheadVals.map((item, i) => {
             return (
@@ -344,6 +357,8 @@ export default class Profile extends React.Component {
     }
 
     setComparator(i, w) {
+        // i --> 1, 2, 3, 4 indicates sort by nameascend, namedescend, dateascend, datedescend, respectively. 
+        // w --> 0 indicates owner's project, 1 indicates collaborations
         if(w === 0) {
             switch(i) {
                 case 1:
@@ -406,26 +421,31 @@ export default class Profile extends React.Component {
 
     render() {
         return ( 
-            <div className="row">
-                <div className="col-12"><h1>Profile for {this.state.user}</h1></div>
-                <div className="col-4">
-                    <CreateProjectModal handler={this.createProject} name={"Create Project"} variant={"success"}/>
+            <div class="container">
+                <div className="row row-padding">
+                    <div className="col-12"><h1 class="header-padding">Welcome {this.state.user}</h1></div>
                 </div>
-                <div className="col-2">
-                    <FormControl type="text" placeholder="Search" id="searchbar"/>
-                    <h4>Tag Filter: </h4>{this.filterTags()}
+                <div className="row row-padding">
+                    <div className="col-4">
+                        <CreateProjectModal handler={this.createProject} name={"Create Project"} variant={"success"}/>
+                    </div>
+                    <div className="col-4"><h4 className="inline">Tag Filter: </h4>{this.filterTags()}</div>
+                    <div className="col-4 right-align">
+                        <FormControl className="form-control-inline" type="text" placeholder="Search" id="searchbar"/>
+                        <Button variant="outline-success" onClick={() => this.updateSearch()} className="search-btn-padding">Search</Button>
+                    </div>
                 </div>
-                <div className="col-1">
-                    <Button variant="outline-success" onClick={() => this.updateSearch()}>Search</Button>
-                </div>
-                <div className="col-6 projectList">
-                    <h2>{this.state.user}'s Projects</h2>
-                    {this.state.projects.length === 0 ? "No projects" : this.tableInterface()}
-                    <p>Total of {this.state.totalSize}MB out of 200MB used</p>
-                </div>
-                <div className="col-6 projectList">
-                    <h2>Collaborations</h2>
-                    {this.state.cprojects.length === 0 ? "No projects" : this.tableInterfaceCollab()}
+                <div className="row row-padding">
+                    <div className="col-12 projectList">
+                        <h2>My Projects</h2>
+                        {this.state.projects.length === 0 ? "No projects" : this.tableInterface()}
+                        <div class="col-6"><ProgressBar animated now={this.state.totalSize / 200 * 100} /></div><div class="col-6"></div>
+                        <div class="col-6"><p>Total of {this.state.totalSize}MB out of 200MB used</p></div><div class="col-6"></div>
+                    </div>
+                    <div className="col-12 projectList">
+                        <h2>Collaborations</h2>
+                        {this.state.cprojects.length === 0 ? "No projects" : this.tableInterfaceCollab()}
+                    </div>
                 </div>
             </div>
         );

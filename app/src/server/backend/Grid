@@ -1,6 +1,0 @@
-for loading, we need to:
-start from index '/' (assume usertoken and poname exist and are valid)
-fetch project using the usertoken and poname. If either does not exist or are invalid, do not call fetch
-fetch should return the audio files in readstream format
-convert this into blobs
-upload blob using uploadHandler

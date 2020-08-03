@@ -147,11 +147,26 @@ projects.get('/', checkToken, (req, res) => {
         username: req.token.username
     };
     User.findOne(userQuery).then(userObj => {
-        // query projects based on tags, search query, and projects the owner owns 
-        const query = {
+        // query projects based on tags, search query, and projects the owner owns
+        let metadataFields = ['title', 'artist', 'album', 'year', 'track', 'genre', 'comment'];
+        // we also query based on metadata
+        metadataFields = metadataFields.map( (field) => {
+            return 'metadata.' + field
+        });
+        let orArray = metadataFields.map( (field) => {
+            return {
+                ...tags,
+                owner: userObj._id,
+                [field]: { $regex: search }
+            }
+        });
+        orArray.unshift({
             ...tags,
             owner: userObj._id,
             name: { $regex: search }
+        });
+        const query = {
+            $or: orArray
         };
         const found = Project.find(query).then(result => {
             // toSend is a list of projects that the owner owns
@@ -169,12 +184,21 @@ projects.get('/', checkToken, (req, res) => {
         }).then(toSend => {
             // Everything concatenated to toSend after this point
             // are collaborated projects. 
-            // Same query conditions apply. 
-            const collabQuery = {
-                // query
+            // Same query conditions apply.
+            let orArray2 = metadataFields.map( (field) => {
+                return {
+                    ...tags,
+                    collaborators: { $elemMatch: { $eq: userObj._id } },
+                    [field]: { $regex: search }
+                }
+            });
+            orArray2.unshift({
                 ...tags,
                 collaborators: { $elemMatch: { $eq: userObj._id } },
                 name: { $regex: search }
+            });
+            const collabQuery = {
+                $or: orArray2        
             };
             Project.find(collabQuery).then(result2 => {
                 // Sync issues here.
@@ -188,7 +212,7 @@ projects.get('/', checkToken, (req, res) => {
                 function f(toSend, ownerQuery) {
                     return new Promise((resolve, reject) => {
                         User.findOne(ownerQuery).then(result3 => {
-                            console.log("RESULT 3", result3)
+                            // console.log("RESULT 3", result3)
                             toSend = toSend.concat(result2.map(item => {
                                 return {
                                     name: item.name,
@@ -351,6 +375,14 @@ projects.get("/numfiles", checkToken, (req, res, next) => {
  * Create a project for a user
  */
 projects.post('/create', checkToken, (req, res, next) => {
+
+    // first check if string contains special characters.
+    // the following uses regex to check if there exists any special charaters.
+    if (/[ ~`!#$%\^&*+=\-\[\]\\';,/{}|\\":<>\?]/g.test(req.body.projectName)) {
+        res.status(444).send('spcchar');
+        return;
+    }
+
     // sharelink string's length is between 10 and 25
     const linkLength = Math.random() * 15 + 10;
 
@@ -398,7 +430,8 @@ projects.post('/create', checkToken, (req, res, next) => {
                         const newProjectData = {
                             name: req.body.projectName,
                             owner: userObj._id,
-                            sharelink: linkStr
+                            sharelink: linkStr,
+                            date: new Date()
                         };
                         Project.create(newProjectData)
                             .then(newProj => {
@@ -451,7 +484,8 @@ projects.post('/save', [checkToken, testMiddleWare], (req, res, next) => {
                     stack: req.headers.stack
                 }
                 const today = new Date();
-                Project.updateOne({ _id: projObj._id }, { $push: { files: audioEntry }, $set: { date: today }, $set: { metadata: meta } }).then((stat) => {
+                console.log(today);
+                Project.updateOne({ _id: projObj._id }, { $push: { files: audioEntry }, $currentDate: { date: true }, $set: { metadata: meta } }).then((stat) => {
                     // console.log("UPDATED", stat);
                     res.send("success");
                 });

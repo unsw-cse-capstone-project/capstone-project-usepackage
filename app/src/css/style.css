@@ -101,3 +101,30 @@ a:hover {
     border-radius: 35px;
 }
   
+.header-padding {
+    padding-top: 3%;
+}
+
+.inline {
+    display: inline;
+}
+
+.form-control-inline {
+    min-width: 0;
+    width: auto;
+    display: inline;
+    padding-right: 5px;
+}
+
+.search-btn-padding {
+    margin-left: 10px;
+}
+
+.row-padding {
+    padding-bottom: 10px;
+}
+
+.right-align {
+    display: flex;
+    justify-content: flex-end;
+}
