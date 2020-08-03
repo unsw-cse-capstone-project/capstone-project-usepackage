@@ -28,4 +28,22 @@ Friday: Created a test website for the team to experiment with worklets on. This
 Week 5:
 
 Week 6:
-Tuesday: Helped Simon with the backend, by creating the necessary callbacks required to communicate between the frontend and the backend.
+Tuesday: Helped Simon and Rui with the backend, by creating the necessary callbacks required to communicate between the frontend and the backend.
+
+Week 7:
+- Worked with Simon to save user information into the database
+- Experimenting with routes to use for future references. Namely sharing and profile management.
+- Used Bootstrap modals for allowing user to create projects. Learnt about react hooks.
+Week 8:
+- GridFS storage system DB referencing to allow the multer to access the gridfs storage system.
+- Worked with Madhav to move the backend from port 5000 to port 8080 making the project easier to run
+- Changed the storage definition for the multer to store files with unique names in the database
+Week 9:
+- Made changes to project and file schema with Simon.
+- Added new routes to the Projects controller regarding deleting and adding projects to the system
+- Fixed problems with promise queues that was implemented by Simon.
+Week 10:
+- Fixed bug to do with loading stack to the database.
+- Updated method of saving and downloading projects to accompany bug with stack loading.
+- Worked with Simon to update parts of the front end to make it more visually appealing.
+
