@@ -1,7 +1,7 @@
 import ActionStack from "./ActionStack.js";
 
 export default class CutManager {
-    // Constructor takes in the length of the buffer
+    // Constructor takes in the length of the buffer, and optional initial cuts and stack
     constructor(length, cuts = null, stack = []) {
         if (!cuts)
             this.cuts = [{
@@ -14,12 +14,13 @@ export default class CutManager {
             }];
         else
             this.cuts = cuts;
-        // console.log("CUT STACK: ", stack);
         this.stack = new ActionStack();
+        // If stack isn't empty, set it to the redo stack and reapply all changes
         this.redoStack = new ActionStack(stack.reverse());
         while (this.redo());
     }
 
+    // Convert a time to a cut index
     timeToCut(time) {
         for (let i = 0, cumtime = 0; i < this.cuts.length; i++) {
             cumtime += (this.cuts[i].sourceEnd - this.cuts[i].sourceStart) / this.cuts[i].tempo;
@@ -34,10 +35,12 @@ export default class CutManager {
         return null;
     }
 
+    // Get the stack
     getStack() {
         return this.stack.stack()
     }
 
+    // Get the lengths of the cuts, after tempo
     getLengths() {
         return this.cuts.map(cut => ({
             length: Math.floor((cut.sourceEnd - cut.sourceStart) / cut.tempo),
@@ -45,6 +48,7 @@ export default class CutManager {
         }));
     }
 
+    // Set the tempo of a cut
     setTempo(index, value, push = true) {
         const oldVal = this.cuts[index].tempo;
         this.cuts[index].tempo = value;
@@ -57,6 +61,7 @@ export default class CutManager {
             });
     }
 
+    // Set the pitch of a cut
     setPitch(index, value, push = true) {
         const oldVal = this.cuts[index].pitch;
         this.cuts[index].pitch = value;
@@ -69,6 +74,7 @@ export default class CutManager {
             });
     }
 
+    // Set the gain of a given channel in a cut
     setGain(index, channel, value, push = true) {
         const oldVal = this.cuts[index].gain[channel];
         this.cuts[index].gain[channel] = value;
@@ -82,10 +88,12 @@ export default class CutManager {
             });
     }
 
+    // Get the corresponding cut
     get(index) {
         return this.cuts[index];
     }
 
+    // Move a cut, truncating
     moveCut(index, offsetOrig, push = true) {
         if (offsetOrig == 0)
             return;
@@ -93,9 +101,10 @@ export default class CutManager {
             const offset = Math.ceil(offsetOrig * this.cuts[index].tempo);
             const newEnd = this.cuts[index].sourceEnd + offset;
             if (newEnd <= this.cuts[index].sourceStart) {
+                // Off the start, so delete
                 this.removeCut(index);
-                console.log("REMOVE");
             } else {
+                // Adjust the end
                 if (push)
                     this.stack.push({
                         type: "adjustend",
@@ -110,9 +119,10 @@ export default class CutManager {
             const offset = Math.floor(offsetOrig * this.cuts[index].tempo);
             const newStart = this.cuts[index].sourceStart + offset;
             if (newStart >= this.cuts[index].sourceEnd) {
+                // Off the end, so delete
                 this.removeCut(index);
-                console.log("REMOVE");
             } else {
+                // Adjust the start
                 if (push)
                     this.stack.push({
                         type: "adjuststart",
@@ -125,7 +135,9 @@ export default class CutManager {
         }
     }
 
+    // Add a cut at a given time
     addCut(time, push = true) {
+        // We need the cut
         const cutval = this.timeToCut(time);
         if (cutval) {
             const cut = cutval.cut;
@@ -137,6 +149,7 @@ export default class CutManager {
                     at: index + 1
                 });
             const cutTime = Math.floor(cut.sourceEnd - (cutval.cumtime - time) * cut.tempo);
+            // Two cuts, each with the same details, excluding the sourceStart/End
             const firstCut = {
                 sourceStart: cut.sourceStart,
                 sourceEnd: cutTime,
@@ -157,6 +170,7 @@ export default class CutManager {
         }
     }
 
+    // Remove a cut
     removeCut(index, push = true) {
         if (push)
             this.stack.push({
@@ -167,6 +181,7 @@ export default class CutManager {
         this.cuts.splice(index, 1);
     }
 
+    // Mark a cut as cropped
     crop(i) {
         this.cuts[i].cropped = !this.cuts[i].cropped;
         this.stack.push({
@@ -175,10 +190,11 @@ export default class CutManager {
         })
     }
 
+    // Copy a cut from one index to another
     copy(from, to) {
         const traveller = {
             ...this.cuts[from],
-            gain: this.cuts[from].gain.slice(0)
+            gain: this.cuts[from].gain.slice(0),
         };
         this.cuts.splice(to, 0, traveller);
         this.stack.push({
@@ -188,6 +204,7 @@ export default class CutManager {
         })
     }
 
+    // Move a cut from one index to another
     move(from, to) {
         let index = to;
         if (from < to)
@@ -204,12 +221,14 @@ export default class CutManager {
         });
     }
 
+    // Undo an action
     undo() {
         let action = this.stack.pop();
         if (action === undefined) return false;
         if (action.type === 'cut') {
             const i = action.at;
-            this.removeCut(i, false);
+            this.cuts[i - 1].sourceEnd = this.cuts[i].sourceEnd;
+            this.cuts.splice(i, 1);
         }
 
         if (action.type === 'tempo') {
@@ -261,11 +280,10 @@ export default class CutManager {
         this.stack._stack.forEach(act => { return console.log(act.type); });
         this.redoStack.push(action);
 
-        console.log("undo: ");
-        console.log("stacc: ", this.stack);
-        console.log("redostacc: ", this.redoStack)
+        return true;
     }
 
+    // Redo an action
     redo() {
         let action = this.redoStack.pop();
         if (action === undefined) return false;
@@ -323,13 +341,10 @@ export default class CutManager {
             this.removeCut(action.from);
         }
 
-        console.log("redo: ");
-        console.log("stacc: ", this.stack);
-        console.log("redostacc: ", this.redoStack)
-
         return true;
     }
 
+    // Empty the redo stack; for when an action is made
     dumpRedo() {
         this.redoStack.dump();
     }

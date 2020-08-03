@@ -99,7 +99,7 @@ class CustomProcessor extends AudioWorkletProcessor {
 
             case MsgType.COPY:
                 this._cuts.dumpRedo();
-                this._cuts.crop(data);
+                this._cuts.copy(data.from, data.to);
                 break;
 
             case MsgType.MOVE:
@@ -124,6 +124,17 @@ class CustomProcessor extends AudioWorkletProcessor {
                 this.port.postMessage({
                     type: MsgType.STACK,
                     data: this._cuts.getStack()
+                });
+                return;
+
+            case MsgType.UPDATE:
+                this.port.postMessage({
+                    type: MsgType.UPDATE,
+                    data: {
+                        gain: this._cuts.get(data).gain,
+                        tempo: this._cuts.get(data).tempo,
+                        pitch: this._cuts.get(data).pitch
+                    }
                 });
                 return;
 

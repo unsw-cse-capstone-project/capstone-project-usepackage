@@ -1,4 +1,5 @@
 export default class ActionStack {
+    // A stack for storing undo and redo actions
     constructor(stack = []) {
         console.log("ACTIONSTACK: ", stack) // DEBUG
         this._stack = stack;
