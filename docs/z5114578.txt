@@ -17,5 +17,31 @@ Saturday -  Watched Simon construct the interface diagrams. Picked up on missing
 Sunday -    The team met up again to finalise the proposal. I arrived as soon as worked finished. I thoroughly checked over the entire proposal for grammatical errors, and also to clear up any ambiguities appearing here and there in the document.
 
 Week 4
-Friday -   The team managed to produce a working play and stop button. I wrote some stubs and created the freqvisualiser and uploadhandler classes. 
-Sunday -   Added new libraries required (i.e. dependencies) for our audio editor. Spent a fair bit of time on the pitch and gain modulator classes. A semi-working prototype was ready.
+Friday -    The team managed to produce a working play and stop button. I wrote some stubs and created the freqvisualiser and uploadhandler classes. 
+Sunday -    Added new libraries required (i.e. dependencies) for our audio editor. Spent a fair bit of time on the pitch and gain modulator classes. A semi-working prototype was ready.
+
+Week 5
+Friday -    Team retrospective held. Our team was generally in agreement with every issue brought up. We found that for the first demo there was a significant number of things that didn't go well, which had to be addressed for the second demo. I typed up most of the document and proofread in its entirety. 
+
+Week 6
+Tuesday -   Worked with Simon and Rajiv on starting with the backend work. I created some HTML templates for our registration and login system, and helped discuss some of the programming logic.
+Saturday -  Set up the docs for the second progressive demo and the report.
+
+Week 7
+Wednesday - Again worked with Rajiv and Simon on backend. We made some further progress with the login and registration system. For the most part, I was mainly involved in a pair-programming like system, picking up on subtleties my team members made.
+Saturday -  Successfully developed a working login and registration system.
+
+Week 8
+Monday -    Made some improvements with Simon, for example displaying useful error messages on the interface instead of debugging strings. 
+Tuesday -   Team retrospective held the evening after the second demo. There were many things that went well, but documenting our code was not one of them. I was assigned responsibility to look after this as well.
+Saturday -  Provided some HTML and CSS stubs for Simon to use later with the backend. Helped code up the tags for the backend.
+
+Week 9
+Wednesday - Commenced writing the report. I began mapping our functionalities to the objectives.
+Thursday -  More report writing.
+Friday -    Discussed with Ethan how to implement the cutbar, being the most problematic feature in the actual editor. We were looking into a more interactive based outcome in its implementation.  
+Saturday -  More report writing
+Sunday -    Report proofreading.
+
+Week 10
+Monday -    Did some cleanup with some of the frontend functionality as per Ethan's request.
