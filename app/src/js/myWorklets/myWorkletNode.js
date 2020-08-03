@@ -7,9 +7,14 @@ export default class MyWorkletNode extends AudioWorkletNode {
     constructor(context, processor, options) {
         super(context, processor);
         this._buffer = options.buffer;
+        this._cuts = options.cuts
         this.listeners = [];
         this.time = 0;
         this.port.onmessage = this._messageProcessor.bind(this);
+    }
+
+    applyStack(stack) {
+        console.log(stack);
     }
 
     seek(slice, time) {
@@ -104,6 +109,16 @@ export default class MyWorkletNode extends AudioWorkletNode {
         })
     }
 
+    moveCut(slice, offset) {
+        this.port.postMessage({
+            type: MsgType.MOVECUT,
+            data: {
+                index: slice,
+                offset: offset
+            }
+        })
+    }
+
     undo() {
         this.port.postMessage({
             type: MsgType.UNDO
@@ -184,7 +199,10 @@ export default class MyWorkletNode extends AudioWorkletNode {
             case MsgType.INIT:
                 this.port.postMessage({
                     type: MsgType.START,
-                    data: this._initializeProcessor(this._buffer)
+                    data: {
+                        ...this._initializeProcessor(this._buffer),
+                        cuts: this._cuts
+                    }
                 });
                 break;
 

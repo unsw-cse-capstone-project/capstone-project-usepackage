@@ -37,7 +37,10 @@ export default class FreqVisualiser extends React.Component {
 
         for(let i = 0, x = 0; i < bufferLength; i++, x += barWidth + 1) {
             const barHeight = this.dataArray[i] / 2;
-            this.canvasCtx.fillStyle = 'rgb(' + (barHeight + 130*x/this.state.width) + ',' + (barHeight - 50) + ',' + (barHeight + 130 - 130*x/this.state.width) +')';
+            this.canvasCtx.fillStyle = 'rgb('
+                + (barHeight + 130*x/this.state.width) + ','
+                + (barHeight - 50) + ','
+                + (barHeight + 130 - 130*x/this.state.width) + ')';
             this.canvasCtx.fillRect(x, this.state.height - barHeight / 2, barWidth, barHeight);
         }
     }

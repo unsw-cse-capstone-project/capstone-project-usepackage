@@ -28,16 +28,24 @@ export default class CutBar extends React.Component {
         };
         this.updates = [];
         this.interact = {
-            start: 0,
-            end: 0,
-            selected: false,
+            init: 0,
+            initVal: 0,
+            final: 0,
+            move: false,
+            started: false,
+            storedsum: 0,
+            index: 0
         };
         this.waveform = null;
         this.cutCB = props.cutCB;
+        this.editCB = props.editCB;
+        this.moveCB = props.moveCB;
+        this.seekCB = props.seekCB;
         this.ref = React.createRef();
         this.bgref = React.createRef();
         this.draw = this.draw.bind(this);
         this.drawbg = this.drawbg.bind(this);
+        this.seekTo = this.seekTo.bind(this);
         this.updateMarkers = this.updateMarkers.bind(this);
         props.regSample(this.setSample.bind(this));
         props.regLen(this.drawLengths.bind(this));
@@ -51,44 +59,81 @@ export default class CutBar extends React.Component {
     componentDidMount() {
         const canvas = this.ref.current;
         this.canvasCtx2 = this.bgref.current.getContext('2d');
+
         canvas.addEventListener('mousedown', (e) => {
-            console.log("MOUSEDOWN"); // DEBUG
-            this.interact.start = e.offsetX;
-            this.interact.pressed = true;
+            let cumsum = this.state.lengths[0].length;
+            const goal = e.offsetX / this.state.width * this.state.length;
+            for (let i = 0; i < this.state.lengths.length;) {
+                if (goal < cumsum) {
+                    this.interact.init = i;
+                    this.interact.storedsum = cumsum;
+                    break;
+                }
+                if (i + 1 < this.state.lengths.length)
+                    cumsum += this.state.lengths[++i].length;
+            }
+            this.interact.initVal = e.offsetX;
+            this.interact.started = true;
         });
+        
         canvas.addEventListener('mousemove', (e) => {
-            console.log("MOUSEMOVE"); // DEBUG
-            if (this.interact.pressed) {
-                this.interact.selected = true;
-                this.interact.end = e.offsetX;
-                this.draw();
+            if (this.interact.started) {
+                this.interact.move = true;
+                let cumsum = this.state.lengths[0].length;
+                const goal = e.offsetX / this.state.width * this.state.length;
+                for (let i = 0; i < this.state.lengths.length;) {
+                    if (goal < cumsum) {
+                        this.interact.final = i;
+                        break;
+                    }
+                    if (i + 1 < this.state.lengths.length)
+                        cumsum += this.state.lengths[++i].length;
+                }
             }
+            console.log(this.interact);
         });
+        
         canvas.addEventListener('mouseup', (e) => {
-            console.log("MOUSEUP"); // DEBUG
-            this.interact.pressed = false;
-            this.interact.selected = false;
-            if (this.interact.selected) {
-                console.log("SELECT", this.interact.start, this.interact.end); // DEBUG
-            } else {
-                console.log("SELECT SLICE", this.interact.start); // DEBUG
-                if (this.cutCB)
+            if (!this.interact.move && this.interact.started) {
+                if (this.interact.index != this.interact.init) {
+                    this.interact.index = this.interact.init;
+                    console.log("SEEK", this.interact.index);
+                    this.seekTo(this.interact.index);
+                } else {
+                    console.log("CUT", e.offsetX / this.state.width * this.state.length);
                     this.cutCB(e.offsetX / this.state.width * this.state.length);
+                }
+            } else if (this.interact.init != this.interact.final && this.interact.started) {
+                const lengthCopy = this.state.lengths.map((a) => a.length);
+                const temp = lengthCopy.splice(this.interact.init, 1);
+                if (this.interact.init > this.interact.final)
+                    this.interact.index = this.interact.final;
+                else
+                    this.interact.index = this.interact.final - 1;
+                lengthCopy.splice(this.interact.index, 0, ...temp);
+                let cumsum = 0;
+                for (let i = 0; i < this.interact.index; i++)
+                    cumsum += lengthCopy[i];
+                console.log("MOVE", this.interact.init, this.interact.final);
+                this.moveCB(this.interact.init, this.interact.final);
+                this.seekTo(this.interact.final, cumsum / this.state.length);
             }
-            this.draw();
-        });
+            this.interact.move = false;
+            this.interact.started = false;
+        })
         this.canvasCtx = canvas.getContext("2d");
         this.draw();
+    }
+
+    seekTo(cumsum) {
+        // TODO: Seek marker
+        this.seekCB(cumsum / this.state.length * this.state.duration);
     }
 
     setSample(sampleRate) {
         this.setState({
             sampleRate: sampleRate
         });
-    }
-
-    markerCB(val, index) {
-        console.log("CB", val, index);
     }
 
     updateMarkers() {
@@ -105,18 +150,19 @@ export default class CutBar extends React.Component {
                 right = (left + this.state.lengths[i].length + this.state.lengths[i + 1].length);
             else 
                 right = this.state.length;
-            console.log("UPDATED", i, right / this.state.sampleRate);
+            console.log("UPDATED", i, left / this.state.sampleRate, right / this.state.sampleRate);
             this.updates[i].update({
+                duration: this.state.duration,
                 left: left / this.state.sampleRate,
                 right: right / this.state.sampleRate,
                 offset: (left + this.state.lengths[i].length) * this.state.width / this.state.length,
+                time: (left + this.state.lengths[i].length) / this.state.sampleRate,
                 index: i
             });
             left += this.state.lengths[i].length;
         }
         if (newMarkers > this.state.markers.length) {
             const timeVal = left + this.state.lengths[readjust].length;
-            console.log(timeVal * this.state.width / this.state.length);
             this.setState({
                 markers: [...this.state.markers,
                 <CutElement
@@ -127,13 +173,26 @@ export default class CutBar extends React.Component {
                     left={left / this.state.sampleRate}
                     right={this.state.duration}
                     time={timeVal / this.state.sampleRate}
+                    openCB={(index) => {
+                        this.updates.forEach((v, i) => {
+                            if (i != index)
+                                v.close();
+                        });
+                    }}
                     editCB={(i, v) => {
                         console.log(v, "FROM", i);
+                        let cumsum = 0;
+                        const samples = v * this.state.sampleRate;
+                        for (let j = 0; j < i + 1; j++)
+                            cumsum += this.state.lengths[j].length;
+                        console.log("SAMPLE CUT", samples - cumsum);
+                        this.editCB(i, samples - cumsum);
                     }}
-                    regUpdate={(i, v, o) => {
+                    regUpdate={(i, u, o, c) => {
                         this.updates[i] = {
-                            update: v,
-                            offset: o
+                            update: u,
+                            offset: o,
+                            close: c
                         };
                     }}
                 />],
@@ -143,6 +202,7 @@ export default class CutBar extends React.Component {
             this.setState({
                 markers: this.state.markers.slice(0, newMarkers)
             });
+            this.updates.slice(0, newMarkers);
         }
     }
 

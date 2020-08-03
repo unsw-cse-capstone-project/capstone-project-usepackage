@@ -40,17 +40,28 @@ export default class AudioStack {
 
     record(type) {
         console.log("AUDIOSTACK TYPE: ", type) // DEBUG
-        let blobs = []
-        console.log("Checking RECORDS: ", this.records[0])
+        let rec = []
+        let stack = []
         this.tracks.forEach((_, i) => {
             const recObj = this.records[i](type)
-            console.log("RECOBJ: ", recObj)
-            blobs.push({
-                file: recObj.rec,
-                stack: recObj.stack
-            })
+            // blobs.push({
+            //     file: recObj.rec,
+            //     stack: recObj.stack
+            // })
+            rec.push(recObj.rec)
+            stack.push(recObj.stack)
         })
-        return blobs
+        return (new Promise((resolve) => {
+            rec.reduce((prev, curr) => {
+                return prev.then((val) => curr.then((val2) => [...val, val2]));
+            }, Promise.resolve([])).then((recNew) => {
+                stack.reduce((prev, curr) => {
+                    return prev.then((val) => curr.then((val2) => [...val, val2]));
+                }, Promise.resolve([])).then((stackNew) => {
+                    resolve([recNew, stackNew]);
+                });
+            });
+        }));
     }
 
     tracks() {

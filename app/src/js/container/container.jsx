@@ -150,15 +150,16 @@ export default class MainContainer extends React.Component {
     }
 
     downloadHandler() {
-        console.log("downloading...", this.state.downloadType)
-        let blobs = this.audioStack.record(this.state.downloadType);
-        console.log(blobs);
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blobs[0].file);
-        a.download="test." + this.state.downloadType
-        a.hidden = true;
-        document.body.appendChild(a);
-        a.click();
+        this.audioStack.record(this.state.downloadType).then(recstack => {
+            console.log(recstack);
+            console.log("DOWNLOADING: ", recstack[0][0]);
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(recstack[0][0]);
+            a.download="test." + this.state.downloadType
+            a.hidden = true;
+            document.body.appendChild(a);
+            a.click();
+        });
     }
 
     addFiles(Newfiles) {        
@@ -182,50 +183,53 @@ export default class MainContainer extends React.Component {
             if(message === "Token does not match!" || message === "Forbidden") return new Error(message);
             localStorage.setItem('projecttoken', message);
             console.log("token updated");
-
-            const blobs = this.audioStack.record("mp3");
-
-            let sum = 0;
-            let files = []
-            blobs.forEach((blob, i) => {
-                if ( localStorage.usertoken && localStorage.poname) {
-                    const file = new File([blob.file], i + ".mp3", {type: "audio/mpeg"});
-                    files.push(file)
-                    sum += file.size;
-                } else {
-                    console.log("NOT LOGGED IN");
+            /*
+                blobs[0] => recordings
+                blobs[1] => stack
+            */
+            this.audioStack.record("mp3").then(blobs => {
+                let sum = 0;
+                let files = []
+                blobs[0].forEach((blob, i) => {
+                    if ( localStorage.usertoken && localStorage.poname) {
+                        const file = new File([blob.file], i + ".mp3", {type: "audio/mpeg"});
+                        files.push(file)
+                        sum += file.size;
+                    } else {
+                        console.log("NOT LOGGED IN");
+                    }
+                });
+                const opts = { 
+                    'authorization': localStorage.usertoken,
+                    'projmetadata': localStorage.poname
                 }
-            });
-            const opts = { 
-                'authorization': localStorage.usertoken,
-                'projmetadata': localStorage.poname
-            }
 
-            fetchGet('/projects/enoughspace', this.opts())
-            .then(message => {
-                if(parseInt(message) + sum <= 209715200) {
-                    // delete all files in proj here
-                    fetchGet('/projects/deleteall', this.opts()).then( () => {
-                        // reupload all files to db here
-                        files.forEach( (file, i) => {
-                            let data = new FormData();
-                            data.append('file', file);
-                            // data.append('edits', 'abc134');
-                            console.log("Attempting to save blob")
-                            const opts = 
-                            {
-                                'projmetadata': localStorage.poname,
-                                'stack' : JSON.stringify(blobs[i].stack),
-                                'FinalMetadata': JSON.stringify(this.state.metadata)
-                            } 
-                            fetchPost('/projects/save', opts, data).then(message => {
-                                alert(message)
-                            }).catch(err => console.log(err));
+                fetchGet('/projects/enoughspace', this.opts())
+                .then(message => {
+                    if(parseInt(message) + sum <= 209715200) {
+                        // delete all files in proj here
+                        fetchGet('/projects/deleteall', this.opts()).then( () => {
+                            // reupload all files to db here
+                            files.forEach( (file, i) => {
+                                let data = new FormData();
+                                data.append('file', file);
+                                // data.append('edits', 'abc134');
+                                console.log("Attempting to save blob")
+                                const opts = 
+                                {
+                                    'projmetadata': localStorage.poname,
+                                    'stack' : JSON.stringify(blobs[1][i].stack),
+                                    'FinalMetadata': JSON.stringify(this.state.metadata)
+                                } 
+                                fetchPost('/projects/save', opts, data).then(message => {
+                                    alert(message)
+                                }).catch(err => console.log(err));
+                            });
                         });
-                    });
-                } else {
-                    console.log("Not enough space!");
-                }
+                    } else {
+                        console.log("Not enough space!");
+                    }
+                });
             }).catch(err => console.log(err));
         }).catch((err) => {
             alert(err);

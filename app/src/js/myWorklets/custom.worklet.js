@@ -50,8 +50,7 @@ class CustomProcessor extends AudioWorkletProcessor {
             case MsgType.START:
                 this._bufferInfo = data;
                 this._interleave = data.buffer;
-                this._cuts = new CutManager(data.length);
-                console.log(this._interleave); // DEBUG
+                this._cuts = new CutManager(data.length, data.cuts);
                 this._initialized = true;
                 this.port.postMessage({
                     type: MsgType.READY
@@ -64,7 +63,7 @@ class CustomProcessor extends AudioWorkletProcessor {
 
             case MsgType.PLAY:
                 this._playing = data;
-                break;
+                return;
 
             case MsgType.CUT:
                 this._cuts.dumpRedo();
@@ -106,6 +105,11 @@ class CustomProcessor extends AudioWorkletProcessor {
             case MsgType.MOVE:
                 this._cuts.dumpRedo();
                 this._cuts.move(data.from, data.to);
+                break;
+
+            case MsgType.MOVECUT:
+                this._cuts.dumpRedo();
+                this._cuts.moveCut(data.index, data.offset);
                 break;
 
             case MsgType.UNDO:
@@ -172,7 +176,6 @@ class CustomProcessor extends AudioWorkletProcessor {
         this._sourceData.remain = Math.floor((this._sourceData.cut.sourceEnd - this._sourceData.frame) / this._sourceData.cut.tempo);
         this._buffers[0].clear();
         this._buffers[1].clear();
-        this.a = true;
         this.processIntoBuffer(this._sourceData.chunk);
     }
 

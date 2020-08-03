@@ -107,6 +107,19 @@ export default class AudioTrackContainer extends React.Component {
             this.sampleHandler = handler;
     }
 
+    cutbarMoveCut(index, time) {
+        this.state.controller.moveCut(index, time);
+    }
+
+    cutbarMove(from, to) {
+        this.state.controller.move(from, to);
+    }
+
+    cutbarSeek(index, offset = null) {
+        this.state.controller.seek(index, 0);
+        // offset used for seek head
+    }
+
     record(type) {
         if ( this.state.controller ) {
             return ({
@@ -344,6 +357,9 @@ export default class AudioTrackContainer extends React.Component {
                 <div className="col-12">
                     <CutBar
                         cutCB={this.executeCut}
+                        editCB={this.cutbarMoveCut.bind(this)}
+                        moveCB={this.cutbarMove.bind(this)}
+                        seekCB={this.cutbarSeek.bind(this)}
                         width={600}
                         height={60}
                         regSample={this.registerSampleHandler.bind(this)}

@@ -8,6 +8,8 @@ export default class CutElement extends React.Component {
             width: props.width,
             duration: props.duration,
             time: props.time,
+            left: props.left,
+            right: props.right,
             leftOff: props.left * props.width / props.duration,
             rightOff: props.right * props.width / props.duration,
             show: false,
@@ -18,16 +20,24 @@ export default class CutElement extends React.Component {
             regUpdate: props.regUpdate
         };
         this.editCB = props.editCB;
+        this.openCB = props.openCB;
         this.markerRef = React.createRef();
         this.timeRef = React.createRef();
         props.regUpdate(
             props.index,
             this.update.bind(this),
-            this.getOffset.bind(this)
+            this.getOffset.bind(this),
+            this.close.bind(this)
         );
 
         this.seekTo = this.seekTo.bind(this);
         this.seekToTime = this.seekToTime.bind(this);
+    }
+
+    close() {
+        this.setState({
+            show: false
+        });
     }
 
     getOffset() {
@@ -47,6 +57,10 @@ export default class CutElement extends React.Component {
     }
 
     seekToTime(time) {
+        if (time < this.state.left)
+            time = this.state.left;
+        else if (time > this.state.right)
+            time = this.state.right;
         const cumsum = time * this.state.width / this.state.duration;
         this.markerRef.current.style.left = cumsum + 'px';
         this.setState({
@@ -58,6 +72,7 @@ export default class CutElement extends React.Component {
     componentDidMount() {
         this.markerRef.current.addEventListener('click', (e) => {
             if (!this.state.show) {
+                this.openCB(this.state.index);
                 this.setState({
                     show: true
                 });
@@ -106,8 +121,10 @@ export default class CutElement extends React.Component {
 
         const seekTime = () => {
             if (this.timeRef.current.getAttribute('contenteditable') !== null) {
-                if (this.timeRef.current.innerText.match(/^\d+(?:\.\d+)?$/))
+                if (this.timeRef.current.innerText.match(/^\d+(?:\.\d+)?$/)) {
                     this.seekToTime(parseFloat(this.timeRef.current.innerText));
+                    this.editCB(this.state.index, this.state.time);
+                }
             }
         };
         this.timeRef.current.addEventListener('keydown', (e) => {
@@ -130,13 +147,15 @@ export default class CutElement extends React.Component {
     update(data) {
         this.setState({...data,
             initOffset: data.offset,
-            leftOff: data.left * this.state.width / this.state.duration,
-            rightOff: data.right * this.state.width / this.state.duration
+            leftOff: data.left * this.state.width / data.duration,
+            rightOff: data.right * this.state.width / data.duration,
+            show: false
         });
         this.state.regUpdate(
             this.state.index,
             this.update.bind(this),
-            this.getOffset.bind(this)
+            this.getOffset.bind(this),
+            this.close.bind(this)
         );
         this.seekTo(this.state.offset);
     }
