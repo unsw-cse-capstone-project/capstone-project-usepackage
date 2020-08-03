@@ -20,4 +20,22 @@ Sunday    - We added pitch and playback speed using SoundTouch and native audio 
 
 Week 5
 Tuesday   - We completed recording using OfflineAudioContext in place of RecorderJS, and set up Vorbis (OGG), LAME (MP3), and WAV encoding libraries. Separate tracks were refactored into their own instances, so recording now resolves each, and merges the buffers into one, before handling mono/stereo channeling and encoding. We also set up splicing and seeking, but our current implementation requires a fair bit of work, and will likely need to be changed to make use of audio worklets, to ensure seemless transitions with SoundTouchJS. We also completed the progressive demo.
-Friday    - 
+Friday    - We had our team retrospective; we wrote it up as a draft while discussing the main points, and agreed we had a few points we needed to work on for the future.
+
+Week 6
+
+Week 7
+Sunday    - I started working on integrating the SoundTouch library with the worklet node Rajiv started, but made little progress.
+
+Week 8
+Monday    - I completed integrating the worklet at a basic level, and added cut integration so the cuts are now managed at the worklet level, instead of by another process. This has the benefit or ensuring downloading has the same quality as streaming (since during download the frames are processeed fast enough that the overhead of reconnecting the cut data causes a delay)
+Tuesday   - I completed a very basic cut bar alongside Madhav. A lot need to be integrated, but the functionality is there. It will need to be improved.
+Sunday    - I finished implementing seek and integrating some of the features into the cut bar better. I hope to get most of the functions like seek, cut, etc integrated into the canvas itself, but it may be difficult.
+
+Week 9
+Friday    - With other assignments starting to be due, I have had little free time to work on the project. I did some basic refactoring and discussed how we wanted to implement the cut bar with Rui, specifically with regards to UI design. We hope to have some way to adjust cuts after thay have been made, and to select interactively, rather than via a text box as it is currently.
+Sunday    - I worked on getting the cut bar to visualise the wave form alongside the actual cuts, without having to do large calculations every time something changes. I decided to reduce the visualisation's resolution in favour of speed, only sampling 10 points per pixel (instead of thousands). This ended up being enough to avoid freezing or laging due to the visualisation.
+
+Week 10
+Monday    - I spent most of today working on getting markers to work properly. I used the ::before and ::after pseudo-elements to avoid the visualised lines affecting mouse interaction, and overall formatting of the page.
+Tuesday   - Again I spent a lot of time getting the cut bar to work, but it finally paid off, and we have an interactive cut bar. Markers work properly and can't be moved beyond the ends, they update when the tempo changes, etc.
