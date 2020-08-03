@@ -41,7 +41,7 @@ class Hotkeys extends React.PureComponent {
  
   render () {
     return (
-      <button undoHandler={this.props.undoHandler} redohandler={this.props.redoHandler}> Undo</button>
+      <button undoHandler={this.props.undoHandler} redohandler={this.props.redoHandler} hidden> Undo</button>
     )
   }
 }

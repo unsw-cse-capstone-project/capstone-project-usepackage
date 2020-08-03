@@ -2,7 +2,7 @@ import ActionStack from "./ActionStack.js";
 
 export default class CutManager {
     // Constructor takes in the length of the buffer
-    constructor(length, cuts = null) {
+    constructor(length, cuts = null, stack = []) {
         if (!cuts)
             this.cuts = [{
                 sourceStart: 0,
@@ -14,8 +14,10 @@ export default class CutManager {
             }];
         else
             this.cuts = cuts;
+        // console.log("CUT STACK: ", stack);
         this.stack = new ActionStack();
-        this.redoStack = new ActionStack();
+        this.redoStack = new ActionStack(stack.reverse());
+        while (this.redo());
     }
 
     timeToCut(time) {
@@ -258,6 +260,10 @@ export default class CutManager {
 
         this.stack._stack.forEach(act => { return console.log(act.type); });
         this.redoStack.push(action);
+
+        console.log("undo: ");
+        console.log("stacc: ", this.stack);
+        console.log("redostacc: ", this.redoStack)
     }
 
     redo() {
@@ -316,6 +322,12 @@ export default class CutManager {
         if (action.type === 'remove') {
             this.removeCut(action.from);
         }
+
+        console.log("redo: ");
+        console.log("stacc: ", this.stack);
+        console.log("redostacc: ", this.redoStack)
+
+        return true;
     }
 
     dumpRedo() {

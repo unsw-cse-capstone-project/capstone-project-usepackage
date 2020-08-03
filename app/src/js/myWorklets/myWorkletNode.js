@@ -7,7 +7,8 @@ export default class MyWorkletNode extends AudioWorkletNode {
     constructor(context, processor, options) {
         super(context, processor);
         this._buffer = options.buffer;
-        this._cuts = options.cuts
+        this._cuts = options.cuts;
+        this._stack = options.stack;
         this.listeners = [];
         this.time = 0;
         this.port.onmessage = this._messageProcessor.bind(this);
@@ -197,11 +198,13 @@ export default class MyWorkletNode extends AudioWorkletNode {
 
         switch (msg.type) {
             case MsgType.INIT:
+                console.log("NODE: ", this._stack)
                 this.port.postMessage({
                     type: MsgType.START,
                     data: {
                         ...this._initializeProcessor(this._buffer),
-                        cuts: this._cuts
+                        cuts: this._cuts,
+                        stack: this._stack
                     }
                 });
                 break;

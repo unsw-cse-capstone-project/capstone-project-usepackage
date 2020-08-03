@@ -11,6 +11,8 @@ import MyWorkletNode from '../myWorklets/myWorkletNode';
 import lamejs from '../lib/lamejs.js';
 import WavAudioEncoder from '../lib/WavAudioEncoder';
 
+const OggVorbisEncoder = window.OggVorbisEncoder;
+
 export default class AudioTrackController {
 
     constructor(props) {
@@ -155,7 +157,7 @@ export default class AudioTrackController {
                                 return buffers;
                             }
                             let newCon = new OfflineAudioContext(2, buffer.length, buffer.sampleRate);
-                            let encoder = new window.OggVorbisEncoder(buffer.sampleRate, 2, 1); // not a constructor
+                            let encoder = new OggVorbisEncoder(buffer.sampleRate, 2, 1); // not a constructor
                             let input = newCon.createBufferSource();
                             input.buffer = buffer;
                             let processor = newCon.createScriptProcessor(2048, 2, 2);
@@ -271,11 +273,11 @@ export default class AudioTrackController {
 
 }
 
-AudioTrackController.create = (audioRecord) => {
+AudioTrackController.create = (audioRecord, stack = []) => {
     return new Promise((resolve) => {
         console.log("Creating a new controller with record: ", audioRecord)
         const audioCtx = new AudioContext();
-        AudioTrackController.graph(audioCtx, audioRecord.audioData).then(graph => {
+        AudioTrackController.graph(audioCtx, audioRecord.audioData, null, stack).then(graph => {
             console.log("Graph: ", graph)
                 // Create the source
             const audio = new Audio(URL.createObjectURL(audioRecord.fileBlob));
@@ -293,12 +295,13 @@ AudioTrackController.create = (audioRecord) => {
     })
 }
 
-AudioTrackController.graph = (audioCtx, buffer, cuts = null) => {
+AudioTrackController.graph = (audioCtx, buffer, cuts = null, stack = []) => {
     // const gainNode = new GainNode(audioCtx);
     return audioCtx.audioWorklet.addModule(workletURL).then(() => {
         const workNode = new MyWorkletNode(audioCtx, 'CustomProcessor', {
             buffer: buffer,
-            cuts: cuts
+            cuts: cuts,
+            stack: stack
         });
         return new Promise((resolve) => {
                 workNode.on('init', (detail) => {

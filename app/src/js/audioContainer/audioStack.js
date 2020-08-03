@@ -13,14 +13,17 @@ export default class AudioStack {
         this.records = []
         this.controllers = []
         this.toggles = []
+        this.undos = []
+        this.redos = []
         this.add = this.add.bind(this)
         this.record = this.record.bind(this)
     }
 
-    add(audioRecord, deleteCb) {
+    add(audioRecord, deleteCb, stack=[]) {
         this.tracks.push(< AudioTrackContainer key = { audioRecord.fileURL }
             audioRecord = { audioRecord }
             deleteCb = { deleteCb }
+            stack = {stack}
             onMounted = { f => { this.records[this.records.length] = f } }
             registerCB = { f => { this.toggles[this.toggles.length] = f } }
         /> );

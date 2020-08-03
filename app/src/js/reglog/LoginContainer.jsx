@@ -48,22 +48,27 @@ export default class LoginContainer extends React.Component {
 
     render() {
         return (
-            <Form onKeyPress={this.handleKeyPress}>
-                <Alert variant="primary" hidden id="reg-status">
-                    <p>This is a placeholder message. Contact the developers if you see this message.</p>
-                </Alert>
-                <Form.Group controlId="username">
-                    <Form.Label>User name</Form.Label>
-                    <Form.Control type="text" placeholder="Enter username" />
-                </Form.Group>
+            <div class="container">
+                <div class="col-md-3">
+                    <h1 class="header-padding">Login</h1>
+                    <Form onKeyPress={this.handleKeyPress}>
+                        <Alert variant="primary" hidden id="reg-status">
+                            <p>This is a placeholder message. Contact the developers if you see this message.</p>
+                        </Alert>
+                        <Form.Group controlId="username">
+                            <Form.Label>User name</Form.Label>
+                            <Form.Control type="text" placeholder="Enter username" />
+                        </Form.Group>
 
-                <Form.Group controlId="formPassword">
-                    <Form.Label>Password</Form.Label>
-                    <Form.Control type="password" />
-                </Form.Group>
+                        <Form.Group controlId="formPassword">
+                            <Form.Label>Password</Form.Label>
+                            <Form.Control type="password" />
+                        </Form.Group>
 
-                <Button onClick={this.handleLogin} variant="primary">Submit</Button>
-            </Form>
+                        <Button onClick={this.handleLogin} variant="primary">Submit</Button>
+                    </Form>
+                </div>
+            </div>
         );
     }
 }

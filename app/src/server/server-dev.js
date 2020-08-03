@@ -10,16 +10,15 @@ const cors = require('cors')
 const mongoose = require('mongoose')
 
 /**
- * server-dev.js is where all the frontend loading routes are located at.\
+ * server-dev.js is where all the frontend loading routes are located at.
  */
 
 const app = express(),
     DIST_DIR = __dirname,
-    WORKLET_DIR = path.join(DIST_DIR, '../src/js/myWorklets'),
-    LIB_DIR = path.join(DIST_DIR, '../lib'),
+    LIB_DIR = path.join(DIST_DIR, '../src/js/lib'),
     IMGS = path.join(DIST_DIR, '../src/img')
 
-    HTML_FILE = path.join(DIST_DIR, 'index.html'),
+HTML_FILE = path.join(DIST_DIR, 'index.html'),
     PROFILE_FILE = path.join(DIST_DIR, 'profile.html'),
     LOGIN_FILE = path.join(DIST_DIR, 'login.html'),
     REGISTER_FILE = path.join(DIST_DIR, 'register.html'),
@@ -108,6 +107,14 @@ app.get('/collabs/:ownername/:projectname/:randomlink', (req, res, next) => {
 
 app.get('/logo', (req, res, next) => {
     res.sendFile(path.join(IMGS, "/title.svg"))
+})
+
+app.get('/lib/ogg.js', (req, res, next) => {
+    res.sendFile(path.join(LIB_DIR, "/ogg.js"));
+})
+
+app.get('/lib/libvorbis.js', (req, res, next) => {
+    res.sendFile(path.join(LIB_DIR, "/libvorbis.js"));
 })
 
 

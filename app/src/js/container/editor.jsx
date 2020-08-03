@@ -5,9 +5,11 @@ import AudioStack from '../audioContainer/audioStack'
 import Modal from 'react-bootstrap/Modal'
 import InputGroup from 'react-bootstrap/InputGroup';
 import FormControl from 'react-bootstrap/FormControl';
-import {fetchGet, fetchPost, fetchGetJSON} from '../extramodules/custfetch';
+import { fetchGet, fetchPost, fetchGetJSON } from '../extramodules/custfetch';
+import { BsInfoCircleFill, BsCollectionPlayFill } from 'react-icons/bs'
+import { MdFileUpload, MdFileDownload, MdShare, MdSave } from 'react-icons/md'
 
-const dbURL = "http://localhost:8080"
+// const dbURL = "http://localhost:8080"
 
 const addUpload = (fileURL, blob, resolve) => {
     const reader = new FileReader()
@@ -81,13 +83,14 @@ export default class MainContainer extends React.Component {
             localStorage.setItem('projecttoken', message);
             console.log("obtaining number of files info");
 
-            setInterval(() => {
-                fetchGet('/projects/updateaccess', this.opts()).then(message => {
-                    if(message === "Token does not match!") return new Error("Token does not match!");
-                    localStorage.setItem('projecttoken', message);
-                    console.log("token updated");
-                }).catch(err => console.log(err));
-            }, 10 * 1000);
+            // REENABLE LATER
+            // setInterval(() => {
+            //     fetchGet('/projects/updateaccess', this.opts()).then(message => {
+            //         if(message === "Token does not match!") return new Error("Token does not match!");
+            //         localStorage.setItem('projecttoken', message);
+            //         console.log("token updated");
+            //     }).catch(err => console.log(err));
+            // }, 10 * 1000);
 
             let len = 0;
             fetchGet('/projects/numfiles', this.opts())
@@ -111,33 +114,34 @@ export default class MainContainer extends React.Component {
                         return new Promise(resolve => {
                             addUpload(URL.createObjectURL(blob), blob, resolve);
                         });
-                    }).then(audioRecord => {
-                        // Process inside the audioStack
-                        // MUST COME BEFORE THE STATE CHANGE!
-                        this.audioStack.add(audioRecord, (msg) => this.deleteCb(msg) ) 
-                        this.setState({
-                            audioRecords: [...this.state.audioRecords, audioRecord]
-                        })               
-                    }).then(() => {
-                        console.log("Audio stack tracks: ", this.audioStack.tracks);
-                        // Empty the fileURLs since they have already been processed
-                        this.fileURLs = [];
-                    }).then(() => {
+                    }).then((audioRecord) => {
                         fetchGet('projects/getstack', {
                                 'projmetadata': localStorage.poname,
                                 'nth': i
-                            }
-                        ).then(message => {
-                            console.log("STACK!!! ", message)})
-                    }).catch(err => {
-                        console.log(err);
-                    });
+                        }).then(message => {
+                            const stackjson = JSON.parse(message);
+                            console.log("STACK!!! ", stackjson)
+                            return {audioRecord: audioRecord, stack: stackjson}
+                        }).then(record => {
+                            // Process inside the audioStack
+                            // MUST COME BEFORE THE STATE CHANGE!
+                            this.audioStack.add(record.audioRecord, (msg) => this.deleteCb(msg), record.stack ) 
+                            this.setState({
+                                audioRecords: [...this.state.audioRecords, record.audioRecord]
+                            })               
+                        }).then(() => {
+                            console.log("Audio stack tracks: ", this.audioStack.tracks);
+                            // Empty the fileURLs since they have already been processed
+                            this.fileURLs = [];
+                        }).catch(err => {
+                            console.log(err);
+                        });
+                    })
                 }
             }).catch(err => console.log(err));
             fetchGetJSON('projects/getmetadata', {
                     'projmetadata': localStorage.poname
-                }
-            ).then(json => {
+            }).then(json => {
                 this.setState({
                     metadata: json
                 });
@@ -150,11 +154,11 @@ export default class MainContainer extends React.Component {
     }
 
     downloadHandler() {
-        this.audioStack.record(this.state.downloadType).then(recstack => {
-            console.log(recstack);
-            console.log("DOWNLOADING: ", recstack[0][0]);
+        console.log("downloading...", this.state.downloadType)
+        this.audioStack.record(this.state.downloadType).then(blobs => {
+            console.log(blobs);
             const a = document.createElement('a');
-            a.href = URL.createObjectURL(recstack[0][0]);
+            a.href = URL.createObjectURL(blobs[0][0]);
             a.download="test." + this.state.downloadType
             a.hidden = true;
             document.body.appendChild(a);
@@ -183,16 +187,13 @@ export default class MainContainer extends React.Component {
             if(message === "Token does not match!" || message === "Forbidden") return new Error(message);
             localStorage.setItem('projecttoken', message);
             console.log("token updated");
-            /*
-                blobs[0] => recordings
-                blobs[1] => stack
-            */
             this.audioStack.record("mp3").then(blobs => {
                 let sum = 0;
                 let files = []
+                console.log(blobs); // blobs is a pending promise
                 blobs[0].forEach((blob, i) => {
                     if ( localStorage.usertoken && localStorage.poname) {
-                        const file = new File([blob.file], i + ".mp3", {type: "audio/mpeg"});
+                        const file = new File([blob], i + ".mp3", {type: "audio/mpeg"});
                         files.push(file)
                         sum += file.size;
                     } else {
@@ -203,24 +204,23 @@ export default class MainContainer extends React.Component {
                     'authorization': localStorage.usertoken,
                     'projmetadata': localStorage.poname
                 }
-
+    
                 fetchGet('/projects/enoughspace', this.opts())
                 .then(message => {
                     if(parseInt(message) + sum <= 209715200) {
                         // delete all files in proj here
                         fetchGet('/projects/deleteall', this.opts()).then( () => {
                             // reupload all files to db here
-                            files.forEach( (file, i) => {
+                            files.forEach((file, i) => {
                                 let data = new FormData();
                                 data.append('file', file);
-                                // data.append('edits', 'abc134');
-                                console.log("Attempting to save blob")
                                 const opts = 
                                 {
                                     'projmetadata': localStorage.poname,
-                                    'stack' : JSON.stringify(blobs[1][i].stack),
+                                    'stack' : JSON.stringify(blobs[1][i]),
                                     'FinalMetadata': JSON.stringify(this.state.metadata)
                                 } 
+                                console.log("OPTS: ", blobs[1][i])
                                 fetchPost('/projects/save', opts, data).then(message => {
                                     alert(message)
                                 }).catch(err => console.log(err));
@@ -258,7 +258,7 @@ export default class MainContainer extends React.Component {
                 this.audioStack.add(audioRecord, (msg) => this.deleteCb(msg))
                 this.setState({
                     audioRecords: [...this.state.audioRecords, audioRecord]
-                })               
+                })
             }).then(() => {
                 console.log("Audio stack tracks: ", this.audioStack.tracks);
                 this.fileURLs = [];
@@ -293,12 +293,14 @@ export default class MainContainer extends React.Component {
 
     drawSaveButton() {
         if(localStorage.getItem('usertoken') && localStorage.getItem('poname'))
-            return <Button onClick={this.saveFiles} variant="outline-primary">Save</Button>
+            return <Button className="btn-margin btn-save" onClick={this.saveFiles}><MdSave /></Button>
     }
 
     render() {
+        const projHeader = localStorage.getItem('poname') ? JSON.parse(localStorage.poname).name : "";
         return (
             <div className="row main">
+                <h1>{projHeader}</h1>
                 <Form className="col-12">
                     <Form.Group>
                         <Form.File 
@@ -309,14 +311,14 @@ export default class MainContainer extends React.Component {
                             onChange={e => this.addFiles(e.target.files)}
                         />
                     </Form.Group>
-                    <Button onClick={this.uploadFiles} variant="outline-primary">Upload</Button>
+                    <Button className="btn-margin" onClick={this.uploadFiles} variant="outline-primary"><MdFileUpload /></Button>
                     {this.drawSaveButton()}
-                    <Button onClick={this.playAll} variant="success">Play/Pause All</Button>
+                    <Button className="btn-margin" onClick={this.playAll} variant="success"><BsCollectionPlayFill /></Button>
                     <MetadataModal variant={"info"} name={"Metadata"} metadata={this.state.metadata} handler={this.updateMetadata}/>
                     <ShareLinkModal inf={localStorage.getItem('poname')} name={"Share"} variant={"warning"}/>
                     <DownLoadModel name={"Download"} defaultState={this.state.downloadType} radioHandler={this.radioHandler} handler={this.downloadHandler}/>
                 </Form>
-                <div className="col-12">
+                <div className="">
                     {this.audioStack.tracks}
                 </div>
             </div>
@@ -376,7 +378,7 @@ export function MetadataModal(props) {
     })
     return (
     <>
-        <Button variant={props.variant} onClick={handleShow}>{props.name}</Button>
+        <Button className="btn-margin" variant={props.variant} onClick={handleShow}><BsInfoCircleFill /></Button>
         <Modal show={show} onHide={handleClose}>
             <Modal.Header closeButton>
                 <Modal.Title>Metadata</Modal.Title>
@@ -410,7 +412,7 @@ export function DownLoadModel(props) {
     })
     return (
     <>
-        <Button variant={props.variant} onClick={handleShow}>{props.name}</Button>
+        <Button className="btn-margin" variant={props.variant} onClick={handleShow}><MdFileDownload /></Button>
         <Modal show={show} onHide={handleClose}>
             <Modal.Header closeButton>
                 <Modal.Title>Download</Modal.Title>
@@ -444,7 +446,7 @@ export function ShareLinkModal(props) {
     const link = 'http://localhost:8080/collabs/' + inf.owner + '/' + inf.name + '/' + inf.str;
     return (
     <>
-        <Button variant={props.variant} onClick={handleShow}>{props.name}</Button>
+        <Button className="btn-margin" variant={props.variant} onClick={handleShow}><MdShare /></Button>
         <Modal show={show} onHide={handleClose}>
             <Modal.Header closeButton>
                 <Modal.Title>Share Link</Modal.Title>

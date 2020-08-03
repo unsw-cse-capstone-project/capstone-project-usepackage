@@ -1,6 +1,7 @@
 export default class ActionStack {
-    constructor() {
-        this._stack = [];
+    constructor(stack = []) {
+        console.log("ACTIONSTACK: ", stack) // DEBUG
+        this._stack = stack;
     }
 
     stack() {

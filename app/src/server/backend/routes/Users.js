@@ -8,6 +8,11 @@ const User = require('../models/User');
 // mount cors
 users.use(cors());
 
+/**
+ * Users.js
+ * Routes defined for creating and authenticating users
+ */
+
 process.env.SECRET_KEY = 'secret'
 
 const checkToken = (req, res, next) => {
@@ -28,18 +33,25 @@ const checkToken = (req, res, next) => {
     }
 }
 
+/**
+ * POST /users/register
+ * Given req.body, which is comprised of username, first name,
+ * last name, and two password fields, attempts to register the user
+ * to the database.
+ */
 users.post('/register', (req, res) => {
+    // should not work if both password fields are not complete
     if(req.body.password !== req.body.confirmPassword) {
         res.send("Passwords do not match.");
         return;
     }
+    // should not work if the password field is empty
     if(req.body.password === "") {
         res.send("Password is required");
         return;
     }
     const today = new Date();
     // construct initial userdata object
-    // console.log(req);
     const userData = {
         first_name: req.body.first_name,
         last_name: req.body.last_name,
@@ -59,9 +71,6 @@ users.post('/register', (req, res) => {
                 // insert userdata to database
                 User.create(userData).then(user => {
                     res.send("success");
-                    // res.json({ 
-                    //     status: user.username + ' Registered!' 
-                    // });
                 }).catch(err => {
                     res.send('error: ' + err);
                 });
@@ -79,6 +88,11 @@ users.post('/register', (req, res) => {
     });
 });
 
+/**
+ * POST /users/login
+ * Given req.body, which has username and password,
+ * attempts to authenticate the user
+ */
 users.post('/login', (req, res) => {
     User.findOne({
         username: req.body.username
@@ -101,23 +115,18 @@ users.post('/login', (req, res) => {
             // password mismatch
             else {
                 res.send("Incorrect username or password");
-                // res.json({
-                //     error: 'Incorrect username or password' 
-                // });
             }
         }
         else {
             // user mismatch
             res.send("Incorrect username or password");
-            // res.json({
-            //     error: 'Incorrect username or password'
-            // });
         }
     }).catch(err => {
         res.send('error: ' + err);
     })
 });
 
+// simply returns the first name of the user provided the usertoken
 users.get('/userInfo', checkToken, (req, res, next) => {
     res.send(req.token.first_name);
 })

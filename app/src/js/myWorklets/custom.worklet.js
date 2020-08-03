@@ -50,7 +50,7 @@ class CustomProcessor extends AudioWorkletProcessor {
             case MsgType.START:
                 this._bufferInfo = data;
                 this._interleave = data.buffer;
-                this._cuts = new CutManager(data.length, data.cuts);
+                this._cuts = new CutManager(data.length, data.cuts, data.stack);
                 this._initialized = true;
                 this.port.postMessage({
                     type: MsgType.READY

@@ -71,6 +71,8 @@ export default class CutElement extends React.Component {
 
     componentDidMount() {
         this.markerRef.current.addEventListener('click', (e) => {
+            if (!this.timeRef.current)
+                return;
             if (!this.state.show) {
                 this.openCB(this.state.index);
                 this.setState({
@@ -81,6 +83,8 @@ export default class CutElement extends React.Component {
             }
         });
         const listenerMove = (e) => {
+            if (!this.timeRef.current)
+                return;
             this.timeRef.current.removeAttribute('contenteditable');
             const diff = e.pageX - this.state.init;
             let newOffset = this.state.offset + diff;
@@ -94,10 +98,13 @@ export default class CutElement extends React.Component {
                 });
                 this.seekTo(newOffset);
             }
+            e.preventDefault();
         };
         const listenerUp = () => {
             document.removeEventListener('mousemove', listenerMove);
             document.removeEventListener('mouseup', listenerUp);
+            if (!this.timeRef.current)
+                return;
             if (this.timeRef.current.getAttribute('contenteditable') !== null)
                 document.execCommand('selectAll', false, null);
             else
@@ -120,6 +127,8 @@ export default class CutElement extends React.Component {
         });
 
         const seekTime = () => {
+            if (!this.timeRef.current)
+                return;
             if (this.timeRef.current.getAttribute('contenteditable') !== null) {
                 if (this.timeRef.current.innerText.match(/^\d+(?:\.\d+)?$/)) {
                     this.seekToTime(parseFloat(this.timeRef.current.innerText));
@@ -162,7 +171,7 @@ export default class CutElement extends React.Component {
 
     render() {
         return (
-            <div className="marker" ref={this.markerRef}>
+            <div className="marker" ref={this.markerRef} type={this.props.type}>
                 <div className="markerTime" ref={this.timeRef} show={this.state.show ? "" : undefined}>
                     {this.state.time.toFixed(3)}
                 </div>

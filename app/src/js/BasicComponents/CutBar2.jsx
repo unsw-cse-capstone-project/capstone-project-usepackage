@@ -37,6 +37,7 @@ export default class CutBar extends React.Component {
             index: 0
         };
         this.waveform = null;
+        this.seekUpdate = null;
         this.cutCB = props.cutCB;
         this.editCB = props.editCB;
         this.moveCB = props.moveCB;
@@ -49,7 +50,13 @@ export default class CutBar extends React.Component {
         this.updateMarkers = this.updateMarkers.bind(this);
         props.regSample(this.setSample.bind(this));
         props.regLen(this.drawLengths.bind(this));
-        props.regPos(this.drawMove.bind(this));
+        props.regPos((pos) => {
+            this.drawMove.bind(this)(pos);
+            if (this.seekUpdate)
+                this.seekUpdate({
+                    offset: pos.time * 128 / this.state.length * this.state.width
+                });
+        });
         props.getWave().then((waveform) => {
             this.waveform = waveform;
             this.drawbg();
@@ -90,7 +97,6 @@ export default class CutBar extends React.Component {
                         cumsum += this.state.lengths[++i].length;
                 }
             }
-            console.log(this.interact);
         });
         
         canvas.addEventListener('mouseup', (e) => {
@@ -123,10 +129,22 @@ export default class CutBar extends React.Component {
         })
         this.canvasCtx = canvas.getContext("2d");
         this.draw();
+        this.timer = window.setInterval(() => {
+            if (!this.ref.current) {
+                window.clearInterval(this.timer);
+                return;
+            }
+            if (this.ref.current.getBoundingClientRect().width != this.state.width) {
+                this.setState({
+                    width: this.ref.current.getBoundingClientRect().width
+                });
+                this.updateMarkers();
+                this.draw();
+            }
+        }, 100);
     }
 
     seekTo(cumsum) {
-        // TODO: Seek marker
         this.seekCB(cumsum / this.state.length * this.state.duration);
     }
 
@@ -137,9 +155,12 @@ export default class CutBar extends React.Component {
     }
 
     updateMarkers() {
-        console.log("UPDATING WITH");
-        console.log(this.state.cuts);
-        console.log(this.state.markers);
+        if (this.seekUpdate)
+            this.seekUpdate({
+                duration: this.state.duration,
+                left: 0,
+                right: this.state.duration
+            });
         const newMarkers = this.state.cuts.length - 1;
         const readjust = Math.min(newMarkers, this.state.markers.length)
         // Readjust all
@@ -150,7 +171,6 @@ export default class CutBar extends React.Component {
                 right = (left + this.state.lengths[i].length + this.state.lengths[i + 1].length);
             else 
                 right = this.state.length;
-            console.log("UPDATED", i, left / this.state.sampleRate, right / this.state.sampleRate);
             this.updates[i].update({
                 duration: this.state.duration,
                 left: left / this.state.sampleRate,
@@ -167,6 +187,7 @@ export default class CutBar extends React.Component {
                 markers: [...this.state.markers,
                 <CutElement
                     key={this.state.markerID}
+                    type={"top"}
                     index={this.state.markers.length}
                     width={this.state.width}
                     duration={this.state.duration}
@@ -180,12 +201,10 @@ export default class CutBar extends React.Component {
                         });
                     }}
                     editCB={(i, v) => {
-                        console.log(v, "FROM", i);
                         let cumsum = 0;
                         const samples = v * this.state.sampleRate;
                         for (let j = 0; j < i + 1; j++)
                             cumsum += this.state.lengths[j].length;
-                        console.log("SAMPLE CUT", samples - cumsum);
                         this.editCB(i, samples - cumsum);
                     }}
                     regUpdate={(i, u, o, c) => {
@@ -221,7 +240,7 @@ export default class CutBar extends React.Component {
 
     drawMove(position) {
         this.setState({
-            position: position.time
+            position: position.time * 128
         });
         this.draw(true);
     }
@@ -263,16 +282,15 @@ export default class CutBar extends React.Component {
     draw(drawpos=false) {
         if (!drawpos)
             this.drawbg();
+        this.ref.current.width = this.state.width;
         let cuts = this.state.lengths;
         let numCuts = 0;
         if ( this.state.lengths != undefined ) {
             numCuts = cuts.length;
         }
-        this.canvasCtx.fillStyle = 'black';
-        this.canvasCtx.fillRect(0, 0, this.state.width, this.state.height);
         this.canvasCtx.beginPath();
 
-        const pos = this.state.position * 128;
+        const pos = this.state.position;
         let cumsum = 0;
         let index = -1;
         if (drawpos) {
@@ -308,18 +326,54 @@ export default class CutBar extends React.Component {
             this.canvasCtx.font = "15px Arial";
             this.canvasCtx.fillText(i, (x + nextx) / 2, this.state.height/2);
         }
-        if (this.interact.selected)
-            this.canvasCtx.fillRect(this.interact.start, 0, this.interact.end - this.interact.start, this.state.height);
         if (drawpos)
             this.canvasCtx.fillRect((pos + offset) / trackLength * this.state.width, 0, barWidth, this.state.height);
+        this.setState({
+            width: this.state.width
+        });
     }
 
     render() {
         return (
             <div className="CutBar">
                 {this.state.markers}
-                <canvas ref={this.ref} width={this.state.width} height={this.state.height}></canvas>
-                <canvas ref={this.bgref} width={this.state.width} height={this.state.height}></canvas>
+                <div><canvas ref={this.bgref} width={this.state.width} height={this.state.height}></canvas></div>
+                <div><canvas className="overlay" ref={this.ref} width={this.state.width} height={this.state.height}></canvas></div>
+                <CutElement
+                    type={"bottom"}
+                    index={-1}
+                    width={this.state.width}
+                    duration={this.state.duration}
+                    left={0}
+                    right={this.state.duration}
+                    time={0}
+                    openCB={() => {
+                        this.updates.forEach((v) => {
+                            v.close();
+                        });
+                    }}
+                    editCB={(_, v) => {
+                        const samples = Math.floor(v * this.state.sampleRate);
+                        let cumsum = 0;
+                        let index = this.state.lengths.length - 1;
+                        for (let i = 0; i < this.state.lengths.length; i++) {
+                            cumsum += this.state.lengths[i].length;
+                            if (cumsum >= samples) {
+                                index = i;
+                                cumsum -= this.state.lengths[i].length;
+                                break;
+                            }
+                        }
+                        this.setState({
+                            position: samples
+                        });
+                        this.draw(true);
+                        this.seekCB(index, samples - cumsum);
+                    }}
+                    regUpdate={(_, u) => {
+                        this.seekUpdate = u;
+                    }}
+                />
             </div>
         );
     }
