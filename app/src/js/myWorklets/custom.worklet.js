@@ -216,7 +216,10 @@ class CustomProcessor extends AudioWorkletProcessor {
             type: MsgType.POS,
             data: {
                 time: this._frame,
-                cut: this._sourceData.cut
+                cut: this._sourceData.cut,
+                index: (this._sourceData.index > this._cuts.cuts.length ?
+                    this._cuts.cuts.length - 1 :
+                    this._sourceData.index)
             }
         });
     }

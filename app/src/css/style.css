@@ -168,6 +168,23 @@ a:hover {
     border-style: solid;
 }
 
+.marker::after {
+    position: absolute;
+    content: '';
+    width: 1px;
+    left: 5px;
+    height: 60px;
+    background-color: blue;
+}
+
+.marker[type=top]::after {
+    top: 5px;
+}
+
+.marker[type=bottom]::after {
+    bottom: 5px;
+}
+
 .marker[type=top]::before {
     border-color: red transparent transparent;
     bottom: -5px;
@@ -180,6 +197,11 @@ a:hover {
 
 .CutBar {
     position: relative;
+    height: 60px;
+}
+
+.CutBar>canvas {
+    width: 100%;
 }
 
 .markerTime {

@@ -24,8 +24,8 @@ export default class AudioStack {
         this.redoMap = new Map();
     }
 
+    // Adds a new audio track to the stack. Requires initialising callback functions and 
     add(audioRecord, deleteCb, stack=[]) {
-        // console.log("audioStack add: ", audioRecord.fileURL)
         this.tracks.push(< AudioTrackContainer key = { audioRecord.fileURL }
             skey = {audioRecord.fileURL}
             audioRecord = { audioRecord }
@@ -38,7 +38,6 @@ export default class AudioStack {
             transmitAction = { this.receiveAction }
             stackKey = {this.mapKeys}
         /> );
-        console.log("Adding to map, new index:", this.records.length);
     }
 
     delete(Containerkey) {
@@ -48,7 +47,6 @@ export default class AudioStack {
                 index = idx;
                 this.tracks.splice(index, 1);
                 this.records.splice(index, 1);
-                // this.controllers.splice(index, 1);
                 this.toggles.splice(index, 1);
                 return;
             }
@@ -86,31 +84,30 @@ export default class AudioStack {
         return this.tracks
     }
 
+    // Called from editor, calls the play/pause toggle function in each of the audioTrackContainers stored here
     play() {
         this.toggles.forEach((toggle) => {
             toggle();
         })
     }
 
+    // Undoes the action done in the most recently changed track
     undo(){
         const key = this.undoStack.pop();
         this.redoStack.push(key);
-        console.log("undo function in undo:", this.undoMap.get(key));
-        // console.log(this.undos[index]);
         this.undoMap.get(key)();
     }
     
+    // Redos the action most recently done in the most recently undone track
     redo(){
         const key = this.redoStack.pop();
         this.undoStack.push(key);
-        console.log("Key in redo:", key)
-        console.log("redo function in redo:", this.redoMap.get(key));
         this.redoMap.get(key)();
     }
 
+    // Most recently changed track notifying the stack that it's being changed
     receiveAction(key){
         this.redoStack = [];
         this.undoStack.push(key);
     }
-
 }

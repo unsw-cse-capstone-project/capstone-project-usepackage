@@ -82,7 +82,7 @@ export default class AudioTrackContainer extends React.Component {
                     state.controller.regUpdate(v[0], v[1]);
                 });
             this.setState({
-                visualiser: <FreqVisualiser width={500} height={100} analyser={state.controller.analyser}/>
+                visualiser: <FreqVisualiser width={400} height={100} analyser={state.controller.analyser}/>
             });
             if (this.waveResolve) {
                 this.waveResolve(state.controller.waveform);
@@ -289,14 +289,11 @@ export default class AudioTrackContainer extends React.Component {
                 <div className="col-1"><Slider regUpdate={f => this.regUpdate('pitch', f)} name="Pt" controlId="pitchController" changeCallBack={this.pitch} /></div>
                 {/* add visualisers later */}
                 {/* <div className="col-12">
-                {this.state.visualiser}
+                
                 </div> */}
                 
                 <div className="col-4">
-                <Button className="btn-margin" onClick={this.toggle}>{this.state.toggleName === "Play" ? <BsFillPlayFill /> : <BsFillPauseFill />}</Button>
-                <Button className="btn-margin" onClick={this.stop} variant="danger"><BsFillStopFill /></Button>
-                <Button className="btn-margin" onClick={this.undo} variant="warning"><MdUndo /></Button>
-                <Button className="btn-margin" onClick={this.redo} variant="success"><MdRedo /></Button>
+                {this.state.visualiser}
                 </div>
                 
                 <div>
@@ -306,6 +303,10 @@ export default class AudioTrackContainer extends React.Component {
                         handleCopy={this.copy}
                         handleMove={this.move}
                     />
+                </div>
+                <div>
+                    <Button className="btn-margin" onClick={this.toggle}>{this.state.toggleName === "Play" ? <BsFillPlayFill /> : <BsFillPauseFill />}</Button>
+                    <Button className="btn-margin" onClick={this.stop} variant="danger"><BsFillStopFill /></Button>
                 </div>
             </div>
         );
@@ -317,15 +318,8 @@ export const Displace = (props) => {
         <div className="row">
             <div className="col-12">
                 <InputGroup>
-                    <InputGroup.Prepend>
-                        <InputGroup.Text>Destination Cut</InputGroup.Text>
-                    </InputGroup.Prepend>
-                        <FormControl onChange={props.handleDestination} aria-label="dest" className="col-2"/>
-                    <InputGroup.Append>
-                        <Button onClick={props.handleCopy}>Copy</Button>
-                        <Button onClick={props.handleMove}>Move</Button>
-                        <Button onClick={props.cropButton} variant="dark">Crop</Button>
-                    </InputGroup.Append>
+                    <Button onClick={props.handleCopy}>Copy</Button>
+                    <Button onClick={props.cropButton} variant="dark">Crop</Button>
                 </InputGroup>
             </div>
         </div>

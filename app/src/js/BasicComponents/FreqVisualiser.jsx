@@ -29,7 +29,7 @@ export default class FreqVisualiser extends React.Component {
 
         const bufferLength = this.state.analyser.frequencyBinCount;
         this.state.analyser.getByteTimeDomainData(this.dataArray);
-        this.canvasCtx.fillStyle = 'black';
+        this.canvasCtx.fillStyle = 'white';
         this.canvasCtx.fillRect(0, 0, this.state.width, this.state.height);
         this.canvasCtx.beginPath();
 

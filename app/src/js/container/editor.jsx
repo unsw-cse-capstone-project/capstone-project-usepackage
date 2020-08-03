@@ -16,6 +16,15 @@ const OggVorbisEncoder = window.OggVorbisEncoder;
 
 // const dbURL = "http://localhost:8080"
 
+/**
+ * editor.jsx
+ * This is the primary EditorUI.
+ * The UI comprised of global and track-individual componenets.
+ * the global component primarily deals with uploading/downloading/saving projects
+ * the track-individual components deal with editing/playing/pausing each of the individual tracks
+ */
+
+ 
 const addUpload = (fileURL, blob, resolve) => {
     const reader = new FileReader()
     reader.readAsArrayBuffer(blob);
@@ -195,7 +204,6 @@ export default class MainContainer extends React.Component {
             switch (this.state.downloadType) {
                 case "mp3":
                     {
-                        console.log("Encoding in MP3"); // DEBUG
                         encoder = new lamejs.Mp3Encoder(2, buffer.sampleRate, 128);
                         let mp3Data = [];
                         let mp3buf;
@@ -230,7 +238,6 @@ export default class MainContainer extends React.Component {
 
                 case "ogg":
                     {
-                        console.log("Encoding in OGG"); // DEBUG
                         function getBuffers(event) {
                             var buffers = [];
                             for (var ch = 0; ch < 2; ++ch)
@@ -255,7 +262,6 @@ export default class MainContainer extends React.Component {
 
                 case "wav":
                     {
-                        console.log("Encoding in WAV"); // DEBUG
                         const encode = new WavAudioEncoder(buffer.sampleRate, 2); // WavAudioEncoder is not defined
                         encode.encode([buffer.getChannelData(0), buffer.getChannelData(1)]);
                         const blob = encode.finish();
@@ -293,18 +299,16 @@ export default class MainContainer extends React.Component {
         .then(message => {
             if(message === "Token does not match!" || message === "Forbidden") return new Error(message);
             localStorage.setItem('projecttoken', message);
-            console.log("token updated");
             this.audioStack.record("mp3x").then(blobs => {
                 let sum = 0;
                 let files = []
-                console.log(blobs); // blobs is a pending promise
                 blobs[0].forEach((blob, i) => {
                     if ( localStorage.usertoken && localStorage.poname) {
                         const file = new File([blob], i + ".mp3", {type: "audio/mpeg"});
                         files.push(file)
                         sum += file.size;
                     } else {
-                        console.log("NOT LOGGED IN");
+                        console.error("NOT LOGGED IN");
                     }
                 });
                 const opts = { 
