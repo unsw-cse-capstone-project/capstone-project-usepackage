@@ -13,7 +13,7 @@ const ProjectSchema = new Schema({
     // The date the project was last modified
     date: {
         type: Date,
-        default: Date.now
+        default: Date.now()
     },
 
     // The ObjectId of the owner of the Project.
@@ -28,7 +28,7 @@ const ProjectSchema = new Schema({
     // Collaborators can edit the same project, but are given less privileges
     // They cannot create share links nor could they delete the project.
     // Owners are also given a higher priority. Collaborators will be
-    // kicked out immediately once the owner edits the project. 
+    // kicked out immediately once the owner edits the project.
     collaborators: {
         type: [mongoose.Types.ObjectId]
     },

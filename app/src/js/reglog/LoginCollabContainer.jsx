@@ -3,8 +3,6 @@ import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 import Alert from 'react-bootstrap/Alert'
 
-const dbURL = "http://localhost:8080"
-
 export default class RegisterContainer extends React.Component {
     constructor(props) {
         super(props);
@@ -51,7 +49,7 @@ export default class RegisterContainer extends React.Component {
                 };
                 fetch('http://localhost:8080/projects/addcollaborator', requestOptions)
                 .then(res => {
-                    alert(res)
+                    // alert(res)
                     if(res.status === 200) return res.json();
                     else {
                         alertt.className = 'fade alert alert-danger show'
@@ -61,7 +59,7 @@ export default class RegisterContainer extends React.Component {
                     }
                 })
                 .then(data => {
-                    alert(data)
+                    // alert(data)
                     localStorage.setItem('poname', JSON.stringify(data));
                     const a = document.createElement('a');
                     a.href = "/";
@@ -71,13 +69,6 @@ export default class RegisterContainer extends React.Component {
                 }).catch(err => console.log(err))
                 
                 // upon success, set poname to the proj and then go home
-
-
-                // const a = document.createElement('a');
-                // a.href = "/profile";
-                // a.hidden = true;
-                // document.body.appendChild(a);
-                // a.click();
             }
         }).catch(err => console.log(err))
     }
@@ -89,22 +80,32 @@ export default class RegisterContainer extends React.Component {
 
     render() {
         return (
-            <Form onKeyPress={this.handleKeyPress}>
-                <Alert variant="primary" hidden id="reg-status">
-                    <p>This is a placeholder message. Contact the developers if you see this message.</p>
-                </Alert>
-                <Form.Group controlId="username">
-                    <Form.Label>User name</Form.Label>
-                    <Form.Control type="text" placeholder="Enter username" />
-                </Form.Group>
+            <div className="container">
+                <div className="row">
+                    <div className="col-md-12">
+                        <h1 className="header-padding">Collaboration Registration</h1>
+                    </div>
+                    <div className="col-md-12">Please log in to join the project as a collaborator.</div>
+                    <div className="col-md-3">
+                        <Form onKeyPress={this.handleKeyPress}>
+                            <Alert variant="primary" hidden id="reg-status">
+                                <p>This is a placeholder message. Contact the developers if you see this message.</p>
+                            </Alert>
+                            <Form.Group controlId="username">
+                                <Form.Label>User name</Form.Label>
+                                <Form.Control type="text" placeholder="Enter username" />
+                            </Form.Group>
 
-                <Form.Group controlId="formPassword">
-                    <Form.Label>Password</Form.Label>
-                    <Form.Control type="password" />
-                </Form.Group>
+                            <Form.Group controlId="formPassword">
+                                <Form.Label>Password</Form.Label>
+                                <Form.Control type="password" />
+                            </Form.Group>
 
-                <Button onClick={this.handleLogin} variant="primary">Submit</Button>
-            </Form>
+                            <Button onClick={this.handleLogin} variant="primary">Submit</Button>
+                        </Form>
+                    </div>
+                </div>
+            </div>
         );
     }
 }

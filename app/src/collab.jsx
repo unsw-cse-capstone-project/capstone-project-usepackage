@@ -1,22 +1,19 @@
+/*eslint no-undef: "error"*/
+/*eslint-env node*/
 import React from 'react'
 import ReactDOM from 'react-dom'
+// Custom react components
 import "core-js/stable";
 import "regenerator-runtime/runtime";
-import Topnav from './js/Topnav.jsx'
-import Container from './js/Container.jsx'
 import './img/favicon.ico';
-import './css/style.css'
-import LoginCollabContainer from './js/reglog/LoginCollabContainer.jsx'
-
-localStorage.removeItem('usertoken');
-localStorage.removeItem('poname');
+import './css/style.css' 
+import Container from './js/Container.jsx'
+import MainContainer from './js/container/editor.jsx'
 
 ReactDOM.render(
-    <Topnav name="Screaming Goat" />,
-    document.getElementById('nav-bar') // eslint-disable-line no-undef
-  )
-  
-ReactDOM.render(
-<Container main={<LoginCollabContainer />} />,
-document.getElementById('react-container') // eslint-disable-line no-undef
+  <Container main={<MainContainer />}/>,
+  document.getElementById('react-container') 
 )
+
+if(module.hot) 
+  module.hot.accept() 

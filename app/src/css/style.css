@@ -2,6 +2,27 @@
     padding: 2% 2% 0 2%;
 }
 
+input[type="range"][orient="vertical"] {
+    -webkit-appearance: slider-vertical;
+    width: 8px;
+    height: 100px;
+}
+
+input[type="range"][orient="vertical"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background: #009fda;
+    cursor: pointer;
+    margin: -4px;
+}
+
+input[type=range]:focus::-webkit-slider-runnable-track {
+    background: #367ebd;
+}
+
 .timeFont {
     font-family: 'Courier New', Courier, monospace;
 }
@@ -14,32 +35,11 @@ span:hover {
     cursor: pointer;
 }
 
+
 /* For the stack controller */
 
 .stackController {
     padding-top: 100px;
-}
-
-.slider {
-    margin: 5% 0 5% 0;
-    height: 25vh;
-    display: inline-block;
-    text-align: center;
-}
-
-.sliderTitle {
-    padding-bottom: 5vh;
-    font-weight: bold;
-}
-
-.sliderRange {
-    transform: rotate(270deg);
-    -webkit-transform: rotate(270deg);
-}
-
-.visualiser {
-    display: inline-block;
-    padding: 10px;
 }
 
 a:hover {
@@ -55,5 +55,159 @@ a:hover {
 }
 
 .trackContainer {
+    padding-top: 1%;
+    padding-bottom: 1%;
+    border-style: solid;
+    /* Temporarily setting border for tracks */
+    border-color: rgba(255, 0, 0, 0.5);
+    border-radius: 5px;
+    margin-top: 1%;
+    margin-bottom: 1%;
+    margin-left: 0.125%;
+    margin-right: 0.125%;
+}
+
+.btn-margin {
+    margin-right: 3px;
+}
+
+.btn-save {
+    background-color: #800080;
+    border-color: #800080;
+}
+
+.btn-circle {
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    padding: 6px 0;
+    font-size: 12px;
+    line-height: 1.428571429;
+    border-radius: 15px;
+}
+
+.btn-circle.btn-lg {
+    width: 50px;
+    height: 50px;
+    padding: 10px 16px;
+    font-size: 18px;
+    line-height: 1.33;
+    border-radius: 25px;
+}
+
+.btn-circle.btn-xl {
+    width: 70px;
+    height: 70px;
+    padding: 10px 16px;
+    font-size: 24px;
+    line-height: 1.33;
+    border-radius: 35px;
+}
+
+.header-padding {
+    padding-top: 3%;
+}
+
+.inline {
+    display: inline;
+}
+
+.form-control-inline {
+    min-width: 0;
+    width: auto;
+    display: inline;
+    padding-right: 5px;
+}
+
+.search-btn-padding {
+    margin-left: 10px;
+}
+
+.row-padding {
+    padding-bottom: 10px;
+}
+
+.right-align {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.trackContainer {
     padding-top: 2%;
+}
+
+.marker {
+    position: absolute;
+    left: 0;
+    margin-left: -5px;
+    margin-right: -5px;
+    padding-left: 5px;
+    padding-right: 5px;
+    z-index: 2;
+}
+
+.marker[type=top] {
+    padding-top: 5px;
+    margin-top: -5px;
+    top: 0;
+}
+
+.marker[type=bottom] {
+    padding-bottom: 5px;
+    margin-bottom: -5px;
+    bottom: 0;
+}
+
+.marker::before {
+    position: absolute;
+    left: 0;
+    content: '';
+    width: 0;
+    height: 0;
+    border-width: 5px;
+    border-style: solid;
+}
+
+.marker[type=top]::before {
+    border-color: red transparent transparent;
+    bottom: -5px;
+}
+
+.marker[type=bottom]::before {
+    border-color: transparent transparent red;
+    top: -5px;
+}
+
+.CutBar {
+    position: relative;
+}
+
+.markerTime {
+    display: none;
+    position: absolute;
+    color: white;
+    transform: translate(-50%, 0);
+    background-color: green;
+    padding: 2px;
+    border-radius: 5px;
+    border-color: transparent;
+}
+
+.marker[type=top] .markerTime {
+    bottom: 5px;
+}
+
+.marker[type=bottom] .markerTime {
+    top: 5px;
+}
+
+.markerTime[show] {
+    display: block;
+}
+
+.CutBar canvas.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
 }

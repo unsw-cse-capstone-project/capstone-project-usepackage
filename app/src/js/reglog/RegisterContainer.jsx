@@ -3,8 +3,6 @@ import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 import Alert from 'react-bootstrap/Alert'
 
-const dbURL = "http://localhost:8080"
-
 export default class RegisterContainer extends React.Component {
     constructor(props) {
         super(props);
@@ -39,42 +37,47 @@ export default class RegisterContainer extends React.Component {
     }
 
     handleKeyPress(event) {
-        if(event.key === 'Enter') this.handleLogin();
+        if(event.key === 'Enter') this.handleRegistration();
     }
 
     render() {
         return (
-            <Form onKeyPress={this.handleKeyPress}>
-                <Alert variant="primary" hidden id="reg-status">
-                    <p>This is a placeholder message. Contact the developers if you see this message.</p>
-                </Alert>
-                <Form.Group controlId="firstName">
-                    <Form.Label>First name</Form.Label>
-                    <Form.Control type="text" placeholder="Plase enter your first name" />
-                </Form.Group>
+            <div className="container">
+                <div className="col-md-3">
+                    <h1 className="header-padding">Register</h1>
+                    <Form onKeyPress={this.handleKeyPress}>
+                        <Alert variant="primary" hidden id="reg-status">
+                            <p>This is a placeholder message. Contact the developers if you see this message.</p>
+                        </Alert>
+                        <Form.Group controlId="firstName">
+                            <Form.Label>First name</Form.Label>
+                            <Form.Control type="text" placeholder="Plase enter your first name" />
+                        </Form.Group>
 
-                <Form.Group controlId="lastName">
-                    <Form.Label>Last name</Form.Label>
-                    <Form.Control type="text" placeholder="Please enter your last name" />
-                </Form.Group>
+                        <Form.Group controlId="lastName">
+                            <Form.Label>Last name</Form.Label>
+                            <Form.Control type="text" placeholder="Please enter your last name" />
+                        </Form.Group>
 
-                <Form.Group controlId="username">
-                    <Form.Label>User name</Form.Label>
-                    <Form.Control type="text" placeholder="Enter username" />
-                </Form.Group>
+                        <Form.Group controlId="username">
+                            <Form.Label>User name</Form.Label>
+                            <Form.Control type="text" placeholder="Enter username" />
+                        </Form.Group>
 
-                <Form.Group controlId="formPassword">
-                    <Form.Label>Password</Form.Label>
-                    <Form.Control type="password" />
-                </Form.Group>
+                        <Form.Group controlId="formPassword">
+                            <Form.Label>Password</Form.Label>
+                            <Form.Control type="password" />
+                        </Form.Group>
 
-                <Form.Group controlId="formConfirmPassword">
-                    <Form.Label>Confirm Password</Form.Label>
-                    <Form.Control type="password" />
-                </Form.Group>
+                        <Form.Group controlId="formConfirmPassword">
+                            <Form.Label>Confirm Password</Form.Label>
+                            <Form.Control type="password" />
+                        </Form.Group>
 
-                <Button onClick={this.handleRegistration} variant="primary">Submit</Button>
-            </Form>
+                        <Button onClick={this.handleRegistration} variant="primary">Submit</Button>
+                    </Form>
+                </div>
+            </div>
         );
     }
 }

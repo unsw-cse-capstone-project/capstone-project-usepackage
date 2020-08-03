@@ -7,7 +7,6 @@ import "core-js/stable";
 import "regenerator-runtime/runtime";
 import './img/favicon.ico';
 import './css/style.css' 
-import Topnav from './js/Topnav.jsx'
 import Container from './js/Container.jsx'
 import Profile from './js/reglog/Profile.jsx'
   
