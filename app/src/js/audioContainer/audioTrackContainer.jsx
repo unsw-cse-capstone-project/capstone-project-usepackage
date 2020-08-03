@@ -100,7 +100,6 @@ export default class AudioTrackContainer extends React.Component {
             this.posHandler = handler;
     }
 
-<<<<<<< HEAD
     registerSampleHandler(handler) {
         if (this.state.controller)
             this.state.controller.registerSample(handler);
@@ -108,10 +107,7 @@ export default class AudioTrackContainer extends React.Component {
             this.sampleHandler = handler;
     }
 
-    record() {
-=======
     record(type) {
->>>>>>> a3f3905a4e03648b53f3d40dd9be861bffbe959d
         if ( this.state.controller ) {
             return ({
                 rec: this.state.controller.record(type),
