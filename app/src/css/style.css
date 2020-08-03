@@ -14,6 +14,7 @@ span:hover {
     cursor: pointer;
 }
 
+
 /* For the stack controller */
 
 .stackController {
@@ -56,4 +57,48 @@ a:hover {
 
 .trackContainer {
     padding-top: 2%;
+}
+
+.marker {
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin-top: -5px;
+    margin-left: -5px;
+    margin-right: -5px;
+    padding-top: 5px;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.marker::before {
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    content: '';
+    width: 0;
+    height: 0;
+    border-color: red transparent transparent;
+    border-width: 5px;
+    border-style: solid;
+}
+
+.CutBar {
+    position: relative;
+}
+
+.markerTime {
+    display: none;
+    position: absolute;
+    bottom: 5px;
+    color: white;
+    transform: translate(-50%, 0);
+    background-color: green;
+    padding: 2px;
+    border-radius: 5px;
+    border-color: transparent;
+}
+
+.markerTime[show] {
+    display: block;
 }

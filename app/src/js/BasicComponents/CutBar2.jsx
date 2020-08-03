@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import CutElement from './CutElement.jsx';
 
 export default class CutBar extends React.Component {
     constructor(props) {
@@ -16,11 +17,16 @@ export default class CutBar extends React.Component {
                 length: 1,
                 cropped: false
             }],
+            sampleRate: 1,
+            duration: 1,
             cropped: [],
             duration: 1,
             position: 0,
-            length: 1
+            length: 1,
+            markers: [],
+            markerID: 0
         };
+        this.updates = [];
         this.interact = {
             start: 0,
             end: 0,
@@ -32,6 +38,8 @@ export default class CutBar extends React.Component {
         this.bgref = React.createRef();
         this.draw = this.draw.bind(this);
         this.drawbg = this.drawbg.bind(this);
+        this.updateMarkers = this.updateMarkers.bind(this);
+        props.regSample(this.setSample.bind(this));
         props.regLen(this.drawLengths.bind(this));
         props.regPos(this.drawMove.bind(this));
         props.getWave().then((waveform) => {
@@ -69,38 +77,85 @@ export default class CutBar extends React.Component {
             }
             this.draw();
         });
-        // canvas.addEventListener('click', (e) => {
-        //     if (this.cutCB){
-        //         const time = e.offsetX / this.state.width * this.state.length
-        //         this.cutCB(time);
-        //         // for(let i = 0, run = 0; i < this.state.cuts.length; i++){
-        //         //     run+= this.state.cuts[i].length;
-        //         //     if(run === time) break;
-        //         //     if(run > time) {
-        //         //         this.state.cuts.splice(i+1, 0, [{length: this.state.cuts[i].length - (time - run), cropped: this.state.cuts[i].cropped}]);
-        //         //         this.state.cuts[i].length = time - run;
-        //         //         break;
-        //         //     }
-        //         //     // if(i === this.state.cuts.length - 1){
-                        
-        //         //     //     this.state.cuts.push(time);
-        //         //     //     break;
-        //         //     // }
-        //         // }
-        //         // this.setState({cuts: this.state.cuts});
-        //     }
-        // });
         this.canvasCtx = canvas.getContext("2d");
         this.draw();
     }
 
+    setSample(sampleRate) {
+        this.setState({
+            sampleRate: sampleRate
+        });
+    }
+
+    markerCB(val, index) {
+        console.log("CB", val, index);
+    }
+
+    updateMarkers() {
+        console.log("UPDATING WITH");
+        console.log(this.state.cuts);
+        console.log(this.state.markers);
+        const newMarkers = this.state.cuts.length - 1;
+        const readjust = Math.min(newMarkers, this.state.markers.length)
+        // Readjust all
+        let left = 0;
+        let right = 0;
+        for (let i = 0; i < readjust; i++) {
+            if (this.state.lengths.length > i + 1)
+                right = (left + this.state.lengths[i].length + this.state.lengths[i + 1].length);
+            else 
+                right = this.state.length;
+            console.log("UPDATED", i, right / this.state.sampleRate);
+            this.updates[i].update({
+                left: left / this.state.sampleRate,
+                right: right / this.state.sampleRate,
+                offset: (left + this.state.lengths[i].length) * this.state.width / this.state.length,
+                index: i
+            });
+            left += this.state.lengths[i].length;
+        }
+        if (newMarkers > this.state.markers.length) {
+            const timeVal = left + this.state.lengths[readjust].length;
+            console.log(timeVal * this.state.width / this.state.length);
+            this.setState({
+                markers: [...this.state.markers,
+                <CutElement
+                    key={this.state.markerID}
+                    index={this.state.markers.length}
+                    width={this.state.width}
+                    duration={this.state.duration}
+                    left={left / this.state.sampleRate}
+                    right={this.state.duration}
+                    time={timeVal / this.state.sampleRate}
+                    editCB={(i, v) => {
+                        console.log(v, "FROM", i);
+                    }}
+                    regUpdate={(i, v, o) => {
+                        this.updates[i] = {
+                            update: v,
+                            offset: o
+                        };
+                    }}
+                />],
+                markerID: this.state.markerID + 1
+            });
+        } else if (newMarkers < this.state.markers.length) {
+            this.setState({
+                markers: this.state.markers.slice(0, newMarkers)
+            });
+        }
+    }
+
     drawLengths(data) {
+        const length = data.lengths.reduce((a, b) => (a + b.length), 0);
         this.setState({
             cuts: data.cuts,
             lengths: data.lengths,
             cropped: data.lengths.filter(v => v.cropped),
-            length: data.lengths.reduce((a, b) => (a + b.length), 0),
+            length: length,
+            duration: length / this.state.sampleRate
         });
+        this.updateMarkers();
         this.draw();
     }
 
@@ -122,7 +177,6 @@ export default class CutBar extends React.Component {
             let canvasStart = 0;
             for (let i = 0; i < this.state.cuts.length; i++) {
                 const cut = this.state.cuts[i];
-                console.log("CUT", cut);
                 const length = this.state.lengths[i].length;
                 const canvasLength = length * this.state.width / this.state.length;
                 for (let n = 0; n < 2; n++) {
@@ -203,6 +257,7 @@ export default class CutBar extends React.Component {
     render() {
         return (
             <div className="CutBar">
+                {this.state.markers}
                 <canvas ref={this.ref} width={this.state.width} height={this.state.height}></canvas>
                 <canvas ref={this.bgref} width={this.state.width} height={this.state.height}></canvas>
             </div>

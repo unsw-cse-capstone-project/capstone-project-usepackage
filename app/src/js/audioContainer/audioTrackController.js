@@ -47,6 +47,7 @@ export default class AudioTrackController {
         });
         this.registerLength = this.registerLength.bind(this);
         this.registerPos = this.registerPos.bind(this);
+        this.registerSample = this.registerSample.bind(this);
         this.seek = this.seek.bind(this);
     }
 
@@ -76,17 +77,21 @@ export default class AudioTrackController {
         });
     }
 
-    record(type="MP3") {
+    registerSample(handler) {
+        handler(this.audioRecord.audioData.sampleRate);
+    }
+
+    record(type = "MP3") {
         // Time to do the recording
         let buffer = this.audioRecord.audioData
         let encoder = null;
-        switch(type) {
+        switch (type) {
             case "MP3":
                 encoder = new lamejs.Mp3Encoder(2, buffer.sampleRate, 128);
                 let mp3Data = [];
                 let mp3buf;
                 const sampleBlockSize = 576;
-        
+
                 function FloatArray2Int16(floatbuffer) {
                     var int16Buffer = new Int16Array(floatbuffer.length);
                     for (var i = 0, len = floatbuffer.length; i < len; i++) {
@@ -112,7 +117,8 @@ export default class AudioTrackController {
                 if (mp3buf.length > 0)
                     mp3Data.push(mp3buf);
                 return new Blob(mp3Data, { type: 'audio/mp3' });
-                case "OGG": {
+            case "OGG":
+                {
                     function getBuffers(event) {
                         var buffers = [];
                         for (var ch = 0; ch < 2; ++ch)
@@ -134,8 +140,9 @@ export default class AudioTrackController {
                         return encoder.finish();
                     });
                 }
-    
-                case "WAV": {
+
+            case "WAV":
+                {
                     const encode = new WavAudioEncoder(buffer.sampleRate, 2);
                     encode.encode([buffer.getChannelData(0), buffer.getChannelData(1)]);
                     const blob = encode.finish();

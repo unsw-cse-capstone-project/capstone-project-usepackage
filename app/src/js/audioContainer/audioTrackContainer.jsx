@@ -19,7 +19,8 @@ export default class AudioTrackContainer extends React.Component {
             time: "0.00",
             paused: true,
             analyser: null,
-            visualiser: null
+            visualiser: null,
+            sampleRate: 1
         }
         this.audioRecord = props.audioRecord;
         this.timeInterval = null;
@@ -50,6 +51,7 @@ export default class AudioTrackContainer extends React.Component {
         this.virtualCuts = [0];
         this.lengthHandler = null;
         this.posHandler = null;
+        this.sampleHandler = null;
         this.waveResolve = null;
         //this.duration = this.state.controller.audioRecord.audioData.length / this.state.controller.audioRecord.audioData.sampleRate;
     }
@@ -68,6 +70,8 @@ export default class AudioTrackContainer extends React.Component {
                 toggleName: name,
                 paused: paused
             })
+            if (this.sampleHandler)
+                state.controller.registerSample(this.sampleHandler);
             if (this.lengthHandler)
                 state.controller.registerLength(this.lengthHandler);
             if (this.posHandler)
@@ -94,6 +98,13 @@ export default class AudioTrackContainer extends React.Component {
             this.state.controller.registerPos(handler);
         else
             this.posHandler = handler;
+    }
+
+    registerSampleHandler(handler) {
+        if (this.state.controller)
+            this.state.controller.registerSample(handler);
+        else
+            this.sampleHandler = handler;
     }
 
     record() {
@@ -335,6 +346,7 @@ export default class AudioTrackContainer extends React.Component {
                         cutCB={this.executeCut}
                         width={600}
                         height={60}
+                        regSample={this.registerSampleHandler.bind(this)}
                         regLen={this.registerLengthHandler.bind(this)}
                         regPos={this.registerPosHandler.bind(this)}
                         getWave={this.getWave.bind(this)}
