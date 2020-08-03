@@ -50,3 +50,17 @@ It only works when trying to crop the last section. I will try again another day
 Sunday - People broke off into two main groups to work on the two larger sections of the sprint. I added a Cuts class
 that should hopefully be easier to use than the last cut object we have, and should allow us to implement
 gain, pitch and tempo modulation as well as splicing.
+
+Week 8
+Tuesday - Readded a frontend interface for changing pitch, tempo and gain, as well as buttons for move, crop and copy.
+Also updated Cuts and ActionStack to work with the new worklet.
+
+Week 9
+Tuesday - I made keyboard shortcuts for undo and redo, allowing the user to press ctrl+z for undo and ctrl+shift+z for redo.
+Wednesday - I fixed a bug that caused the cutbar to incorrectly display the positions of cuts if the tempo was changed.
+Thursday - I added the logo and favicon to our website. Fixed a bug with the cutbar's length not updating. I reimplimented the frequency visualiser, 
+and added a colour scale effect. I added a stop button, which we strangely didn't have anymore. 
+
+Week 9 weekend and week 10 monday: The whole group worked together on various bits and pieces during this period, including the report.
+I wrote sections on parts I implemented and helped others write theirs. I tweaked bits of the UI to make it more presentable, and changed
+undo and redo such that they worked for the most recent track edited. 
