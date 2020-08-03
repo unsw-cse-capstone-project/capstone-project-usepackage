@@ -7,7 +7,12 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import FormControl from 'react-bootstrap/FormControl';
 import { fetchGet, fetchPost, fetchGetJSON } from '../extramodules/custfetch';
 import { BsInfoCircleFill, BsCollectionPlayFill } from 'react-icons/bs'
-import { MdFileUpload, MdFileDownload, MdShare, MdSave } from 'react-icons/md'
+import { MdFileUpload, MdFileDownload, MdShare, MdSave, MdUndo, MdRedo } from 'react-icons/md'
+import Hotkeys from '../BasicComponents/Hotkeys.jsx';
+import lamejs from '../lib/lamejs.js';
+import WavAudioEncoder from '../lib/WavAudioEncoder';
+
+const OggVorbisEncoder = window.OggVorbisEncoder;
 
 // const dbURL = "http://localhost:8080"
 
@@ -57,6 +62,8 @@ export default class MainContainer extends React.Component {
         this.opts = this.opts.bind(this);
         this.radioHandler = this.radioHandler.bind(this);
         this.downloadHandler = this.downloadHandler.bind(this);
+        this.undoHandler = this.undoHandler.bind(this);
+        this.redoHandler = this.redoHandler.bind(this);
         if (localStorage.usertoken && localStorage.poname) {
             window.onbeforeunload = () => {
                 return "Please make sure that you saved your project before leaving!"
@@ -84,13 +91,13 @@ export default class MainContainer extends React.Component {
             console.log("obtaining number of files info");
 
             // REENABLE LATER
-            // setInterval(() => {
-            //     fetchGet('/projects/updateaccess', this.opts()).then(message => {
-            //         if(message === "Token does not match!") return new Error("Token does not match!");
-            //         localStorage.setItem('projecttoken', message);
-            //         console.log("token updated");
-            //     }).catch(err => console.log(err));
-            // }, 10 * 1000);
+            setInterval(() => {
+                fetchGet('/projects/updateaccess', this.opts()).then(message => {
+                    if(message === "Token does not match!") return new Error("Token does not match!");
+                    localStorage.setItem('projecttoken', message);
+                    console.log("token updated");
+                }).catch(err => console.log(err));
+            }, 30 * 1000);
 
             let len = 0;
             fetchGet('/projects/numfiles', this.opts())
@@ -146,6 +153,15 @@ export default class MainContainer extends React.Component {
                     metadata: json
                 });
             });
+        }).catch( (err) => {
+            alert(err);
+            localStorage.removeItem('poname');
+            localStorage.removeItem('projecttoken');
+            const a = document.createElement('a');
+            a.href = "/profile";
+            a.hidden = true;
+            document.body.appendChild(a);
+            a.click();
         });
     }
 
@@ -155,10 +171,101 @@ export default class MainContainer extends React.Component {
 
     downloadHandler() {
         console.log("downloading...", this.state.downloadType)
-        this.audioStack.record(this.state.downloadType).then(blobs => {
-            console.log(blobs);
+        this.audioStack.record(this.state.downloadType).then(buffers => {
+            buffers = buffers[0];
+            const max = buffers.reduce((p, n) => Math.max(p, n.length), 0);
+            const num = buffers.length;
+            const buffer = (new AudioContext()).createBuffer(2, max, buffers[0].sampleRate);
+            const channels = [
+                buffer.getChannelData(0),
+                buffer.getChannelData(1)
+            ];
+            for (let i = 0; i < num; i++) {
+                const n = buffers[i].numberOfChannels < 2 ? 0 : 1;
+                const buffChan = [
+                    buffers[i].getChannelData(0),
+                    buffers[i].getChannelData(n)
+                ];
+                for (let j = 0; j < buffers[i].length; j++) {
+                    channels[0][j] += buffChan[0][j] / num;
+                    channels[1][j] += buffChan[1][j] / num;
+                }
+            }
+            let encoder = null;
+            switch (this.state.downloadType) {
+                case "mp3":
+                    {
+                        console.log("Encoding in MP3"); // DEBUG
+                        encoder = new lamejs.Mp3Encoder(2, buffer.sampleRate, 128);
+                        let mp3Data = [];
+                        let mp3buf;
+                        const sampleBlockSize = 576;
+
+                        function FloatArray2Int16(floatbuffer) {
+                            var int16Buffer = new Int16Array(floatbuffer.length);
+                            for (var i = 0, len = floatbuffer.length; i < len; i++) {
+                                if (floatbuffer[i] < 0) {
+                                    int16Buffer[i] = 0x8000 * floatbuffer[i];
+                                } else {
+                                    int16Buffer[i] = 0x7FFF * floatbuffer[i];
+                                }
+                            }
+                            return int16Buffer;
+                        }
+                        const left = FloatArray2Int16(buffer.getChannelData(0));
+                        const right = FloatArray2Int16(buffer.numberOfChannels > 1 ? buffer.getChannelData(1) : buffer.getChannelData(0));
+                        for (let i = 0; i < buffer.length; i += sampleBlockSize) {
+                            let leftChunk = left.subarray(i, i + sampleBlockSize);
+                            let rightChunk = right.subarray(i, i + sampleBlockSize);
+                            mp3buf = encoder.encodeBuffer(leftChunk, rightChunk);
+                            if (mp3buf.length > 0) {
+                                mp3Data.push(mp3buf);
+                            }
+                        }
+                        mp3buf = encoder.flush();
+                        if (mp3buf.length > 0)
+                            mp3Data.push(mp3buf);
+                        return new Blob(mp3Data, { type: 'audio/mp3' });
+                    }
+
+                case "ogg":
+                    {
+                        console.log("Encoding in OGG"); // DEBUG
+                        function getBuffers(event) {
+                            var buffers = [];
+                            for (var ch = 0; ch < 2; ++ch)
+                                buffers[ch] = event.inputBuffer.getChannelData(ch);
+                            return buffers;
+                        }
+                        let newCon = new OfflineAudioContext(2, buffer.length, buffer.sampleRate);
+                        let encoder = new OggVorbisEncoder(buffer.sampleRate, 2, 1); // not a constructor
+                        let input = newCon.createBufferSource();
+                        input.buffer = buffer;
+                        let processor = newCon.createScriptProcessor(2048, 2, 2);
+                        input.connect(processor);
+                        processor.connect(newCon.destination);
+                        processor.onaudioprocess = function(event) {
+                            encoder.encode(getBuffers(event));
+                        };
+                        input.start();
+                        return newCon.startRendering().then(() => {
+                            return encoder.finish();
+                        });
+                    }
+
+                case "wav":
+                    {
+                        console.log("Encoding in WAV"); // DEBUG
+                        const encode = new WavAudioEncoder(buffer.sampleRate, 2); // WavAudioEncoder is not defined
+                        encode.encode([buffer.getChannelData(0), buffer.getChannelData(1)]);
+                        const blob = encode.finish();
+                        console.log(blob);
+                        return blob;
+                    }
+            }
+        }).then((blob) => {
             const a = document.createElement('a');
-            a.href = URL.createObjectURL(blobs[0][0]);
+            a.href = URL.createObjectURL(blob);
             a.download="test." + this.state.downloadType
             a.hidden = true;
             document.body.appendChild(a);
@@ -187,7 +294,7 @@ export default class MainContainer extends React.Component {
             if(message === "Token does not match!" || message === "Forbidden") return new Error(message);
             localStorage.setItem('projecttoken', message);
             console.log("token updated");
-            this.audioStack.record("mp3").then(blobs => {
+            this.audioStack.record("mp3x").then(blobs => {
                 let sum = 0;
                 let files = []
                 console.log(blobs); // blobs is a pending promise
@@ -295,6 +402,14 @@ export default class MainContainer extends React.Component {
         if(localStorage.getItem('usertoken') && localStorage.getItem('poname'))
             return <Button className="btn-margin btn-save" onClick={this.saveFiles}><MdSave /></Button>
     }
+    
+    undoHandler(){
+        this.audioStack.undo();
+    }
+    
+    redoHandler(){
+        this.audioStack.redo();
+    }
 
     render() {
         const projHeader = localStorage.getItem('poname') ? JSON.parse(localStorage.poname).name : "";
@@ -317,6 +432,9 @@ export default class MainContainer extends React.Component {
                     <MetadataModal variant={"info"} name={"Metadata"} metadata={this.state.metadata} handler={this.updateMetadata}/>
                     <ShareLinkModal inf={localStorage.getItem('poname')} name={"Share"} variant={"warning"}/>
                     <DownLoadModel name={"Download"} defaultState={this.state.downloadType} radioHandler={this.radioHandler} handler={this.downloadHandler}/>
+                    <Button className="btn-margin" onClick={this.undoHandler} variant="warning"><MdUndo /></Button>
+                    <Button className="btn-margin" onClick={this.redoHandler} variant="success"><MdRedo /></Button>
+                    <Hotkeys undoHandler={this.undoHandler} redohandler={this.redoHandler} spacehandler={this.playAll}/>
                 </Form>
                 <div className="">
                     {this.audioStack.tracks}

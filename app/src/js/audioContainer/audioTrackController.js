@@ -9,9 +9,6 @@
 import workletURL from '../myWorklets/custom.worklet.js';
 import MyWorkletNode from '../myWorklets/myWorkletNode';
 import lamejs from '../lib/lamejs.js';
-import WavAudioEncoder from '../lib/WavAudioEncoder';
-
-const OggVorbisEncoder = window.OggVorbisEncoder;
 
 export default class AudioTrackController {
 
@@ -51,10 +48,17 @@ export default class AudioTrackController {
         this.registerPos = this.registerPos.bind(this);
         this.registerSample = this.registerSample.bind(this);
         this.seek = this.seek.bind(this);
+        this.regUpdate = this.regUpdate.bind(this);
+        this.updateSliders = this.updateSliders.bind(this);
+        this.updateSliders(0);
     }
 
     get waveform() {
         return this.audioRecord.audioData;
+    }
+
+    updateSliders(index) {
+        this.node.getUpdate(index);
     }
 
     getStack() {
@@ -78,6 +82,8 @@ export default class AudioTrackController {
 
     registerLength(handler) {
         this.node.on('length', (detail) => {
+            this.seek(0, 0);
+            this.node.toggle(false);
             this.length = detail.lengths.reduce((a, b) => (a + b.length), 0);
             this.cuts = detail.cuts
             handler(detail);
@@ -95,6 +101,12 @@ export default class AudioTrackController {
         handler(this.audioRecord.audioData.sampleRate);
     }
 
+    regUpdate(type, f) {
+        this.node.on(type, (detail) => {
+            f(detail);
+        });
+    }
+
     record(type) {
         console.log("ATTEMPTING TO RECORD TYPE: ", type) // DEBUG
             // Time to do the recording
@@ -110,80 +122,42 @@ export default class AudioTrackController {
                 graph.toggle(true);
                 return offlineCtx.startRendering();
             }).then((buffer) => {
-                let encoder = null;
-                switch (type) {
-                    case "mp3":
-                        {
-                            console.log("Encoding in MP3"); // DEBUG
-                            encoder = new lamejs.Mp3Encoder(2, buffer.sampleRate, 128);
-                            let mp3Data = [];
-                            let mp3buf;
-                            const sampleBlockSize = 576;
-
-                            function FloatArray2Int16(floatbuffer) {
-                                var int16Buffer = new Int16Array(floatbuffer.length);
-                                for (var i = 0, len = floatbuffer.length; i < len; i++) {
-                                    if (floatbuffer[i] < 0) {
-                                        int16Buffer[i] = 0x8000 * floatbuffer[i];
-                                    } else {
-                                        int16Buffer[i] = 0x7FFF * floatbuffer[i];
-                                    }
-                                }
-                                return int16Buffer;
-                            }
-                            const left = FloatArray2Int16(buffer.getChannelData(0));
-                            const right = FloatArray2Int16(buffer.numberOfChannels > 1 ? buffer.getChannelData(1) : buffer.getChannelData(0));
-                            for (let i = 0; i < buffer.length; i += sampleBlockSize) {
-                                let leftChunk = left.subarray(i, i + sampleBlockSize);
-                                let rightChunk = right.subarray(i, i + sampleBlockSize);
-                                mp3buf = encoder.encodeBuffer(leftChunk, rightChunk);
-                                if (mp3buf.length > 0) {
-                                    mp3Data.push(mp3buf);
-                                }
-                            }
-                            mp3buf = encoder.flush();
-                            if (mp3buf.length > 0)
-                                mp3Data.push(mp3buf);
-                            return new Blob(mp3Data, { type: 'audio/mp3' });
-                        }
-
-                    case "ogg":
-                        {
-                            console.log("Encoding in OGG"); // DEBUG
-                            function getBuffers(event) {
-                                var buffers = [];
-                                for (var ch = 0; ch < 2; ++ch)
-                                    buffers[ch] = event.inputBuffer.getChannelData(ch);
-                                return buffers;
-                            }
-                            let newCon = new OfflineAudioContext(2, buffer.length, buffer.sampleRate);
-                            let encoder = new OggVorbisEncoder(buffer.sampleRate, 2, 1); // not a constructor
-                            let input = newCon.createBufferSource();
-                            input.buffer = buffer;
-                            let processor = newCon.createScriptProcessor(2048, 2, 2);
-                            input.connect(processor);
-                            processor.connect(newCon.destination);
-                            processor.onaudioprocess = function(event) {
-                                encoder.encode(getBuffers(event));
-                            };
-                            input.start();
-                            return newCon.startRendering().then(() => {
-                                return encoder.finish();
-                            });
-                        }
-
-                    case "wav":
-                        {
-                            console.log("Encoding in WAV"); // DEBUG
-                            const encode = new WavAudioEncoder(buffer.sampleRate, 2); // WavAudioEncoder is not defined
-                            encode.encode([buffer.getChannelData(0), buffer.getChannelData(1)]);
-                            const blob = encode.finish();
-                            console.log(blob);
-                            return blob;
-                        }
+                if (type !== 'mp3x') {
+                    resolve(buffer);
+                    return;
                 }
-                console.log("Recording buffer...", buffer)
-            }).then((blob) => resolve(blob));
+                console.log("Encoding in MP3"); // DEBUG
+                encoder = new lamejs.Mp3Encoder(2, buffer.sampleRate, 128);
+                let mp3Data = [];
+                let mp3buf;
+                const sampleBlockSize = 576;
+
+                function FloatArray2Int16(floatbuffer) {
+                    var int16Buffer = new Int16Array(floatbuffer.length);
+                    for (var i = 0, len = floatbuffer.length; i < len; i++) {
+                        if (floatbuffer[i] < 0) {
+                            int16Buffer[i] = 0x8000 * floatbuffer[i];
+                        } else {
+                            int16Buffer[i] = 0x7FFF * floatbuffer[i];
+                        }
+                    }
+                    return int16Buffer;
+                }
+                const left = FloatArray2Int16(buffer.getChannelData(0));
+                const right = FloatArray2Int16(buffer.numberOfChannels > 1 ? buffer.getChannelData(1) : buffer.getChannelData(0));
+                for (let i = 0; i < buffer.length; i += sampleBlockSize) {
+                    let leftChunk = left.subarray(i, i + sampleBlockSize);
+                    let rightChunk = right.subarray(i, i + sampleBlockSize);
+                    mp3buf = encoder.encodeBuffer(leftChunk, rightChunk);
+                    if (mp3buf.length > 0) {
+                        mp3Data.push(mp3buf);
+                    }
+                }
+                mp3buf = encoder.flush();
+                if (mp3buf.length > 0)
+                    mp3Data.push(mp3buf);
+                resolve(new Blob(mp3Data, { type: 'audio/mp3' }));
+            });
         })
     }
 
