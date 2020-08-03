@@ -70,7 +70,7 @@ const SideMenu = (props) => {
     return (
     <Navbar bg="light" expand="lg" variant="light">
         <Navbar.Brand href="/"><img src="/logo" width="100%"/></Navbar.Brand>
-        <Nav defaultActiveKey="/">
+        <Nav defaultActiveKey="/" className="ml-auto">
             {menuItems}
         </Nav>
     </Navbar>
