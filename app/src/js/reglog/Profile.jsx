@@ -7,9 +7,6 @@ import Table from 'react-bootstrap/Table';
 import {fetchPost, fetchGet, fetchGetJSON} from '../extramodules/custfetch';
 import ProgressBar from 'react-bootstrap/ProgressBar';
 
-
-const dbURL = "http://localhost:8080"
-
 export default class Profile extends React.Component {
 
     constructor(props) {
@@ -78,8 +75,8 @@ export default class Profile extends React.Component {
             const opts = {
                 'projmetadata': e.target.getAttribute('aria-valuenow')
             }
-            fetchGet('/projects/deleteall', opts).then(message => {
-                fetchGet('projects/deleteproject', opts).then(message => {
+            fetchGet('/projects/deleteall', opts).then(() => {
+                fetchGet('projects/deleteproject', opts).then(() => {
                     this.loadProjects();
                     this.getTotalSize();
                 });
@@ -421,9 +418,9 @@ export default class Profile extends React.Component {
 
     render() {
         return ( 
-            <div class="container">
+            <div className="container">
                 <div className="row row-padding">
-                    <div className="col-12"><h1 class="header-padding">Welcome {this.state.user}</h1></div>
+                    <div className="col-12"><h1 className="header-padding">Welcome {this.state.user}</h1></div>
                 </div>
                 <div className="row row-padding">
                     <div className="col-4">
@@ -439,8 +436,8 @@ export default class Profile extends React.Component {
                     <div className="col-12 projectList">
                         <h2>My Projects</h2>
                         {this.state.projects.length === 0 ? "No projects" : this.tableInterface()}
-                        <div class="col-6"><ProgressBar animated now={this.state.totalSize / 200 * 100} /></div><div class="col-6"></div>
-                        <div class="col-6"><p>Total of {this.state.totalSize}MB out of 200MB used</p></div><div class="col-6"></div>
+                        <div className="col-6"><ProgressBar animated now={this.state.totalSize / 200 * 100} /></div><div className="col-6"></div>
+                        <div className="col-6"><p>Total of {this.state.totalSize}MB out of 200MB used</p></div><div className="col-6"></div>
                     </div>
                     <div className="col-12 projectList">
                         <h2>Collaborations</h2>
