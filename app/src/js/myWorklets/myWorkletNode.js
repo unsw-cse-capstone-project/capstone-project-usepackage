@@ -1,9 +1,6 @@
 import MsgType from './messageTypes.js';
 
 export default class MyWorkletNode extends AudioWorkletNode {
-    /*
-        The options parameters is an object that we can freely manipulate to add stuff
-    */
     constructor(context, processor, options) {
         super(context, processor);
         this._buffer = options.buffer;
@@ -14,10 +11,7 @@ export default class MyWorkletNode extends AudioWorkletNode {
         this.port.onmessage = this._messageProcessor.bind(this);
     }
 
-    applyStack(stack) {
-        console.log(stack);
-    }
-
+    // Seek to a slice with a given offset time
     seek(slice, time) {
         this.port.postMessage({
             type: MsgType.SEEK,
@@ -28,30 +22,42 @@ export default class MyWorkletNode extends AudioWorkletNode {
         })
     }
 
+    // Request the stack from the worklet
     getStack() {
         this.port.postMessage({
             type: MsgType.STACK
         })
     }
 
+    // Get update for sliders
+    getUpdate(index) {
+        this.port.postMessage({
+            type: MsgType.UPDATE,
+            data: index
+        });
+    }
+
+    // Get the current time
     getTime() {
         return this.time
     }
 
+    // Request a list of lengths after tempo application
     getLengths() {
         this.port.postMessage({
             type: MsgType.LENGTH
         });
     }
 
+    // Create a cut at the given time in samples
     executeCut(timeSample) {
         this.port.postMessage({
             type: MsgType.CUT,
             data: timeSample
         });
-        console.log("Executing cut in myWorkletNode");
     }
 
+    // Set the tempo of a cut
     setTempo(val, cut) {
         this.port.postMessage({
             type: MsgType.TEMPO,
@@ -62,6 +68,7 @@ export default class MyWorkletNode extends AudioWorkletNode {
         })
     }
 
+    // Set the gain of a cut, of a channel
     setGain(val, channel, cut) {
         this.port.postMessage({
             type: MsgType.GAIN,
@@ -73,6 +80,7 @@ export default class MyWorkletNode extends AudioWorkletNode {
         })
     }
 
+    // Set the pitch of a cut
     setPitch(val, cut) {
         this.port.postMessage({
             type: MsgType.PITCH,
@@ -83,6 +91,7 @@ export default class MyWorkletNode extends AudioWorkletNode {
         })
     }
 
+    // Crop a cut out
     crop(slice) {
         this.port.postMessage({
             type: MsgType.CROP,
@@ -90,6 +99,7 @@ export default class MyWorkletNode extends AudioWorkletNode {
         })
     }
 
+    // Copy a cut and insert the new cut elsewhere
     copy(slice, destination) {
         this.port.postMessage({
             type: MsgType.COPY,
@@ -100,6 +110,7 @@ export default class MyWorkletNode extends AudioWorkletNode {
         })
     }
 
+    // Move a cut to a new position
     move(slice, destination) {
         this.port.postMessage({
             type: MsgType.MOVE,
@@ -110,6 +121,7 @@ export default class MyWorkletNode extends AudioWorkletNode {
         })
     }
 
+    // Move the cut boundary, truncating
     moveCut(slice, offset) {
         this.port.postMessage({
             type: MsgType.MOVECUT,
@@ -120,18 +132,21 @@ export default class MyWorkletNode extends AudioWorkletNode {
         })
     }
 
+    // Undo an action
     undo() {
         this.port.postMessage({
             type: MsgType.UNDO
         });
     }
 
+    // Redo an action
     redo() {
         this.port.postMessage({
             type: MsgType.REDO
         });
     }
 
+    // Toggle/set whether the node is playing
     toggle(playing) {
         this.port.postMessage({
             type: MsgType.PLAY,
@@ -168,6 +183,7 @@ export default class MyWorkletNode extends AudioWorkletNode {
         }
         /* end event listener handling */
 
+    // Process the provided data into a structure useful for the processor worklet
     _initializeProcessor(data) {
         const channels = [
             data.getChannelData(0),
@@ -186,19 +202,14 @@ export default class MyWorkletNode extends AudioWorkletNode {
         }
     }
 
-    /*
-        The possible return values for messaging are:
-        Initialised: This tells us when the processor has its constructer updated with the relevant information as well as general setup
-        Ready: This is called back after the initialised state, and is used simply to let the user know that they can start to use the processor
-        Position: Updates the user with the current buffer position
-    */
+    // Process the various messages received from the processor worklet
     _messageProcessor(e) {
         const msg = e.data;
         const data = msg.data;
 
         switch (msg.type) {
             case MsgType.INIT:
-                console.log("NODE: ", this._stack)
+                // Once it's initialised, we can send it the data it needs to process
                 this.port.postMessage({
                     type: MsgType.START,
                     data: {
@@ -238,6 +249,21 @@ export default class MyWorkletNode extends AudioWorkletNode {
             case MsgType.LENGTH:
                 this.dispatchEvent(new CustomEvent("length", {
                     detail: data
+                }));
+                return;
+
+            case MsgType.UPDATE:
+                this.dispatchEvent(new CustomEvent("gainL", {
+                    detail: data.gain[0] * 50
+                }));
+                this.dispatchEvent(new CustomEvent("gainR", {
+                    detail: data.gain[1] * 50
+                }));
+                this.dispatchEvent(new CustomEvent("tempo", {
+                    detail: 100 * (2 * data.tempo - 1) / 3
+                }));
+                this.dispatchEvent(new CustomEvent("pitch", {
+                    detail: 100 * (2 * data.pitch - 1) / 3
                 }));
                 return;
 

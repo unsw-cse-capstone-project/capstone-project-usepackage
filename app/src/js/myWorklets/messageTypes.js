@@ -17,6 +17,8 @@ const MsgType = {
     STOP:    302,
     /** P <-  N; Seek to given time */
     SEEK:    303,
+    /** P <-> N; Request/receipt of slider updates */
+    UPDATE:  304,
     /** P <-  N; Cut at given time */
     CUT:     401,
     /** P <-  N; Set tempo of given slice */
