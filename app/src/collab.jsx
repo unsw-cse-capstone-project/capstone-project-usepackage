@@ -8,10 +8,10 @@ import "regenerator-runtime/runtime";
 import './img/favicon.ico';
 import './css/style.css' 
 import Container from './js/Container.jsx'
-import MainContainer from './js/container/editor.jsx'
+import LoginCollabContainer from './js/reglog/LoginCollabContainer.jsx'
 
 ReactDOM.render(
-  <Container main={<MainContainer />}/>,
+  <Container main={<LoginCollabContainer />}/>,
   document.getElementById('react-container') 
 )
 

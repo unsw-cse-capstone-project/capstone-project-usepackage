@@ -101,17 +101,14 @@ export default class MainContainer extends React.Component {
         // Before anything authroise user
         fetchGet('/projects/attemptaccess', this.opts())
         .then(message => {
-            console.log(message);
             if(message === "Cannot allocate session!" || message === "Forbidden") return new Error(message);
             localStorage.setItem('projecttoken', message);
-            console.log("obtaining number of files info");
 
             // once authorised, poll the projecttoken so that it is updated every 30 seconds. 
             setInterval(() => {
                 fetchGet('/projects/updateaccess', this.opts()).then(message => {
                     if(message === "Token does not match!") return new Error("Token does not match!");
                     localStorage.setItem('projecttoken', message);
-                    console.log("token updated");
                 }).catch(err => console.log(err));
             }, 30 * 1000);
 
@@ -123,8 +120,6 @@ export default class MainContainer extends React.Component {
                 // console.log(message);
                 len = parseInt(message);
                 // here, we obtained the number of audio files. 
-                console.log("total number of files: ", len);
-                console.log('fetching');
                 // load each audio file one by one. 
                 for(let i = 0; i < len; i++) {
                     fetch('/projects/audiofiles', {
@@ -148,7 +143,6 @@ export default class MainContainer extends React.Component {
                         }).then(message => {
                             // next, we obtain the edit history of the said audio file
                             const stackjson = JSON.parse(message);
-                            console.log("STACK!!! ", stackjson)
                             return {audioRecord: audioRecord, stack: stackjson}
                         }).then(record => {
                             // Process inside the audioStack
@@ -590,7 +584,6 @@ export function DownLoadModel(props) {
     );
 }
 
-// share link modal. 
 export function ShareLinkModal(props) {
     const [show, setShow] = React.useState(false);
 

@@ -114,12 +114,10 @@ export default class CutBar extends React.Component {
             if (!this.interact.move && this.interact.started) {
                 if (this.interact.index != this.interact.init) {
                     this.interact.index = this.interact.init;
-                    console.log("SEEK", this.interact.index);
                     this.seekCB(this.interact.index, 0);
                     this.selectCB(this.interact.index);
                     this.draw(false);
                 } else {
-                    console.log("CUT", e.offsetX / this.state.width * this.state.length);
                     this.cutCB(e.offsetX / this.state.width * this.state.length);
                 }
             } else if (this.interact.init != this.interact.final && this.interact.started) {
@@ -133,7 +131,6 @@ export default class CutBar extends React.Component {
                 let cumsum = 0;
                 for (let i = 0; i < this.interact.index; i++)
                     cumsum += lengthCopy[i];
-                console.log("MOVE", this.interact.init, this.interact.final);
                 this.moveCB(this.interact.init, this.interact.final);
                 this.seekCB(this.interact.index, 0);
             }

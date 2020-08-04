@@ -59,7 +59,6 @@ export default class AudioTrackContainer extends React.Component {
 
     componentDidMount() {
         this.props.onMounted(this.record)
-        console.log("audioTrackContainer mounted");
         AudioTrackController.create(this.audioRecord, this.props.stack).then(controller => {
             this.setState({
                 controller: controller
@@ -181,7 +180,7 @@ export default class AudioTrackContainer extends React.Component {
                 this.state.controller.toggle("Pause", false);
                 this.startTime()
             }
-        } else console.log("No controller connected!");
+        }
     }
 
     gain(target, channel) {
@@ -195,7 +194,6 @@ export default class AudioTrackContainer extends React.Component {
     tempo(target) {
         const normalisedVal = 0.5 + 3 * target.value / 200;
         if(this.state.controller) {
-            console.log("Changing tempo");
             this.state.controller.tempo(normalisedVal, this.slice);
         }
         this.transmitAction(this.key);
@@ -292,6 +290,15 @@ export default class AudioTrackContainer extends React.Component {
                 {/* <div className="col-12">
                 
                 </div> */}
+                
+                
+                
+                
+                
+                
+                
+                
+                
                 
                 
                 <div className="col-4">

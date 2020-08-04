@@ -3,7 +3,7 @@ import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 import Alert from 'react-bootstrap/Alert'
 
-export default class RegisterContainer extends React.Component {
+export default class LoginCollabContainer extends React.Component {
     constructor(props) {
         super(props);
         this.handleLogin = this.handleLogin.bind(this);
