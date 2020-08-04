@@ -127,7 +127,7 @@ export default class AudioTrackController {
                     return;
                 }
                 console.log("Encoding in MP3"); // DEBUG
-                encoder = new lamejs.Mp3Encoder(2, buffer.sampleRate, 128);
+                let encoder = new lamejs.Mp3Encoder(2, buffer.sampleRate, 128);
                 let mp3Data = [];
                 let mp3buf;
                 const sampleBlockSize = 576;

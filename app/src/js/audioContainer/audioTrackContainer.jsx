@@ -293,6 +293,7 @@ export default class AudioTrackContainer extends React.Component {
                 
                 </div> */}
                 
+                
                 <div className="col-4">
                 {this.state.visualiser}
                 </div>

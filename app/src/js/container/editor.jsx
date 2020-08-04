@@ -192,8 +192,13 @@ export default class MainContainer extends React.Component {
         this.setState({downloadType: e.target.value})
     }
 
+    /**
+     * Download handler
+     * Responsible for downloading the entire edited merged audio file. 
+     */
     downloadHandler() {
         console.log("downloading...", this.state.downloadType)
+        // first, record all the audio files into the desired format
         this.audioStack.record(this.state.downloadType).then(buffers => {
             buffers = buffers[0];
             const max = buffers.reduce((p, n) => Math.max(p, n.length), 0);
@@ -214,6 +219,7 @@ export default class MainContainer extends React.Component {
                     channels[1][j] += buffChan[1][j] / num;
                 }
             }
+            // at this point, we have have recorded all the audio files. We now need to encode the files. 
             let encoder = null;
             switch (this.state.downloadType) {
                 case "mp3":
@@ -284,16 +290,17 @@ export default class MainContainer extends React.Component {
                     }
             }
         }).then((blob) => {
+            // afterwards, trigger a download. 
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            a.download="test." + this.state.downloadType
+            a.download="audio." + this.state.downloadType
             a.hidden = true;
             document.body.appendChild(a);
             a.click();
         });
     }
 
-    addFiles(Newfiles) {        
+    addFiles(Newfiles) {
         let filteredFileURLs = Array.from(Newfiles).filter(file => file.type.includes("audio"))
             .map(file => (window.URL || window.webkitURL).createObjectURL(file))
         this.fileURLs = this.fileURLs.concat(filteredFileURLs)
@@ -303,16 +310,18 @@ export default class MainContainer extends React.Component {
         return null
     }
 
+    /**
+     * saveFiles()
+     * saves the entire state of the audio project to the database. 
+     */
     saveFiles() {
-        // opts = {
-        //     'projmetadata': localStorage.poname,
-        //     'projectinfo' : localStorage.getItem('projecttoken') ? localStorage.projecttoken : ""
-        // }
 
+        // first check if you are authorised to save
         fetchGet('/projects/updateaccess', this.opts())
         .then(message => {
             if(message === "Token does not match!" || message === "Forbidden") return new Error(message);
             localStorage.setItem('projecttoken', message);
+            // then, encode all audio files to mp3 format.
             this.audioStack.record("mp3x").then(blobs => {
                 let sum = 0;
                 let files = []
@@ -329,9 +338,10 @@ export default class MainContainer extends React.Component {
                     'authorization': localStorage.usertoken,
                     'projmetadata': localStorage.poname
                 }
-    
+                // before uploading each encoded audio file, check if there is enough space to upload
                 fetchGet('/projects/enoughspace', this.opts())
                 .then(message => {
+                    // 209715200 is 200MB
                     if(parseInt(message) + sum <= 209715200) {
                         // delete all files in proj here
                         fetchGet('/projects/deleteall', this.opts()).then( () => {
@@ -346,6 +356,7 @@ export default class MainContainer extends React.Component {
                                     'FinalMetadata': JSON.stringify(this.state.metadata)
                                 } 
                                 console.log("OPTS: ", blobs[1][i])
+                                // everything is all good. Proceed with saving the file to the database. 
                                 fetchPost('/projects/save', opts, data).then(message => {
                                     alert(message)
                                 }).catch(err => console.log(err));
@@ -361,6 +372,7 @@ export default class MainContainer extends React.Component {
         });
     }
 
+    // attempts to delete from audioRecords
     deleteCb(message) {
         console.log("CALLING FROM CONTAINER MESSAGE: ", message)
         this.audioStack.delete(message)
@@ -375,6 +387,7 @@ export default class MainContainer extends React.Component {
         })
     }
 
+    // uploads one audio file to the database. 
     uploadFiles() {
         this.fileURLs.forEach(fileURL => {
             console.log("URL: ", fileURL)
@@ -391,10 +404,12 @@ export default class MainContainer extends React.Component {
         })
     }
     
+    // plays all audio files in the project
     playAll(){
         this.audioStack.play();
     }
 
+    // update the metadata of the project locally. 
     updateMetadata() {
         const title = document.getElementById("met-title").value;
         const artist = document.getElementById("met-artist").value;
@@ -416,15 +431,18 @@ export default class MainContainer extends React.Component {
         });
     }
 
+    // render the save button. only visible if a project session is set. 
     drawSaveButton() {
         if(localStorage.getItem('usertoken') && localStorage.getItem('poname'))
             return <Button className="btn-margin btn-save" onClick={this.saveFiles}><MdSave /></Button>
     }
     
+    // undo action globally
     undoHandler(){
         this.audioStack.undo();
     }
     
+    // redo action globally
     redoHandler(){
         this.audioStack.redo();
     }
@@ -466,7 +484,7 @@ export default class MainContainer extends React.Component {
     Returns a promise containing important data surrounding the uploaded file.
     This data is used for all operations surrounding audio file management.
 */
-
+// upload audio file to gridFS
 MainContainer.UploadHandler = (fileURL) => {
     return (
         new Promise((resolve) => {
@@ -477,6 +495,7 @@ MainContainer.UploadHandler = (fileURL) => {
     );
 }
 
+// save project file
 MainContainer.Save = (obj, stack, met) => {
     const requestOptions = {
         method: 'POST',
@@ -492,6 +511,7 @@ MainContainer.Save = (obj, stack, met) => {
     return Promise.resolve(fetch('/projects/save', requestOptions))
 };
 
+// metadatal modal. 
 export function MetadataModal(props) {
     const [show, setShow] = React.useState(false);
     const handleClose = () => setShow(false);
@@ -535,6 +555,7 @@ export function MetadataModal(props) {
     );
 }
 
+//download modal. 
 export function DownLoadModel(props) {
     const [show, setShow] = React.useState(false);
     const handleClose = () => setShow(false);
@@ -569,6 +590,7 @@ export function DownLoadModel(props) {
     );
 }
 
+// share link modal. 
 export function ShareLinkModal(props) {
     const [show, setShow] = React.useState(false);
 
