@@ -91,6 +91,7 @@ export default class AudioTrackContainer extends React.Component {
         })
     }
 
+    // These register handlers are for updating the CutBar when changes are made to cuts
     registerLengthHandler(handler) {
         const func = (data) => {
             if (!this.state.paused)

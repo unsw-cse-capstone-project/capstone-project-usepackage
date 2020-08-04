@@ -10,25 +10,29 @@ class CustomProcessor extends AudioWorkletProcessor {
 
     constructor() {
         super();
+        // Input buffer info
         this._bufferInfo = {
             sampleRate: 0,
             duration: 0,
             length: 0,
             buffer: []
         };
+        // Info about position in source with current cut
         this._sourceData = {
-            cut: null,
-            index: -1,
-            remain: 0,
-            frame: 0,
-            chunk: 0,
-            liveChunk: FRAMESIZE
-        }
+                cut: null,
+                index: -1,
+                remain: 0,
+                frame: 0,
+                chunk: 0,
+                liveChunk: FRAMESIZE
+            }
+            // Bookkeeping
         this._cuts = null;
         this._interleave = null;
         this._initialized = false;
         this._frame = 0;
         this._playing = false;
+        // Buffers and ST structures
         this._stretch = new Stretch(false);
         this._transposer = new RateTransposer(false);
         this._buffers = [
@@ -71,23 +75,16 @@ class CustomProcessor extends AudioWorkletProcessor {
                 break;
 
             case MsgType.TEMPO:
-                console.log("Slice: ", data.index); // DEBUG
-                console.log("Tempo:", data.value); // DEBUG
                 this._cuts.dumpRedo();
                 this._cuts.setTempo(data.index, data.value);
                 break;
 
             case MsgType.GAIN:
-                console.log("Slice: ", data.index); // DEBUG
-                console.log("Gain:", data.value); // DEBUG
-                console.log("Channel:", data.channel); // DEBUG
                 this._cuts.dumpRedo();
                 this._cuts.setGain(data.index, data.channel, data.value);
                 break;
 
             case MsgType.PITCH:
-                console.log("Slice: ", data.index); // DEBUG
-                console.log("Pitch:", data.value); // DEBUG
                 this._cuts.dumpRedo();
                 this._cuts.setPitch(data.index, data.value);
                 break;
@@ -191,6 +188,7 @@ class CustomProcessor extends AudioWorkletProcessor {
     }
 
     stop() {
+        // Pause, wipe, and set to zero
         this._playing = false;
         this._frame = 0;
         this._sourceData.remain = 0;
@@ -206,12 +204,12 @@ class CustomProcessor extends AudioWorkletProcessor {
             type: MsgType.STOP,
             data: 0
         });
-        console.log("Stopped"); // DEBUG
     }
 
 
     update() {
         this._frame += 1;
+        // Notify of change in position
         this.port.postMessage({
             type: MsgType.POS,
             data: {
@@ -234,6 +232,7 @@ class CustomProcessor extends AudioWorkletProcessor {
         this._stretch.tempo = tempo;
         this._transposer.rate = pitch;
 
+        // Hook up trsposer and stretch, and calculate required initial chunk side
         if (this._transposer.rate > 1) {
             this._stretch.inputBuffer = this._buffers[0];
             this._stretch.outputBuffer = this._buffers[1];
@@ -251,6 +250,7 @@ class CustomProcessor extends AudioWorkletProcessor {
     }
 
     toClear() {
+        // Clear buffer if there's anything left in output, or stop
         if (this._sourceData.cut || this._sourceData.index < 0)
             return true;
         if (this._buffers[2].frameCount > 0)
@@ -260,6 +260,7 @@ class CustomProcessor extends AudioWorkletProcessor {
     }
 
     processIntoBuffer(length) {
+        // load source into the buffer and process it, adjusting expected output remaining
         const initLength = this._buffers[2].frameCount;
         this._buffers[0].putSamples(this._interleave, this._sourceData.frame, length);
         this._sourceData.frame += length;
@@ -270,6 +271,8 @@ class CustomProcessor extends AudioWorkletProcessor {
     }
 
     startCut() {
+        // Bookkeeping to make sure we use the entirety of the output buffer, since
+        //   we sometimes have to process more than we need
         if (this._sourceData.remain > 0)
             return;
         if (this._sourceData.remain < 0) {
@@ -284,6 +287,7 @@ class CustomProcessor extends AudioWorkletProcessor {
         } while (this._sourceData.cut && this._sourceData.cut.cropped);
         if (!this._sourceData.cut)
             return;
+        // New cut, calculate required values, load in initial chunk
         this.calculateEffectiveValues(this._sourceData.cut.tempo, this._sourceData.cut.pitch);
         this._sourceData.frame = this._sourceData.cut.sourceStart;
         this._sourceData.remain = Math.floor((this._sourceData.cut.sourceEnd - this._sourceData.frame) / this._sourceData.cut.tempo);
@@ -293,14 +297,18 @@ class CustomProcessor extends AudioWorkletProcessor {
     }
 
     loadIntoBuffer() {
+        // Clear the buffer if anything left
         if (!this.toClear())
             return false;
+        // Start a cut if we hit the end of one
         this.startCut();
+        // Process a chunk into the buffer
         this.processIntoBuffer(this._sourceData.liveChunk);
         return true;
     }
 
     processBuffer() {
+        // Apply stretch and transposition
         if (this._transposer.rate > 1) {
             this._stretch.process();
             this._transposer.process();
@@ -313,6 +321,7 @@ class CustomProcessor extends AudioWorkletProcessor {
     process(_, outputs) {
         if (!this._initialized)
             return true;
+        // Fill with zeroes if not playing or nothing to load
         if (!this._playing || !this.loadIntoBuffer()) {
             outputs[0].forEach(channel => {
                 channel.fill(0);
@@ -320,6 +329,7 @@ class CustomProcessor extends AudioWorkletProcessor {
             return true;
         }
 
+        // Load in the frame and use gain
         if (this._buffers[2].frameCount < FRAMESIZE && this._sourceData.cut)
             console.error("The output buffer hasn't been completely filled", this._buffers[2].frameCount);
         const output = new Float32Array(2 * FRAMESIZE);

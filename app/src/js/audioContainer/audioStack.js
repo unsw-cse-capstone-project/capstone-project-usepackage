@@ -24,7 +24,7 @@ export default class AudioStack {
         this.redoMap = new Map();
     }
 
-    // Adds a new audio track to the stack. Requires initialising callback functions and 
+    // Adds a new audio track to the stack. Requires initialising callback functions and maps
     add(audioRecord, deleteCb, stack=[]) {
         this.tracks.push(< AudioTrackContainer key = { audioRecord.fileURL }
             skey = {audioRecord.fileURL}
@@ -40,6 +40,7 @@ export default class AudioStack {
         /> );
     }
 
+    // Deletes a track, removing it from the necessary arrays
     delete(Containerkey) {
         let index = -1;
         this.tracks.forEach((track, idx) => {
@@ -54,6 +55,7 @@ export default class AudioStack {
         
     }
 
+    // Stores the audio tracks together, either for downloading or saving
     record(type) {
         console.log("AUDIOSTACK TYPE: ", type) // DEBUG
         let rec = []
@@ -80,6 +82,7 @@ export default class AudioStack {
         }));
     }
 
+    // Returns the tracks for rendering purposes in editor
     tracks() {
         return this.tracks
     }

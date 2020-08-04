@@ -24,7 +24,10 @@ const OggVorbisEncoder = window.OggVorbisEncoder;
  * the track-individual components deal with editing/playing/pausing each of the individual tracks
  */
 
- 
+ /**
+  * addUpload will pass an audio file to an audio context.
+  * It needs the file url and blob in order for this to work. 
+  */
 const addUpload = (fileURL, blob, resolve) => {
     const reader = new FileReader()
     reader.readAsArrayBuffer(blob);
@@ -81,6 +84,7 @@ export default class MainContainer extends React.Component {
         }
     }
 
+    // opts is merely an extra basic field for a requestoption for most of the routings. 
     opts() {
         return {
             'projmetadata': localStorage.poname,
@@ -88,10 +92,13 @@ export default class MainContainer extends React.Component {
         }
     }
 
+
+    // Assuming a project is loaded, the UI will attempt to load audio files for a given project. 
     loadFiles() {
         // CHECK HERE IF USER CAN ACCESS PROJECT using /projects/attemptaccess
         // fetch('/projects/updateaccess', ...) ==> 
 
+        // Before anything authroise user
         fetchGet('/projects/attemptaccess', this.opts())
         .then(message => {
             console.log(message);
@@ -99,7 +106,7 @@ export default class MainContainer extends React.Component {
             localStorage.setItem('projecttoken', message);
             console.log("obtaining number of files info");
 
-            // REENABLE LATER
+            // once authorised, poll the projecttoken so that it is updated every 30 seconds. 
             setInterval(() => {
                 fetchGet('/projects/updateaccess', this.opts()).then(message => {
                     if(message === "Token does not match!") return new Error("Token does not match!");
@@ -108,14 +115,17 @@ export default class MainContainer extends React.Component {
                 }).catch(err => console.log(err));
             }, 30 * 1000);
 
+            // next we obtain how many audio files we need to retrieve from the database 
             let len = 0;
             fetchGet('/projects/numfiles', this.opts())
             .then(message => {
                 if(message === "fail") console.log(message);
                 // console.log(message);
                 len = parseInt(message);
+                // here, we obtained the number of audio files. 
                 console.log("total number of files: ", len);
                 console.log('fetching');
+                // load each audio file one by one. 
                 for(let i = 0; i < len; i++) {
                     fetch('/projects/audiofiles', {
                         method: 'GET',
@@ -128,6 +138,7 @@ export default class MainContainer extends React.Component {
                         return file.blob();
                     }).then(blob => {
                         return new Promise(resolve => {
+                            // once a file was retrieved, upload this file.
                             addUpload(URL.createObjectURL(blob), blob, resolve);
                         });
                     }).then((audioRecord) => {
@@ -135,12 +146,14 @@ export default class MainContainer extends React.Component {
                                 'projmetadata': localStorage.poname,
                                 'nth': i
                         }).then(message => {
+                            // next, we obtain the edit history of the said audio file
                             const stackjson = JSON.parse(message);
                             console.log("STACK!!! ", stackjson)
                             return {audioRecord: audioRecord, stack: stackjson}
                         }).then(record => {
                             // Process inside the audioStack
                             // MUST COME BEFORE THE STATE CHANGE!
+                            // we add the overall track to the audio stack 
                             this.audioStack.add(record.audioRecord, (msg) => this.deleteCb(msg), record.stack ) 
                             this.setState({
                                 audioRecords: [...this.state.audioRecords, record.audioRecord]
@@ -154,7 +167,17 @@ export default class MainContainer extends React.Component {
                         });
                     })
                 }
-            }).catch(err => console.log(err));
+            }).catch( (err) => {
+                alert(err);
+                localStorage.removeItem('poname');
+                localStorage.removeItem('projecttoken');
+                const a = document.createElement('a');
+                a.href = "/profile";
+                a.hidden = true;
+                document.body.appendChild(a);
+                a.click();
+            });
+            // Afterwards, get project metadata
             fetchGetJSON('projects/getmetadata', {
                     'projmetadata': localStorage.poname
             }).then(json => {
@@ -162,15 +185,6 @@ export default class MainContainer extends React.Component {
                     metadata: json
                 });
             });
-        }).catch( (err) => {
-            alert(err);
-            localStorage.removeItem('poname');
-            localStorage.removeItem('projecttoken');
-            const a = document.createElement('a');
-            a.href = "/profile";
-            a.hidden = true;
-            document.body.appendChild(a);
-            a.click();
         });
     }
 
